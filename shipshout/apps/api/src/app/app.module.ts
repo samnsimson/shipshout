@@ -10,6 +10,8 @@ import { buildApiTypeOrmOptions } from './config/typeorm.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
+import { DraftsModule } from './drafts/drafts.module';
+import { BrandModule } from './brand/brand.module';
 import { QueueModule } from '@shipshout/queue/module';
 
 @Module({
@@ -22,6 +24,8 @@ import { QueueModule } from '@shipshout/queue/module';
     WorkspacesModule,
     RepositoriesModule,
     WebhooksModule,
+    DraftsModule,
+    BrandModule,
   ],
   controllers: [AppController],
   providers: [AppService],
