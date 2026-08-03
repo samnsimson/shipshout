@@ -19,6 +19,15 @@
     },
     {
       "path": "../../libs/shared/contracts/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/util/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/queue/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/github/tsconfig.lib.json"
     }
   ],
   "exclude": [

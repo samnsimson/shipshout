@@ -93,7 +93,13 @@
     "@shipshout/auth": "workspace:*",
     "@shipshout/contracts": "workspace:*",
     "@shipshout/data-entities": "workspace:*",
+    "@shipshout/integrations-github": "workspace:*",
+    "@shipshout/queue": "workspace:*",
+    "@shipshout/shared-util": "workspace:*",
+    "@nestjs/bullmq": "^11.0.4",
+    "bullmq": "^6.0.6",
     "express-session": "^1.19.0",
+    "ioredis": "^6.0.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"

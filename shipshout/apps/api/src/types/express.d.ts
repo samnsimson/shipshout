@@ -10,6 +10,7 @@ declare module 'express-session' {
 declare global {
   namespace Express {
     interface Request {
+      rawBody?: Buffer;
       user?: User;
       workspaceMembership?: Membership;
     }
