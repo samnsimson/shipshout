@@ -13,6 +13,7 @@
   },
   "private": true,
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
     "@nestjs/bullmq": "^11.0.4",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.4",
@@ -25,6 +26,7 @@
     "express-session": "^1.19.0",
     "ioredis": "^6.0.0",
     "next": "~16.1.6",
+    "openai": "^7.3.0",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "pg": "^8.22.0",
@@ -83,6 +85,7 @@
     "libs/data/*",
     "libs/shared/*",
     "libs/*",
-    "libs/integrations/*"
+    "libs/integrations/*",
+    "libs/core/*"
   ]
 }

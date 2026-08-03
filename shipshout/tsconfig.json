@@ -29,6 +29,12 @@
     },
     {
       "path": "./libs/integrations/github"
+    },
+    {
+      "path": "./libs/core/domain"
+    },
+    {
+      "path": "./libs/ai"
     }
   ]
 }
