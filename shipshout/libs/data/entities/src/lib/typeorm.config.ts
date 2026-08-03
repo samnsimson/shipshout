@@ -8,6 +8,8 @@ import { Repository } from './entities/repository.entity.js';
 import { BrandProfile } from './entities/brand-profile.entity.js';
 import { ReleaseEvent } from './entities/release-event.entity.js';
 import { Draft } from './entities/draft.entity.js';
+import { ChannelConnection } from './entities/channel-connection.entity.js';
+import { PublishRecord } from './entities/publish-record.entity.js';
 
 export const ENTITIES: Function[] = [
   User,
@@ -17,6 +19,8 @@ export const ENTITIES: Function[] = [
   BrandProfile,
   ReleaseEvent,
   Draft,
+  ChannelConnection,
+  PublishRecord,
 ];
 
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), 'migrations');

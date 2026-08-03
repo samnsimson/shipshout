@@ -8,3 +8,5 @@ export * from './lib/entities/repository.entity.js';
 export * from './lib/entities/brand-profile.entity.js';
 export * from './lib/entities/release-event.entity.js';
 export * from './lib/entities/draft.entity.js';
+export * from './lib/entities/channel-connection.entity.js';
+export * from './lib/entities/publish-record.entity.js';
