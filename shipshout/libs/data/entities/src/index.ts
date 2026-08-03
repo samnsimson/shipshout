@@ -3,3 +3,7 @@ export * from './lib/data-source.js';
 export * from './lib/entities/user.entity.js';
 export * from './lib/entities/workspace.entity.js';
 export * from './lib/entities/membership.entity.js';
+export * from './lib/entities/source-provider.enum.js';
+export * from './lib/entities/repository.entity.js';
+export * from './lib/entities/brand-profile.entity.js';
+export * from './lib/entities/release-event.entity.js';
