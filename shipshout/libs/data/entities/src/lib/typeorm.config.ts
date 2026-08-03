@@ -7,6 +7,7 @@ import { Membership } from './entities/membership.entity.js';
 import { Repository } from './entities/repository.entity.js';
 import { BrandProfile } from './entities/brand-profile.entity.js';
 import { ReleaseEvent } from './entities/release-event.entity.js';
+import { Draft } from './entities/draft.entity.js';
 
 export const ENTITIES: Function[] = [
   User,
@@ -15,6 +16,7 @@ export const ENTITIES: Function[] = [
   Repository,
   BrandProfile,
   ReleaseEvent,
+  Draft,
 ];
 
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), 'migrations');
