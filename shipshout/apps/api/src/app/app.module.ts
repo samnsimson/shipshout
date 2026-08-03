@@ -12,6 +12,7 @@ import { RepositoriesModule } from './repositories/repositories.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
 import { DraftsModule } from './drafts/drafts.module';
 import { BrandModule } from './brand/brand.module';
+import { ConnectionsModule } from './connections/connections.module';
 import { QueueModule } from '@shipshout/queue/module';
 
 @Module({
@@ -26,6 +27,7 @@ import { QueueModule } from '@shipshout/queue/module';
     WebhooksModule,
     DraftsModule,
     BrandModule,
+    ConnectionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
