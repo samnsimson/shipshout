@@ -1,17 +1,14 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import type { NextFunction, Request, Response } from 'express';
-import { Repository } from 'typeorm';
-import { User } from '@shipshout/data-entities';
+import { UserRepository } from '@shipshout/auth';
 
 @Injectable()
 export class SessionUserMiddleware implements NestMiddleware {
-  constructor(@InjectRepository(User) private users: Repository<User>) {}
+    constructor(private users: UserRepository) {}
 
-  async use(req: Request, _res: Response, next: NextFunction) {
-    if (req.session?.userId && !req.user) {
-      req.user = (await this.users.findOne({ where: { id: req.session.userId } })) ?? undefined;
+    async use(req: Request, _res: Response, next: NextFunction) {
+        const userId = req.session?.userId;
+        if (userId) req.user = (await this.users.findOneBy({ id: userId })) ?? undefined;
+        next();
     }
-    next();
-  }
 }

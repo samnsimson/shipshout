@@ -1,14 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ChannelConnection } from '@shipshout/data-entities';
 import { AuthModule } from '../auth/auth.module';
 import { ConnectionsController } from './connections.controller';
 import { ConnectionsService } from './connections.service';
+import { ChannelConnectionRepository } from './channel-connection.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ChannelConnection]), AuthModule],
-  controllers: [ConnectionsController],
-  providers: [ConnectionsService],
-  exports: [ConnectionsService],
+    imports: [AuthModule],
+    controllers: [ConnectionsController],
+    providers: [ChannelConnectionRepository, ConnectionsService],
 })
 export class ConnectionsModule {}

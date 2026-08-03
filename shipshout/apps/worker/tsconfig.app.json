@@ -1,53 +1,46 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "types": ["node"],
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "target": "es2021"
-  },
-  "include": ["src/**/*.ts"],
-  "exclude": [
-    "out-tsc",
-    "dist",
-    "jest.config.ts",
-    "jest.config.cts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
-  ],
-  "references": [
-    {
-      "path": "../../libs/shared/util/tsconfig.lib.json"
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "types": ["node"],
+        "rootDir": "src",
+        "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "target": "es2021"
     },
-    {
-      "path": "../../libs/queue/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/x/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/mailchimp/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/linkedin/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/email/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/core/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/buffer/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/data/entities/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/ai/tsconfig.lib.json"
-    }
-  ]
+    "include": ["src/**/*.ts"],
+    "exclude": ["out-tsc", "dist", "jest.config.ts", "jest.config.cts", "src/**/*.spec.ts", "src/**/*.test.ts"],
+    "references": [
+        {
+            "path": "../../libs/data/database/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/shared/util/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/queue/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/x/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/mailchimp/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/linkedin/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/email/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/core/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/buffer/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/ai/tsconfig.lib.json"
+        }
+    ]
 }

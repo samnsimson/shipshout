@@ -1,5 +1,5 @@
-import { buildTypeOrmOptions } from '@shipshout/data-entities';
+import { buildTypeOrmOptions } from '@shipshout/database';
 
 export function buildApiTypeOrmOptions() {
-  return buildTypeOrmOptions(process.env.DATABASE_URL ?? '');
+    return buildTypeOrmOptions(process.env.DATABASE_URL ?? '');
 }

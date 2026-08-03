@@ -1,48 +1,44 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import type { Queue } from 'bullmq';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository as OrmRepo } from 'typeorm';
-import { ReleaseEvent, SourceProvider } from '@shipshout/data-entities';
+import { SourceProvider } from '@shipshout/database';
 import { verifyGithubSignature, normalizeGithubRelease } from '@shipshout/integrations-github';
 import { QUEUES, GenerateJob } from '@shipshout/queue';
 import { RepositoriesService } from '../repositories/repositories.service';
+import { ReleaseEventRepository } from './release-event.repository';
 
 @Injectable()
 export class WebhooksService {
-  constructor(
-    private repos: RepositoriesService,
-    @InjectRepository(ReleaseEvent) private events: OrmRepo<ReleaseEvent>,
-    @InjectQueue(QUEUES.generate) private generateQueue: Queue,
-  ) {}
+    constructor(
+        private repos: RepositoriesService,
+        private events: ReleaseEventRepository,
+        @InjectQueue(QUEUES.generate) private generateQueue: Queue,
+    ) {}
 
-  async handleGithub(rawBody: Buffer, headers: Record<string, string | undefined>) {
-    const payload = JSON.parse(rawBody.toString('utf8'));
-    const norm = normalizeGithubRelease(payload);
-    const repo = await this.repos.findByExternalId('github', norm.externalId);
-    if (!repo || !repo.enabled) return { accepted: false };
+    async handleGithub(rawBody: Buffer, headers: Record<string, string | undefined>) {
+        const payload = JSON.parse(rawBody.toString('utf8'));
+        const norm = normalizeGithubRelease(payload);
+        const repo = await this.repos.findByExternalId('github', norm.externalId);
+        if (!repo || !repo.enabled) return { accepted: false };
 
-    const secret = this.repos.decryptSecret(repo.webhookSecret);
-    if (!verifyGithubSignature(rawBody, headers['x-hub-signature-256'] ?? '', secret))
-      return { accepted: false };
+        const secret = this.repos.decryptSecret(repo.webhookSecret);
+        if (!verifyGithubSignature(rawBody, headers['x-hub-signature-256'] ?? '', secret)) return { accepted: false };
 
-    const deliveryId = headers['x-github-delivery'] ?? '';
-    const existing = await this.events.findOne({
-      where: { repository: { id: repo.id }, deliveryId },
-    });
-    if (existing) return { accepted: true, duplicate: true };
+        const deliveryId = headers['x-github-delivery'] ?? '';
+        const existing = await this.events.findByDeliveryId(repo.id, deliveryId);
+        if (existing) return { accepted: true, duplicate: true };
 
-    const saved = await this.events.save(
-      this.events.create({
-        repository: repo,
-        source: SourceProvider.Github,
-        deliveryId,
-        rawPayload: payload,
-        commitSummary: norm.commitSummary,
-      }),
-    );
-    const job: GenerateJob = { releaseEventId: saved.id };
-    await this.generateQueue.add('generate', job);
-    return { accepted: true, duplicate: false };
-  }
+        const saved = await this.events.save(
+            this.events.create({
+                repository: repo,
+                source: SourceProvider.Github,
+                deliveryId,
+                rawPayload: payload,
+                commitSummary: norm.commitSummary,
+            }),
+        );
+        const job: GenerateJob = { releaseEventId: saved.id };
+        await this.generateQueue.add('generate', job);
+        return { accepted: true, duplicate: false };
+    }
 }

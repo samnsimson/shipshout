@@ -5,15 +5,15 @@ import { AuthService } from './auth.service.js';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
-  constructor(private auth: AuthService) {
-    super({
-      clientID: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      callbackURL: process.env.GITHUB_CALLBACK_URL!,
-      scope: ['user:email'],
-    });
-  }
-  async validate(_at: string, _rt: string, profile: Parameters<AuthService['upsertFromGithub']>[0]) {
-    return this.auth.upsertFromGithub(profile);
-  }
+    constructor(private auth: AuthService) {
+        super({
+            clientID: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+            callbackURL: process.env.GITHUB_CALLBACK_URL!,
+            scope: ['user:email'],
+        });
+    }
+    async validate(_at: string, _rt: string, profile: Parameters<AuthService['upsertFromGithub']>[0]) {
+        return this.auth.upsertFromGithub(profile);
+    }
 }

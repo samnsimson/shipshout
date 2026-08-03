@@ -1,58 +1,58 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/api"
-    },
-    {
-      "path": "./apps/worker"
-    },
-    {
-      "path": "./apps/web"
-    },
-    {
-      "path": "./libs/data/entities"
-    },
-    {
-      "path": "./libs/shared/util"
-    },
-    {
-      "path": "./libs/shared/contracts"
-    },
-    {
-      "path": "./libs/auth"
-    },
-    {
-      "path": "./libs/queue"
-    },
-    {
-      "path": "./libs/integrations/github"
-    },
-    {
-      "path": "./libs/core/domain"
-    },
-    {
-      "path": "./libs/ai"
-    },
-    {
-      "path": "./libs/integrations/core"
-    },
-    {
-      "path": "./libs/integrations/x"
-    },
-    {
-      "path": "./libs/integrations/linkedin"
-    },
-    {
-      "path": "./libs/integrations/email"
-    },
-    {
-      "path": "./libs/integrations/buffer"
-    },
-    {
-      "path": "./libs/integrations/mailchimp"
-    }
-  ]
+    "extends": "./tsconfig.base.json",
+    "compileOnSave": false,
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/api"
+        },
+        {
+            "path": "./apps/worker"
+        },
+        {
+            "path": "./apps/web"
+        },
+        {
+            "path": "./libs/shared/util"
+        },
+        {
+            "path": "./libs/shared/contracts"
+        },
+        {
+            "path": "./libs/auth"
+        },
+        {
+            "path": "./libs/queue"
+        },
+        {
+            "path": "./libs/integrations/github"
+        },
+        {
+            "path": "./libs/core/domain"
+        },
+        {
+            "path": "./libs/ai"
+        },
+        {
+            "path": "./libs/integrations/core"
+        },
+        {
+            "path": "./libs/integrations/x"
+        },
+        {
+            "path": "./libs/integrations/linkedin"
+        },
+        {
+            "path": "./libs/integrations/email"
+        },
+        {
+            "path": "./libs/integrations/buffer"
+        },
+        {
+            "path": "./libs/integrations/mailchimp"
+        },
+        {
+            "path": "./libs/data/database"
+        }
+    ]
 }

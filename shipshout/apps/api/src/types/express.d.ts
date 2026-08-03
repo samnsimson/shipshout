@@ -1,20 +1,20 @@
-import type { Membership } from '@shipshout/data-entities';
-import type { User } from '@shipshout/data-entities';
+import type { Membership } from '@shipshout/database';
+import type { User } from '@shipshout/database';
 
 declare module 'express-session' {
-  interface SessionData {
-    userId?: string;
-  }
+    interface SessionData {
+        userId?: string;
+    }
 }
 
 declare global {
-  namespace Express {
-    interface Request {
-      rawBody?: Buffer;
-      user?: User;
-      workspaceMembership?: Membership;
+    namespace Express {
+        interface Request {
+            rawBody?: Buffer;
+            user?: User;
+            workspaceMembership?: Membership;
+        }
     }
-  }
 }
 
 export {};

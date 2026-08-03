@@ -86,7 +86,7 @@
         "@nestjs/typeorm": "^11.0.3",
         "@shipshout/auth": "workspace:*",
         "@shipshout/contracts": "workspace:*",
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-github": "workspace:*",
         "@shipshout/queue": "workspace:*",
         "@shipshout/shared-util": "workspace:*",
@@ -120,7 +120,7 @@
         "@nestjs/core": "^11.0.0",
         "@nestjs/typeorm": "^11.0.3",
         "@shipshout/ai": "workspace:*",
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-buffer": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "@shipshout/integrations-email": "workspace:*",
@@ -147,7 +147,7 @@
         "@nestjs/common": "^11.0.0",
         "@nestjs/typeorm": "^11.0.3",
         "@shipshout/core-domain": "workspace:*",
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "openai": "^7.3.0",
         "tslib": "^2.3.0",
         "typeorm": "^1.1.0",
@@ -159,7 +159,8 @@
       "dependencies": {
         "@nestjs/common": "^11.0.0",
         "@nestjs/passport": "^11.0.5",
-        "@shipshout/data-entities": "workspace:*",
+        "@nestjs/typeorm": "^11.0.3",
+        "@shipshout/database": "workspace:*",
         "passport": "^0.7.0",
         "passport-github2": "^0.1.12",
         "tslib": "^2.3.0",
@@ -170,22 +171,23 @@
       "name": "@shipshout/core-domain",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "tslib": "^2.3.0",
       },
     },
-    "libs/data/entities": {
-      "name": "@shipshout/data-entities",
+    "libs/data/database": {
+      "name": "@shipshout/database",
       "version": "0.0.1",
       "dependencies": {
         "tslib": "^2.3.0",
+        "typeorm": "^1.1.0",
       },
     },
     "libs/integrations/buffer": {
       "name": "@shipshout/integrations-buffer",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
@@ -196,7 +198,7 @@
       "dependencies": {
         "@nestjs/common": "^11.0.0",
         "@nestjs/typeorm": "^11.0.3",
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "tslib": "^2.3.0",
         "typeorm": "^1.1.0",
       },
@@ -205,7 +207,7 @@
       "name": "@shipshout/integrations-email",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
@@ -221,7 +223,7 @@
       "name": "@shipshout/integrations-linkedin",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
@@ -230,7 +232,7 @@
       "name": "@shipshout/integrations-mailchimp",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
@@ -239,7 +241,7 @@
       "name": "@shipshout/integrations-x",
       "version": "0.0.1",
       "dependencies": {
-        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/database": "workspace:*",
         "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
@@ -1027,7 +1029,7 @@
 
     "@shipshout/core-domain": ["@shipshout/core-domain@workspace:libs/core/domain"],
 
-    "@shipshout/data-entities": ["@shipshout/data-entities@workspace:libs/data/entities"],
+    "@shipshout/database": ["@shipshout/database@workspace:libs/data/database"],
 
     "@shipshout/integrations-buffer": ["@shipshout/integrations-buffer@workspace:libs/integrations/buffer"],
 

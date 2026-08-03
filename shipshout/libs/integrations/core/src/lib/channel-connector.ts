@@ -1,15 +1,15 @@
-import { Channel } from '@shipshout/data-entities';
+import { Channel } from '@shipshout/database';
 
 export interface PublishInput {
-  text: string;
-  accessToken: string;
+    text: string;
+    accessToken: string;
 }
 
 export interface PublishOutput {
-  externalUrl?: string;
+    externalUrl?: string;
 }
 
 export interface ChannelConnector {
-  channel: Channel;
-  publish(input: PublishInput): Promise<PublishOutput>;
+    channel: Channel;
+    publish(input: PublishInput): Promise<PublishOutput>;
 }

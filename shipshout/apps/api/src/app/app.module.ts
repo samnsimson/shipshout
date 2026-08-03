@@ -1,7 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from '@shipshout/data-entities';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -16,24 +15,23 @@ import { ConnectionsModule } from './connections/connections.module';
 import { QueueModule } from '@shipshout/queue/module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    TypeOrmModule.forRoot(buildApiTypeOrmOptions()),
-    TypeOrmModule.forFeature([User]),
-    QueueModule,
-    AuthModule,
-    WorkspacesModule,
-    RepositoriesModule,
-    WebhooksModule,
-    DraftsModule,
-    BrandModule,
-    ConnectionsModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        TypeOrmModule.forRoot(buildApiTypeOrmOptions()),
+        QueueModule,
+        AuthModule,
+        WorkspacesModule,
+        RepositoriesModule,
+        WebhooksModule,
+        DraftsModule,
+        BrandModule,
+        ConnectionsModule,
+    ],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule implements NestModule {
-  configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SessionUserMiddleware).forRoutes('*');
-  }
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(SessionUserMiddleware).forRoutes('*');
+    }
 }

@@ -1,41 +1,34 @@
 {
-  "extends": "../../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "dist",
-    "types": ["node"],
-    "rootDir": "src",
-    "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "target": "es2021"
-  },
-  "include": ["src/**/*.ts"],
-  "references": [
-    {
-      "path": "../../libs/data/entities/tsconfig.lib.json"
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "types": ["node"],
+        "rootDir": "src",
+        "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "target": "es2021"
     },
-    {
-      "path": "../../libs/auth/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/shared/contracts/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/shared/util/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/queue/tsconfig.lib.json"
-    },
-    {
-      "path": "../../libs/integrations/github/tsconfig.lib.json"
-    }
-  ],
-  "exclude": [
-    "out-tsc",
-    "dist",
-    "jest.config.ts",
-    "jest.config.cts",
-    "src/**/*.spec.ts",
-    "src/**/*.test.ts"
-  ]
+    "include": ["src/**/*.ts"],
+    "references": [
+        {
+            "path": "../../libs/shared/util/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/queue/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/github/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/data/database/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/shared/contracts/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/auth/tsconfig.lib.json"
+        }
+    ],
+    "exclude": ["out-tsc", "dist", "jest.config.ts", "jest.config.cts", "src/**/*.spec.ts", "src/**/*.test.ts"]
 }

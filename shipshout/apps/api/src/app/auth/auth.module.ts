@@ -1,17 +1,13 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Membership, User, Workspace } from '@shipshout/data-entities';
-import { AuthService, GithubStrategy, WorkspaceGuard } from '@shipshout/auth';
+import { AuthService, GithubStrategy, WorkspaceGuard, UserRepository, WorkspaceRepository, MembershipRepository } from '@shipshout/auth';
 import { AuthController } from './auth.controller';
+import { SessionUserMiddleware } from './session-user.middleware';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User, Workspace, Membership]),
-    PassportModule.register({ defaultStrategy: 'github' }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, GithubStrategy, WorkspaceGuard],
-  exports: [AuthService, WorkspaceGuard],
+    imports: [PassportModule.register({ defaultStrategy: 'github' })],
+    controllers: [AuthController],
+    providers: [UserRepository, WorkspaceRepository, MembershipRepository, AuthService, GithubStrategy, WorkspaceGuard, SessionUserMiddleware],
+    exports: [AuthService, WorkspaceGuard, UserRepository, SessionUserMiddleware],
 })
 export class AuthModule {}

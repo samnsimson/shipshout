@@ -1,37 +1,36 @@
 import { Injectable } from '@nestjs/common';
-import { Repository as OrmRepo } from 'typeorm';
 import { randomBytes } from 'crypto';
-import { Repository } from '@shipshout/data-entities';
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 import { RegisterRepoDto } from '@shipshout/contracts';
+import { ConnectedRepoRepository } from './connected-repo.repository';
 
 @Injectable()
 export class RepositoriesService {
-  constructor(private repos: OrmRepo<Repository>) {}
+    constructor(private repos: ConnectedRepoRepository) {}
 
-  async create(workspaceId: string, dto: RegisterRepoDto) {
-    const webhookSecret = randomBytes(32).toString('hex');
-    const repository = await this.repos.save(
-      this.repos.create({
-        workspace: { id: workspaceId } as Repository['workspace'],
-        provider: dto.provider,
-        externalId: dto.externalId,
-        name: dto.name,
-        webhookSecret: encryptSecret(webhookSecret),
-      }),
-    );
-    return { repository, webhookSecret };
-  }
+    async create(workspaceId: string, dto: RegisterRepoDto) {
+        const webhookSecret = randomBytes(32).toString('hex');
+        const repository = await this.repos.save(
+            this.repos.create({
+                workspace: { id: workspaceId },
+                provider: dto.provider,
+                externalId: dto.externalId,
+                name: dto.name,
+                webhookSecret: encryptSecret(webhookSecret),
+            }),
+        );
+        return { repository, webhookSecret };
+    }
 
-  list(workspaceId: string) {
-    return this.repos.find({ where: { workspace: { id: workspaceId } } });
-  }
+    list(workspaceId: string) {
+        return this.repos.listForWorkspace(workspaceId);
+    }
 
-  async findByExternalId(provider: string, externalId: string) {
-    return this.repos.findOne({ where: { provider: provider as Repository['provider'], externalId } });
-  }
+    findByExternalId(provider: string, externalId: string) {
+        return this.repos.findByExternalId(provider as any, externalId);
+    }
 
-  decryptSecret(cipher: string) {
-    return decryptSecret(cipher);
-  }
+    decryptSecret(cipher: string) {
+        return decryptSecret(cipher);
+    }
 }
