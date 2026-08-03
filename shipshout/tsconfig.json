@@ -23,6 +23,12 @@
     },
     {
       "path": "./libs/auth"
+    },
+    {
+      "path": "./libs/queue"
+    },
+    {
+      "path": "./libs/integrations/github"
     }
   ]
 }
