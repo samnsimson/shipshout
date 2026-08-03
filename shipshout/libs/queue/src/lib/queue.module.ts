@@ -10,7 +10,16 @@ function connection() {
 @Module({
   imports: [
     BullModule.forRoot({ connection: connection() }),
-    BullModule.registerQueue({ name: QUEUES.generate }, { name: QUEUES.dispatch }),
+    BullModule.registerQueue(
+      {
+        name: QUEUES.generate,
+        defaultJobOptions: {
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 2000 },
+        },
+      },
+      { name: QUEUES.dispatch },
+    ),
   ],
   exports: [BullModule],
 })

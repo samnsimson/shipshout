@@ -17,5 +17,16 @@
     "jest.config.cts",
     "src/**/*.spec.ts",
     "src/**/*.test.ts"
+  ],
+  "references": [
+    {
+      "path": "../../libs/queue/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/data/entities/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/ai/tsconfig.lib.json"
+    }
   ]
 }
