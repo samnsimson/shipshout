@@ -17,6 +17,9 @@
     },
     {
       "path": "./libs/shared/util"
+    },
+    {
+      "path": "./libs/shared/contracts"
     }
   ]
 }
