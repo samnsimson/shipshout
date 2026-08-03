@@ -14,6 +14,9 @@
     },
     {
       "path": "./libs/data/entities"
+    },
+    {
+      "path": "./libs/shared/util"
     }
   ]
 }
