@@ -3,9 +3,9 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/web/src",
   "projectType": "application",
-  "tags": [],
+  "tags": ["app"],
   "targets": {
-    "serve": {
+    "dev": {
       "executor": "nx:run-commands",
       "continuous": true,
       "options": {

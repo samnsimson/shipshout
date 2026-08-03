@@ -1,0 +1,27 @@
+{
+  "name": "worker",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/worker/src",
+  "projectType": "application",
+  "tags": ["app"],
+  "targets": {
+    "dev": {
+      "executor": "@nx/js:node",
+      "continuous": true,
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "worker:build:development",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "worker:build:development"
+        },
+        "production": {
+          "buildTarget": "worker:build:production"
+        }
+      }
+    }
+  }
+}

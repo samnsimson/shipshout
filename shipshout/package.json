@@ -2,7 +2,15 @@
   "name": "@shipshout/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "dev": "dotenv -e .env -- nx run-many -t dev --exclude=worker --output-style=stream",
+    "dev:all": "dotenv -e .env -- nx run-many -t dev --output-style=stream",
+    "test": "nx run-many -t test --all",
+    "build": "nx run-many -t build --projects=api,web,worker,data-entities",
+    "migrate": "nx build data-entities && dotenv -e .env -- typeorm migration:run -d libs/data/entities/dist/lib/data-source.js"
+  },
   "private": true,
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -44,6 +52,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "^9.8.0",
     "eslint-config-prettier": "^10.0.0",
     "jest": "~30.3.0",
