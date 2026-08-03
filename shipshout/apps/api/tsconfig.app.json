@@ -13,6 +13,12 @@
   "references": [
     {
       "path": "../../libs/data/entities/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/auth/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/shared/contracts/tsconfig.lib.json"
     }
   ],
   "exclude": [

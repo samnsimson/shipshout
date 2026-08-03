@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User, Workspace, Membership, MembershipRole } from '@shipshout/data-entities';
 
@@ -5,6 +6,7 @@ function slugify(s: string) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
+@Injectable()
 export class AuthService {
   constructor(
     private users: Repository<User>,
@@ -18,11 +20,11 @@ export class AuthService {
     emails?: { value: string }[];
     photos?: { value: string }[];
   }): Promise<User> {
-    let user = await this.users.findOne({ where: { githubId: profile.id } });
+    let user = await this.users.findOne({ where: { githubId: String(profile.id) } });
     if (user) return user;
     user = await this.users.save(
       this.users.create({
-        githubId: profile.id,
+        githubId: String(profile.id),
         name: profile.username,
         email: profile.emails?.[0]?.value,
         avatarUrl: profile.photos?.[0]?.value,
