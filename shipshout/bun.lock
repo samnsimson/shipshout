@@ -121,7 +121,14 @@
         "@nestjs/typeorm": "^11.0.3",
         "@shipshout/ai": "workspace:*",
         "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-buffer": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "@shipshout/integrations-email": "workspace:*",
+        "@shipshout/integrations-linkedin": "workspace:*",
+        "@shipshout/integrations-mailchimp": "workspace:*",
+        "@shipshout/integrations-x": "workspace:*",
         "@shipshout/queue": "workspace:*",
+        "@shipshout/shared-util": "workspace:*",
         "bullmq": "^6.0.6",
         "ioredis": "^6.0.0",
         "reflect-metadata": "^0.2.0",
@@ -174,10 +181,66 @@
         "tslib": "^2.3.0",
       },
     },
+    "libs/integrations/buffer": {
+      "name": "@shipshout/integrations-buffer",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/core": {
+      "name": "@shipshout/integrations-core",
+      "version": "0.0.1",
+      "dependencies": {
+        "@nestjs/common": "^11.0.0",
+        "@nestjs/typeorm": "^11.0.3",
+        "@shipshout/data-entities": "workspace:*",
+        "tslib": "^2.3.0",
+        "typeorm": "^1.1.0",
+      },
+    },
+    "libs/integrations/email": {
+      "name": "@shipshout/integrations-email",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "tslib": "^2.3.0",
+      },
+    },
     "libs/integrations/github": {
       "name": "@shipshout/integrations-github",
       "version": "0.0.1",
       "dependencies": {
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/linkedin": {
+      "name": "@shipshout/integrations-linkedin",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/mailchimp": {
+      "name": "@shipshout/integrations-mailchimp",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/x": {
+      "name": "@shipshout/integrations-x",
+      "version": "0.0.1",
+      "dependencies": {
+        "@shipshout/data-entities": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
         "tslib": "^2.3.0",
       },
     },
@@ -966,7 +1029,19 @@
 
     "@shipshout/data-entities": ["@shipshout/data-entities@workspace:libs/data/entities"],
 
+    "@shipshout/integrations-buffer": ["@shipshout/integrations-buffer@workspace:libs/integrations/buffer"],
+
+    "@shipshout/integrations-core": ["@shipshout/integrations-core@workspace:libs/integrations/core"],
+
+    "@shipshout/integrations-email": ["@shipshout/integrations-email@workspace:libs/integrations/email"],
+
     "@shipshout/integrations-github": ["@shipshout/integrations-github@workspace:libs/integrations/github"],
+
+    "@shipshout/integrations-linkedin": ["@shipshout/integrations-linkedin@workspace:libs/integrations/linkedin"],
+
+    "@shipshout/integrations-mailchimp": ["@shipshout/integrations-mailchimp@workspace:libs/integrations/mailchimp"],
+
+    "@shipshout/integrations-x": ["@shipshout/integrations-x@workspace:libs/integrations/x"],
 
     "@shipshout/queue": ["@shipshout/queue@workspace:libs/queue"],
 

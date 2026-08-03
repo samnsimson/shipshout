@@ -20,7 +20,28 @@
   ],
   "references": [
     {
+      "path": "../../libs/shared/util/tsconfig.lib.json"
+    },
+    {
       "path": "../../libs/queue/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/x/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/mailchimp/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/linkedin/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/email/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/core/tsconfig.lib.json"
+    },
+    {
+      "path": "../../libs/integrations/buffer/tsconfig.lib.json"
     },
     {
       "path": "../../libs/data/entities/tsconfig.lib.json"

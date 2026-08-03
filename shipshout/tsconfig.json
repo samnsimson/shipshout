@@ -35,6 +35,24 @@
     },
     {
       "path": "./libs/ai"
+    },
+    {
+      "path": "./libs/integrations/core"
+    },
+    {
+      "path": "./libs/integrations/x"
+    },
+    {
+      "path": "./libs/integrations/linkedin"
+    },
+    {
+      "path": "./libs/integrations/email"
+    },
+    {
+      "path": "./libs/integrations/buffer"
+    },
+    {
+      "path": "./libs/integrations/mailchimp"
     }
   ]
 }

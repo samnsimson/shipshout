@@ -18,7 +18,7 @@ function connection() {
           backoff: { type: 'exponential', delay: 2000 },
         },
       },
-      { name: QUEUES.dispatch },
+      { name: QUEUES.dispatch, defaultJobOptions: { attempts: 3, backoff: { type: 'exponential', delay: 2000 } } },
     ),
   ],
   exports: [BullModule],
