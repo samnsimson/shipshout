@@ -11,3 +11,5 @@ export * from './lib/entities/release-event.entity.js';
 export * from './lib/entities/draft.entity.js';
 export * from './lib/entities/channel-connection.entity.js';
 export * from './lib/entities/publish-record.entity.js';
+export * from './lib/entities/subscription.entity.js';
+export * from './lib/entities/usage-counter.entity.js';
