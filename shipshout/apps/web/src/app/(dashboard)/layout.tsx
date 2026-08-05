@@ -36,6 +36,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
                     <nav style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
                         <Link href={`/${activeWs}/drafts`}>Drafts</Link>
                         <Link href={`/${activeWs}/settings/brand`}>Brand</Link>
+                        <Link href={`/${activeWs}/settings/billing`}>Billing</Link>
                     </nav>
                 ) : null}
                 <select aria-label="Workspace" style={{ marginLeft: activeWs ? 0 : 'auto' }}>
