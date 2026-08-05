@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository, ReleaseEvent } from '@shipshout/database';
 
 @Injectable()
 export class ReleaseEventRepository extends BaseRepository<ReleaseEvent> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(ReleaseEvent, dataSource);
+    constructor(@InjectRepository(ReleaseEvent) repo: Repository<ReleaseEvent>) {
+        super(repo);
     }
 
     findByDeliveryId(repositoryId: string, deliveryId: string) {

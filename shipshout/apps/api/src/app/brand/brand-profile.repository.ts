@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository, BrandProfile } from '@shipshout/database';
 
 @Injectable()
 export class BrandProfileRepository extends BaseRepository<BrandProfile> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(BrandProfile, dataSource);
+    constructor(@InjectRepository(BrandProfile) repo: Repository<BrandProfile>) {
+        super(repo);
     }
 
     findForWorkspace(workspaceId: string) {

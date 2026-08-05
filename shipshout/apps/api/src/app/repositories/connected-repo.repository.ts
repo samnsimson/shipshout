@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository, Repository as ConnectedRepo } from '@shipshout/database';
 
 @Injectable()
 export class ConnectedRepoRepository extends BaseRepository<ConnectedRepo> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(ConnectedRepo, dataSource);
+    constructor(@InjectRepository(ConnectedRepo) repo: Repository<ConnectedRepo>) {
+        super(repo);
     }
 
     findByExternalId(provider: ConnectedRepo['provider'], externalId: string) {

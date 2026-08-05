@@ -24,13 +24,19 @@ import { BufferConnector } from '@shipshout/integrations-buffer';
 import { MailchimpConnector } from '@shipshout/integrations-mailchimp';
 import { QueueModule } from '@shipshout/queue/module';
 import { buildWorkerTypeOrmOptions } from './config/typeorm.module';
+import { DatabaseModule } from './config/database.module';
 import { ChannelConnectionRepository } from './channel-connection.repository';
 import { DispatchProcessor } from './dispatch.processor';
 import { GenerateProcessor } from './generate.processor';
 import { WorkerConnectionsService } from './worker-connections.service';
 
 @Module({
-    imports: [ConfigModule.forRoot({ isGlobal: true }), TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()), QueueModule],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()),
+        DatabaseModule,
+        QueueModule,
+    ],
     providers: [
         {
             provide: AiEngine,

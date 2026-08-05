@@ -1,18 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository, Draft, PublishRecord } from '@shipshout/database';
 
 @Injectable()
 export class DraftRepository extends BaseRepository<Draft> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(Draft, dataSource);
+    constructor(@InjectRepository(Draft) repo: Repository<Draft>) {
+        super(repo);
     }
 }
 
 @Injectable()
 export class PublishRecordRepository extends BaseRepository<PublishRecord> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(PublishRecord, dataSource);
+    constructor(@InjectRepository(PublishRecord) repo: Repository<PublishRecord>) {
+        super(repo);
     }
 }

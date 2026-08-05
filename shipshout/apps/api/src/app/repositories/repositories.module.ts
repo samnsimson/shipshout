@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { DatabaseModule } from '../config/database.module';
 import { RepositoriesController } from './repositories.controller';
 import { RepositoriesService } from './repositories.service';
 import { ConnectedRepoRepository } from './connected-repo.repository';
 
 @Module({
-    imports: [AuthModule],
+    imports: [DatabaseModule, AuthModule],
     controllers: [RepositoriesController],
     providers: [ConnectedRepoRepository, RepositoriesService],
     exports: [RepositoriesService],

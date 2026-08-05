@@ -1,4 +1,4 @@
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository } from './base-repository.js';
 
 class Entity {
@@ -6,19 +6,15 @@ class Entity {
 }
 
 describe('BaseRepository', () => {
-    it('creates a TypeORM repository from the DataSource', () => {
-        const manager = { findOne: jest.fn() };
-        const dataSource = {
-            createEntityManager: jest.fn(() => manager),
-        } as unknown as DataSource;
+    it('wraps a TypeORM repository', () => {
+        const repository = { target: Entity, manager: { findOne: jest.fn() } } as Repository<Entity>;
 
         class TestRepo extends BaseRepository<Entity> {
             constructor() {
-                super(Entity, dataSource);
+                super(repository);
             }
         }
 
         new TestRepo();
-        expect(dataSource.createEntityManager).toHaveBeenCalled();
     });
 });

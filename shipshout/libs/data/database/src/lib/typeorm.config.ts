@@ -11,7 +11,8 @@ import { Draft } from './entities/draft.entity.js';
 import { ChannelConnection } from './entities/channel-connection.entity.js';
 import { PublishRecord } from './entities/publish-record.entity.js';
 
-export const ENTITIES: Function[] = [User, Workspace, Membership, Repository, BrandProfile, ReleaseEvent, Draft, ChannelConnection, PublishRecord];
+const entities: Function[] = [User, Workspace, Membership, Repository, BrandProfile, ReleaseEvent, Draft, ChannelConnection, PublishRecord];
+export const ENTITIES = entities;
 
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), 'migrations');
 
@@ -20,7 +21,7 @@ export function buildTypeOrmOptions(databaseUrl: string): DataSourceOptions {
         type: 'postgres',
         url: databaseUrl,
         synchronize: false,
-        entities: ENTITIES,
+        entities,
         migrations: [join(migrationsDir, '*.js')],
     };
 }

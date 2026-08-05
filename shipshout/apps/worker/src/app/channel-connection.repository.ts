@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { BaseRepository, Channel, ChannelConnection, ConnectionStatus } from '@shipshout/database';
 
 @Injectable()
 export class ChannelConnectionRepository extends BaseRepository<ChannelConnection> {
-    constructor(@InjectDataSource() dataSource: DataSource) {
-        super(ChannelConnection, dataSource);
+    constructor(@InjectRepository(ChannelConnection) repo: Repository<ChannelConnection>) {
+        super(repo);
     }
 
     findActive(workspaceId: string, channel: Channel) {

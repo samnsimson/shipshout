@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { SessionUserMiddleware } from './auth/session-user.middleware';
 import { buildApiTypeOrmOptions } from './config/typeorm.module';
+import { DatabaseModule } from './config/database.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';
 import { RepositoriesModule } from './repositories/repositories.module';
 import { WebhooksModule } from './webhooks/webhooks.module';
@@ -18,6 +19,7 @@ import { QueueModule } from '@shipshout/queue/module';
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
         TypeOrmModule.forRoot(buildApiTypeOrmOptions()),
+        DatabaseModule,
         QueueModule,
         AuthModule,
         WorkspacesModule,
