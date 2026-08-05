@@ -26,7 +26,13 @@ docker compose up -d postgres-test redis-test   # for integration/e2e tests
 3. Run migrations:
 
 ```sh
-sh scripts/migrate.sh
+bun run migrate
+```
+
+Generate a new migration from entity changes:
+
+```sh
+bun run migration:generate -- libs/data/database/src/lib/migrations/MigrationName
 ```
 
 4. Start apps:
@@ -78,7 +84,7 @@ docker build -f apps/worker/Dockerfile -t shipshout-worker .
 2. Run migrations against production Postgres (once per release):
 
 ```sh
-DATABASE_URL=postgres://... sh scripts/migrate.sh
+DATABASE_URL=postgres://... bun run migrate
 ```
 
 3. Start containers with managed Postgres + Redis, setting `DATABASE_URL`, `REDIS_URL`, `APP_ENCRYPTION_KEY`, AI keys, and Stripe secrets.

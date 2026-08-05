@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn, Unique } from 'typeorm';
-import { Repository as Repo } from './repository.entity';
-import { SourceProvider } from './source-provider.enum';
+import { Repository as Repo } from './repository.entity.js';
+import { SourceProvider } from './source-provider.enum.js';
 
 export { SourceProvider };
 

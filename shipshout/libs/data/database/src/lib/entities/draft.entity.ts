@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { ReleaseEvent } from './release-event.entity';
+import { ReleaseEvent } from './release-event.entity.js';
 
 export enum Channel {
     X = 'x',

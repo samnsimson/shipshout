@@ -1,7 +1,7 @@
-import { ENTITIES } from '../typeorm.config';
-import { Repository } from './repository.entity';
-import { BrandProfile, Tone } from './brand-profile.entity';
-import { ReleaseEvent, ReleaseEventStatus, SourceProvider } from './release-event.entity';
+import { ENTITIES } from '../typeorm.config.js';
+import { Repository } from './repository.entity.js';
+import { BrandProfile, Tone } from './brand-profile.entity.js';
+import { ReleaseEvent, ReleaseEventStatus, SourceProvider } from './release-event.entity.js';
 
 describe('ingestion entities', () => {
     it('registers entities', () => {

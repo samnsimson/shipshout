@@ -7,7 +7,8 @@
         "emitDeclarationOnly": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "forceConsistentCasingInFileNames": true,
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
         "types": ["node"]
     },
     "include": ["src/**/*.ts"],

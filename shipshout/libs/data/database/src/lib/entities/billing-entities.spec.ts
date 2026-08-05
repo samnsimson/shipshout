@@ -1,6 +1,6 @@
-import { ENTITIES } from '../typeorm.config';
-import { Subscription, Tier, SubscriptionStatus } from './subscription.entity';
-import { UsageCounter } from './usage-counter.entity';
+import { ENTITIES } from '../typeorm.config.js';
+import { Subscription, Tier, SubscriptionStatus } from './subscription.entity.js';
+import { UsageCounter } from './usage-counter.entity.js';
 
 describe('billing entities', () => {
     it('registers entities', () => expect(ENTITIES).toEqual(expect.arrayContaining([Subscription, UsageCounter])));

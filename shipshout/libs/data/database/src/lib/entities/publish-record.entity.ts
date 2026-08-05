@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
-import { Draft } from './draft.entity';
-import { ChannelConnection } from './channel-connection.entity';
+import { Draft } from './draft.entity.js';
+import { ChannelConnection } from './channel-connection.entity.js';
 
 export enum PublishStatus {
     Success = 'success',
