@@ -1,102 +1,90 @@
-# Shipshout
+# ShipShout
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+Turn GitHub releases into multi-channel marketing drafts — review, approve, and publish to X, LinkedIn, email, and more.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## Prerequisites
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/nx-api/node?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- [Bun](https://bun.sh) 1.x
+- Docker (Postgres + Redis)
+- API keys: OpenAI or Anthropic, Stripe (billing), channel OAuth credentials (optional)
 
-## Run tasks
+## Local setup
 
-To run the dev server for your app, use:
-
-```sh
-npx nx serve shipshout-svc
-```
-
-To create a production bundle:
+1. Copy environment variables:
 
 ```sh
-npx nx build shipshout-svc
+cp .env.example .env   # create .env with DATABASE_URL, REDIS_URL, APP_ENCRYPTION_KEY, etc.
 ```
 
-To see all available targets to run for a project, run:
+2. Start infrastructure:
 
 ```sh
-npx nx show project shipshout-svc
+bun run docker:up
+docker compose up -d postgres-test redis-test   # for integration/e2e tests
 ```
 
-These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.
-
-[More about running tasks in the docs &raquo;](https://nx.dev/features/run-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-## Add new projects
-
-While you could add new projects to your workspace manually, you might want to leverage [Nx plugins](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) and their [code generation](https://nx.dev/features/generate-code?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) feature.
-
-Use the plugin's generator to create new projects.
-
-To generate a new application, use:
+3. Run migrations:
 
 ```sh
-npx nx g @nx/node:app demo
+sh scripts/migrate.sh
 ```
 
-To generate a new library, use:
+4. Start apps:
 
 ```sh
-npx nx g @nx/node:lib mylib
+bun run dev          # API + web
+bun run dev:all      # API + web + worker
 ```
 
-You can use `npx nx list` to get a list of installed plugins. Then, run `npx nx list <plugin-name>` to learn about more specific capabilities of a particular plugin. Alternatively, [install Nx Console](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) to browse plugins and generators in your IDE.
+- API: http://localhost:3000/api
+- Web: http://localhost:4200
+- Health: http://localhost:3000/api/health
+- Lead magnet: http://localhost:4200/tools/tweet-generator
 
-[Learn more about Nx plugins &raquo;](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) | [Browse the plugin registry &raquo;](https://nx.dev/plugin-registry?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Testing
 
-## Set up CI!
-
-### Step 1
-
-To connect to Nx Cloud, run the following command:
+Unit tests (all projects):
 
 ```sh
-npx nx connect
+bun test
 ```
 
-Connecting to Nx Cloud ensures a [fast and scalable CI](https://nx.dev/ci/intro/why-nx-cloud?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) pipeline. It includes features such as:
-
-- [Remote caching](https://nx.dev/ci/features/remote-cache?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task distribution across multiple machines](https://nx.dev/ci/features/distribute-task-execution?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Automated e2e test splitting](https://nx.dev/ci/features/split-e2e-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Task flakiness detection and rerunning](https://nx.dev/ci/features/flaky-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-
-### Step 2
-
-Use the following command to configure a CI workflow for your workspace:
+Integration tests (requires `postgres-test` on port 5435):
 
 ```sh
-npx nx g ci-workflow
+TEST_DATABASE_URL=postgres://test:test@localhost:5435/shipshout_test \
+  bunx nx test api --testPathPatterns=integration
 ```
 
-[Learn more about Nx on CI](https://nx.dev/ci/intro/ci-with-nx#ready-get-started-with-your-provider?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+E2E (requires Postgres + Redis test services):
 
-## Install Nx Console
+```sh
+TEST_DATABASE_URL=postgres://test:test@localhost:5435/shipshout_test \
+DATABASE_URL=postgres://test:test@localhost:5435/shipshout_test \
+REDIS_URL=redis://localhost:6381 \
+  bunx nx e2e api-e2e
+```
 
-Nx Console is an editor extension that enriches your developer experience. It lets you run tasks, generate code, and improves code autocompletion in your IDE. It is available for VSCode and IntelliJ.
+## Deploy
 
-[Install Nx Console &raquo;](https://nx.dev/getting-started/editor-setup?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+1. Build images:
 
-## Useful links
+```sh
+docker build -f apps/api/Dockerfile -t shipshout-api .
+docker build -f apps/web/Dockerfile -t shipshout-web .
+docker build -f apps/worker/Dockerfile -t shipshout-worker .
+```
 
-Learn more:
+2. Run migrations against production Postgres (once per release):
 
-- [Learn more about this workspace setup](https://nx.dev/nx-api/node?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Learn about Nx on CI](https://nx.dev/ci/intro/ci-with-nx?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [Releasing Packages with Nx release](https://nx.dev/features/manage-releases?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
-- [What are Nx plugins?](https://nx.dev/concepts/nx-plugins?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+```sh
+DATABASE_URL=postgres://... sh scripts/migrate.sh
+```
 
-And join the Nx community:
+3. Start containers with managed Postgres + Redis, setting `DATABASE_URL`, `REDIS_URL`, `APP_ENCRYPTION_KEY`, AI keys, and Stripe secrets.
 
-- [Discord](https://go.nx.dev/community)
-- [Follow us on X](https://twitter.com/nxdevtools) or [LinkedIn](https://www.linkedin.com/company/nrwl)
-- [Our Youtube channel](https://www.youtube.com/@nxdevtools)
-- [Our blog](https://nx.dev/blog?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects)
+## Architecture
+
+Nx monorepo: `apps/api` (NestJS), `apps/web` (Next.js), `apps/worker` (BullMQ consumers), shared libs under `libs/`.
+
+Release flow: GitHub/Linear/Jira webhook → generate queue → AI drafts → dashboard review → dispatch queue → channel connectors.
