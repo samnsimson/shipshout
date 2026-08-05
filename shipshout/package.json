@@ -9,8 +9,8 @@
         "dev:all": "dotenv -e .env -- nx run-many -t dev --output-style=stream",
         "test": "nx run-many -t test --all",
         "build": "nx run-many -t build --projects=api,web,worker,database",
-        "migrate": "nx build database && dotenv -e .env -- typeorm migration:run -d libs/data/database/dist/lib/data-source.js",
-        "migration:generate": "nx build database && dotenv -e .env -- typeorm migration:generate -d libs/data/database/dist/lib/data-source.js",
+        "migration:run": "nx build database && dotenv -e .env -- typeorm migration:run -d libs/data/database/dist/lib/data-source.js",
+        "migration:gen": "nx build database && dotenv -e .env -- typeorm migration:generate -d libs/data/database/dist/lib/data-source.js",
         "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\""
     },
     "private": true,
