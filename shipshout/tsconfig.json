@@ -53,6 +53,9 @@
         },
         {
             "path": "./libs/data/database"
+        },
+        {
+            "path": "./libs/billing"
         }
     ]
 }
