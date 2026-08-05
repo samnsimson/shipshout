@@ -19,10 +19,12 @@
 ### Task 1: Generic normalized webhook handler in WebhooksService
 
 **Files:**
+
 - Modify: `apps/api/src/app/webhooks/webhooks.service.ts`
 - Test: `apps/api/src/app/webhooks/webhooks.normalized.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `RepositoriesService`, `ReleaseEvent` repo, `generate` queue, `TierService`, `SourceProvider`, `PLAN_LIMITS`.
 - Produces: `WebhooksService.ingestNormalized(input: { source: SourceProvider; externalId: string; commitSummary: string; deliveryId: string; verified: boolean; requireSourceIntegration: boolean }): Promise<{ accepted: boolean; duplicate?: boolean }>` — shared path used by GitHub (refactor), Linear, Jira.
 
@@ -34,28 +36,42 @@ import { WebhooksService } from './webhooks.service';
 import { SourceProvider, Tier } from '@shipshout/data-entities';
 
 function make(tierAllows: boolean, dup = false) {
-  const repos = { findByExternalId: jest.fn(async ()=>({ id:'r1', enabled:true, workspace:{ id:'w1' } })) };
-  const events = { findOne: jest.fn(async ()=> dup ? { id:'e1' } : null), create:(d:any)=>d, save: jest.fn(async (d:any)=>({ id:'e1', ...d })) };
-  const queue = { add: jest.fn(async ()=>({})) };
-  const tier = { tryConsumeRelease: jest.fn(async ()=>true), sourceIntegrationsAllowed: jest.fn(async ()=>tierAllows) };
-  const svc = new WebhooksService(repos as any, events as any, queue as any, tier as any);
-  return { svc, events, queue };
+    const repos = { findByExternalId: jest.fn(async () => ({ id: 'r1', enabled: true, workspace: { id: 'w1' } })) };
+    const events = { findOne: jest.fn(async () => (dup ? { id: 'e1' } : null)), create: (d: any) => d, save: jest.fn(async (d: any) => ({ id: 'e1', ...d })) };
+    const queue = { add: jest.fn(async () => ({})) };
+    const tier = { tryConsumeRelease: jest.fn(async () => true), sourceIntegrationsAllowed: jest.fn(async () => tierAllows) };
+    const svc = new WebhooksService(repos as any, events as any, queue as any, tier as any);
+    return { svc, events, queue };
 }
 
 describe('WebhooksService.ingestNormalized', () => {
-  it('rejects Linear source when tier lacks source integrations', async () => {
-    const { svc, queue } = make(false);
-    const res = await svc.ingestNormalized({ source: SourceProvider.Linear, externalId:'x', commitSummary:'s', deliveryId:'d1', verified:true, requireSourceIntegration:true });
-    expect(res.accepted).toBe(false);
-    expect(queue.add).not.toHaveBeenCalled();
-  });
-  it('accepts and enqueues when verified + allowed', async () => {
-    const { svc, events, queue } = make(true);
-    const res = await svc.ingestNormalized({ source: SourceProvider.Linear, externalId:'x', commitSummary:'s', deliveryId:'d1', verified:true, requireSourceIntegration:true });
-    expect(res.accepted).toBe(true);
-    expect(events.save).toHaveBeenCalled();
-    expect(queue.add).toHaveBeenCalledWith('generate', { releaseEventId: 'e1' });
-  });
+    it('rejects Linear source when tier lacks source integrations', async () => {
+        const { svc, queue } = make(false);
+        const res = await svc.ingestNormalized({
+            source: SourceProvider.Linear,
+            externalId: 'x',
+            commitSummary: 's',
+            deliveryId: 'd1',
+            verified: true,
+            requireSourceIntegration: true,
+        });
+        expect(res.accepted).toBe(false);
+        expect(queue.add).not.toHaveBeenCalled();
+    });
+    it('accepts and enqueues when verified + allowed', async () => {
+        const { svc, events, queue } = make(true);
+        const res = await svc.ingestNormalized({
+            source: SourceProvider.Linear,
+            externalId: 'x',
+            commitSummary: 's',
+            deliveryId: 'd1',
+            verified: true,
+            requireSourceIntegration: true,
+        });
+        expect(res.accepted).toBe(true);
+        expect(events.save).toHaveBeenCalled();
+        expect(queue.add).toHaveBeenCalledWith('generate', { releaseEventId: 'e1' });
+    });
 });
 ```
 
@@ -129,11 +145,13 @@ git commit -m "refactor(api): shared normalized webhook ingestion with tier gati
 ### Task 2: Linear integration (verify + normalize)
 
 **Files:**
+
 - Create: `libs/integrations/linear/src/lib/verify-signature.ts`
 - Create: `libs/integrations/linear/src/lib/normalize.ts`
 - Test: `libs/integrations/linear/src/lib/normalize.spec.ts`
 
 **Interfaces:**
+
 - Consumes: raw body + `Linear-Signature` header; per-repo secret.
 - Produces: `verifyLinearSignature(rawBody, signature, secret): boolean`; `normalizeLinear(payload): { externalId; commitSummary; isCompletion: boolean }`.
 
@@ -147,10 +165,10 @@ npx nx g @nx/js:lib integrations-linear --directory=libs/integrations/linear --i
 // normalize.spec.ts
 import { normalizeLinear } from './normalize';
 it('marks completed issues and extracts summary', () => {
-  const out = normalizeLinear({ action:'update', type:'Issue', data:{ id:'iss_1', title:'Fix cache', state:{ type:'completed' } } });
-  expect(out.isCompletion).toBe(true);
-  expect(out.externalId).toBe('iss_1');
-  expect(out.commitSummary).toContain('Fix cache');
+    const out = normalizeLinear({ action: 'update', type: 'Issue', data: { id: 'iss_1', title: 'Fix cache', state: { type: 'completed' } } });
+    expect(out.isCompletion).toBe(true);
+    expect(out.externalId).toBe('iss_1');
+    expect(out.commitSummary).toContain('Fix cache');
 });
 ```
 
@@ -165,21 +183,22 @@ Expected: FAIL — module not found.
 // verify-signature.ts
 import { createHmac, timingSafeEqual } from 'crypto';
 export function verifyLinearSignature(rawBody: Buffer, signature: string, secret: string): boolean {
-  const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
-  const a = Buffer.from(signature ?? ''); const b = Buffer.from(expected);
-  return a.length === b.length && timingSafeEqual(a, b);
+    const expected = createHmac('sha256', secret).update(rawBody).digest('hex');
+    const a = Buffer.from(signature ?? '');
+    const b = Buffer.from(expected);
+    return a.length === b.length && timingSafeEqual(a, b);
 }
 ```
 
 ```typescript
 // normalize.ts
 export function normalizeLinear(payload: any): { externalId: string; commitSummary: string; isCompletion: boolean } {
-  const d = payload?.data ?? {};
-  return {
-    externalId: String(d.id ?? ''),
-    commitSummary: [d.title, d.description].filter(Boolean).join('\n'),
-    isCompletion: d?.state?.type === 'completed',
-  };
+    const d = payload?.data ?? {};
+    return {
+        externalId: String(d.id ?? ''),
+        commitSummary: [d.title, d.description].filter(Boolean).join('\n'),
+        isCompletion: d?.state?.type === 'completed',
+    };
 }
 ```
 
@@ -200,11 +219,13 @@ git commit -m "feat(integrations): Linear signature verify + payload normalizer"
 ### Task 3: Jira integration (verify + normalize)
 
 **Files:**
+
 - Create: `libs/integrations/jira/src/lib/verify.ts`
 - Create: `libs/integrations/jira/src/lib/normalize.ts`
 - Test: `libs/integrations/jira/src/lib/normalize.spec.ts`
 
 **Interfaces:**
+
 - Consumes: raw body + shared-secret query/header; per-repo secret.
 - Produces: `verifyJiraSecret(providedSecret, expectedSecret): boolean`; `normalizeJira(payload): { externalId; commitSummary; isCompletion }`.
 
@@ -218,10 +239,13 @@ npx nx g @nx/js:lib integrations-jira --directory=libs/integrations/jira --impor
 // normalize.spec.ts
 import { normalizeJira } from './normalize';
 it('extracts issue summary and done status', () => {
-  const out = normalizeJira({ webhookEvent:'jira:issue_updated', issue:{ id:'10001', fields:{ summary:'Ship checkout', status:{ statusCategory:{ key:'done' } } } } });
-  expect(out.externalId).toBe('10001');
-  expect(out.commitSummary).toContain('Ship checkout');
-  expect(out.isCompletion).toBe(true);
+    const out = normalizeJira({
+        webhookEvent: 'jira:issue_updated',
+        issue: { id: '10001', fields: { summary: 'Ship checkout', status: { statusCategory: { key: 'done' } } } },
+    });
+    expect(out.externalId).toBe('10001');
+    expect(out.commitSummary).toContain('Ship checkout');
+    expect(out.isCompletion).toBe(true);
 });
 ```
 
@@ -236,21 +260,22 @@ Expected: FAIL — module not found.
 // verify.ts
 import { timingSafeEqual } from 'crypto';
 export function verifyJiraSecret(provided: string, expected: string): boolean {
-  const a = Buffer.from(provided ?? ''); const b = Buffer.from(expected ?? '');
-  return a.length === b.length && a.length > 0 && timingSafeEqual(a, b);
+    const a = Buffer.from(provided ?? '');
+    const b = Buffer.from(expected ?? '');
+    return a.length === b.length && a.length > 0 && timingSafeEqual(a, b);
 }
 ```
 
 ```typescript
 // normalize.ts
 export function normalizeJira(payload: any): { externalId: string; commitSummary: string; isCompletion: boolean } {
-  const issue = payload?.issue ?? {};
-  const f = issue.fields ?? {};
-  return {
-    externalId: String(issue.id ?? ''),
-    commitSummary: [f.summary, f.description].filter(Boolean).join('\n'),
-    isCompletion: f?.status?.statusCategory?.key === 'done',
-  };
+    const issue = payload?.issue ?? {};
+    const f = issue.fields ?? {};
+    return {
+        externalId: String(issue.id ?? ''),
+        commitSummary: [f.summary, f.description].filter(Boolean).join('\n'),
+        isCompletion: f?.status?.statusCategory?.key === 'done',
+    };
 }
 ```
 
@@ -271,11 +296,13 @@ git commit -m "feat(integrations): Jira secret verify + payload normalizer"
 ### Task 4: Linear + Jira webhook endpoints
 
 **Files:**
+
 - Modify: `apps/api/src/app/webhooks/webhooks.controller.ts`
 - Modify: `apps/api/src/app/webhooks/webhooks.service.ts` (add `handleLinear`, `handleJira`)
 - Test: `apps/api/src/app/webhooks/linear-jira.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `verifyLinearSignature`/`normalizeLinear`, `verifyJiraSecret`/`normalizeJira`, `RepositoriesService.decryptSecret`, `ingestNormalized`.
 - Produces: `POST /api/webhooks/linear`, `POST /api/webhooks/jira`; `WebhooksService.handleLinear(rawBody, headers)`, `handleJira(rawBody, headers, query)` — verify, normalize, skip non-completions, then `ingestNormalized(..., requireSourceIntegration: true)`.
 
@@ -288,15 +315,18 @@ import { WebhooksService } from './webhooks.service';
 import { SourceProvider } from '@shipshout/data-entities';
 
 it('handleLinear ingests a completed issue', async () => {
-  const secret = 'ls';
-  const body = Buffer.from(JSON.stringify({ data:{ id:'iss_1', title:'Fix', state:{ type:'completed' } } }));
-  const repos = { findByExternalId: jest.fn(async ()=>({ id:'r1', enabled:true, webhookSecret:'c', workspace:{ id:'w1' } })), decryptSecret: ()=>secret };
-  const ingest = jest.fn(async ()=>({ accepted:true }));
-  const svc = new WebhooksService(repos as any, {} as any, {} as any, {} as any);
-  (svc as any).ingestNormalized = ingest;
-  const sig = createHmac('sha256', secret).update(body).digest('hex');
-  await svc.handleLinear(body, { 'linear-signature': sig });
-  expect(ingest).toHaveBeenCalledWith(expect.objectContaining({ source: SourceProvider.Linear, requireSourceIntegration: true, verified: true }));
+    const secret = 'ls';
+    const body = Buffer.from(JSON.stringify({ data: { id: 'iss_1', title: 'Fix', state: { type: 'completed' } } }));
+    const repos = {
+        findByExternalId: jest.fn(async () => ({ id: 'r1', enabled: true, webhookSecret: 'c', workspace: { id: 'w1' } })),
+        decryptSecret: () => secret,
+    };
+    const ingest = jest.fn(async () => ({ accepted: true }));
+    const svc = new WebhooksService(repos as any, {} as any, {} as any, {} as any);
+    (svc as any).ingestNormalized = ingest;
+    const sig = createHmac('sha256', secret).update(body).digest('hex');
+    await svc.handleLinear(body, { 'linear-signature': sig });
+    expect(ingest).toHaveBeenCalledWith(expect.objectContaining({ source: SourceProvider.Linear, requireSourceIntegration: true, verified: true }));
 });
 ```
 

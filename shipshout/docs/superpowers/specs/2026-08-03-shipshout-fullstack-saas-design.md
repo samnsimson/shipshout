@@ -31,20 +31,20 @@ but no user-facing toggle initially).
 
 ## 2. Tech Stack
 
-| Concern            | Choice                                             |
-| :----------------- | :------------------------------------------------- |
-| Monorepo           | Nx                                                 |
-| Frontend           | Next.js (App Router)                               |
-| Backend API        | NestJS (HTTP)                                       |
-| Async workers      | NestJS + BullMQ (Redis)                            |
-| ORM                | TypeORM                                            |
-| Database           | PostgreSQL                                         |
-| Queue/cache        | Redis                                              |
-| AI                 | OpenAI (default) + Anthropic Claude (fallback)     |
-| Email              | Resend or SendGrid                                 |
-| Billing            | Stripe                                             |
-| Packaging          | Docker (per app) + docker-compose (local)          |
-| Validation         | zod (shared DTO/contract schemas)                  |
+| Concern       | Choice                                         |
+| :------------ | :--------------------------------------------- |
+| Monorepo      | Nx                                             |
+| Frontend      | Next.js (App Router)                           |
+| Backend API   | NestJS (HTTP)                                  |
+| Async workers | NestJS + BullMQ (Redis)                        |
+| ORM           | TypeORM                                        |
+| Database      | PostgreSQL                                     |
+| Queue/cache   | Redis                                          |
+| AI            | OpenAI (default) + Anthropic Claude (fallback) |
+| Email         | Resend or SendGrid                             |
+| Billing       | Stripe                                         |
+| Packaging     | Docker (per app) + docker-compose (local)      |
+| Validation    | zod (shared DTO/contract schemas)              |
 
 ## 3. Architecture
 
@@ -125,19 +125,19 @@ kept pure (no network) so they are fully unit-testable.
 
 Core entities (TypeORM):
 
-| Entity                | Key fields                                                                                       |
-| :-------------------- | :---------------------------------------------------------------------------------------------- |
-| **User**              | id, githubId, email, name, avatarUrl                                                            |
-| **Workspace**         | id, name, slug, stripeCustomerId, plan                                                          |
-| **Membership**        | user ↔ workspace, role (owner / admin / member)                                                 |
-| **Repository**        | workspace, provider (github/linear/jira), externalId, name, webhookSecret, enabled             |
-| **BrandProfile**      | workspace, tone (dev-focused / professional / hype-startup), customInstructions, emojiPolicy    |
-| **ChannelConnection** | workspace, type (x/linkedin/email/buffer/mailchimp), encrypted OAuth tokens, status            |
-| **ReleaseEvent**      | repository, source, rawPayload, commitSummary, status, deliveryId (dedupe)                      |
+| Entity                | Key fields                                                                                                  |
+| :-------------------- | :---------------------------------------------------------------------------------------------------------- |
+| **User**              | id, githubId, email, name, avatarUrl                                                                        |
+| **Workspace**         | id, name, slug, stripeCustomerId, plan                                                                      |
+| **Membership**        | user ↔ workspace, role (owner / admin / member)                                                            |
+| **Repository**        | workspace, provider (github/linear/jira), externalId, name, webhookSecret, enabled                          |
+| **BrandProfile**      | workspace, tone (dev-focused / professional / hype-startup), customInstructions, emojiPolicy                |
+| **ChannelConnection** | workspace, type (x/linkedin/email/buffer/mailchimp), encrypted OAuth tokens, status                         |
+| **ReleaseEvent**      | repository, source, rawPayload, commitSummary, status, deliveryId (dedupe)                                  |
 | **Draft**             | releaseEvent, channel, generatedCopy, editedCopy, status (pending_review/approved/published/failed), aiMeta |
-| **PublishRecord**     | draft, channelConnection, externalUrl, status, error                                            |
-| **Subscription**      | workspace, stripeSubId, tier, status, limits snapshot                                           |
-| **UsageCounter**      | workspace, period, releasesProcessed (tier enforcement)                                         |
+| **PublishRecord**     | draft, channelConnection, externalUrl, status, error                                                        |
+| **Subscription**      | workspace, stripeSubId, tier, status, limits snapshot                                                       |
+| **UsageCounter**      | workspace, period, releasesProcessed (tier enforcement)                                                     |
 
 Secrets and OAuth tokens are **encrypted at rest** (AES-GCM via an app/KMS key).
 
@@ -172,11 +172,11 @@ Each connector implements a small common interface so channels are swappable.
   Stripe webhooks keep `Subscription` + plan limits in sync.
 - Tiers (from explainer) mapped to feature flags + limits:
 
-| Tier        | Price      | Limits / features                                                              |
-| :---------- | :--------- | :---------------------------------------------------------------------------- |
-| **Starter** | $19 / mo   | 1 repository • 10 releases/mo • manual copy/paste output                       |
-| **Pro**     | $49 / mo   | 3 repositories • unlimited releases • social API sync                          |
-| **Growth**  | $149 / mo  | unlimited repositories • Jira/Linear integrations • email digests              |
+| Tier        | Price     | Limits / features                                                 |
+| :---------- | :-------- | :---------------------------------------------------------------- |
+| **Starter** | $19 / mo  | 1 repository • 10 releases/mo • manual copy/paste output          |
+| **Pro**     | $49 / mo  | 3 repositories • unlimited releases • social API sync             |
+| **Growth**  | $149 / mo | unlimited repositories • Jira/Linear integrations • email digests |
 
 - Enforcement via `UsageCounter` checked at ingestion time and repo-add time
   (guard rejects/queues over-limit actions).

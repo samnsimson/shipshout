@@ -24,12 +24,14 @@
 ### Task 1: Initialize Nx workspace and apps
 
 **Files:**
+
 - Create: `package.json`, `nx.json`, `tsconfig.base.json` (via Nx generator)
 - Create: `apps/api/`, `apps/web/`, `apps/worker/` (scaffolds)
 - Create: `docker-compose.yml`
 - Create: `.env.example`
 
 **Interfaces:**
+
 - Consumes: nothing (first task).
 - Produces: runnable Nx workspace; `nx serve api`, `nx serve web` boot; Postgres+Redis available at `localhost:5432` / `localhost:6379`.
 
@@ -54,19 +56,19 @@ npx nx g @nx/next:app web --directory=apps/web --style=css --appDir=true --e2eTe
 ```yaml
 # docker-compose.yml
 services:
-  postgres:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: shipshout
-      POSTGRES_PASSWORD: shipshout
-      POSTGRES_DB: shipshout
-    ports: ["5432:5432"]
-    volumes: ["pgdata:/var/lib/postgresql/data"]
-  redis:
-    image: redis:7
-    ports: ["6379:6379"]
+    postgres:
+        image: postgres:16
+        environment:
+            POSTGRES_USER: shipshout
+            POSTGRES_PASSWORD: shipshout
+            POSTGRES_DB: shipshout
+        ports: ['5432:5432']
+        volumes: ['pgdata:/var/lib/postgresql/data']
+    redis:
+        image: redis:7
+        ports: ['6379:6379']
 volumes:
-  pgdata:
+    pgdata:
 ```
 
 - [ ] **Step 4: Write `.env.example`**
@@ -100,12 +102,14 @@ git commit -m "chore: scaffold Nx workspace with api, web, worker apps and docke
 ### Task 2: Data layer library and TypeORM data-source
 
 **Files:**
+
 - Create: `libs/data/entities/src/lib/data-source.ts`
 - Create: `libs/data/entities/src/lib/typeorm.config.ts`
 - Create: `libs/data/entities/src/index.ts`
 - Test: `libs/data/entities/src/lib/data-source.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `DATABASE_URL` env.
 - Produces: `AppDataSource` (TypeORM `DataSource`), `buildTypeOrmOptions(): DataSourceOptions`. Later tasks register entities into `buildTypeOrmOptions().entities`.
 
@@ -123,12 +127,12 @@ npm i typeorm pg reflect-metadata
 import { buildTypeOrmOptions } from './typeorm.config';
 
 describe('buildTypeOrmOptions', () => {
-  it('never enables synchronize and uses migrations', () => {
-    const opts = buildTypeOrmOptions('postgres://u:p@localhost:5432/db');
-    expect(opts.synchronize).toBe(false);
-    expect(opts.type).toBe('postgres');
-    expect(Array.isArray(opts.entities)).toBe(true);
-  });
+    it('never enables synchronize and uses migrations', () => {
+        const opts = buildTypeOrmOptions('postgres://u:p@localhost:5432/db');
+        expect(opts.synchronize).toBe(false);
+        expect(opts.type).toBe('postgres');
+        expect(Array.isArray(opts.entities)).toBe(true);
+    });
 });
 ```
 
@@ -146,13 +150,13 @@ import { DataSourceOptions } from 'typeorm';
 export const ENTITIES: Function[] = []; // entities push-registered by later tasks
 
 export function buildTypeOrmOptions(databaseUrl: string): DataSourceOptions {
-  return {
-    type: 'postgres',
-    url: databaseUrl,
-    synchronize: false,
-    entities: ENTITIES,
-    migrations: [__dirname + '/migrations/*.js'],
-  };
+    return {
+        type: 'postgres',
+        url: databaseUrl,
+        synchronize: false,
+        entities: ENTITIES,
+        migrations: [__dirname + '/migrations/*.js'],
+    };
 }
 ```
 
@@ -162,9 +166,7 @@ import 'reflect-metadata';
 import { DataSource } from 'typeorm';
 import { buildTypeOrmOptions } from './typeorm.config';
 
-export const AppDataSource = new DataSource(
-  buildTypeOrmOptions(process.env.DATABASE_URL ?? '')
-);
+export const AppDataSource = new DataSource(buildTypeOrmOptions(process.env.DATABASE_URL ?? ''));
 ```
 
 - [ ] **Step 5: Run test to verify it passes**
@@ -184,6 +186,7 @@ git commit -m "feat(data): add TypeORM data-source and config with migrations, n
 ### Task 3: Core entities (User, Workspace, Membership)
 
 **Files:**
+
 - Create: `libs/data/entities/src/lib/entities/user.entity.ts`
 - Create: `libs/data/entities/src/lib/entities/workspace.entity.ts`
 - Create: `libs/data/entities/src/lib/entities/membership.entity.ts`
@@ -191,6 +194,7 @@ git commit -m "feat(data): add TypeORM data-source and config with migrations, n
 - Test: `libs/data/entities/src/lib/entities/entities.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ENTITIES` array from Task 2.
 - Produces: `User`, `Workspace`, `Membership`, `MembershipRole` enum (`owner|admin|member`). Later tasks reference `workspace.id`, `user.id`, `membership.role`.
 
@@ -204,14 +208,14 @@ import { Workspace } from './workspace.entity';
 import { Membership, MembershipRole } from './membership.entity';
 
 describe('core entities', () => {
-  it('registers all core entities', () => {
-    expect(ENTITIES).toEqual(expect.arrayContaining([User, Workspace, Membership]));
-  });
-  it('defines membership roles', () => {
-    expect(MembershipRole.Owner).toBe('owner');
-    expect(MembershipRole.Admin).toBe('admin');
-    expect(MembershipRole.Member).toBe('member');
-  });
+    it('registers all core entities', () => {
+        expect(ENTITIES).toEqual(expect.arrayContaining([User, Workspace, Membership]));
+    });
+    it('defines membership roles', () => {
+        expect(MembershipRole.Owner).toBe('owner');
+        expect(MembershipRole.Admin).toBe('admin');
+        expect(MembershipRole.Member).toBe('member');
+    });
 });
 ```
 
@@ -228,12 +232,12 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 
 @Entity('users')
 export class User {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @Column({ unique: true }) githubId!: string;
-  @Column({ nullable: true }) email?: string;
-  @Column({ nullable: true }) name?: string;
-  @Column({ nullable: true }) avatarUrl?: string;
-  @CreateDateColumn() createdAt!: Date;
+    @PrimaryGeneratedColumn('uuid') id!: string;
+    @Column({ unique: true }) githubId!: string;
+    @Column({ nullable: true }) email?: string;
+    @Column({ nullable: true }) name?: string;
+    @Column({ nullable: true }) avatarUrl?: string;
+    @CreateDateColumn() createdAt!: Date;
 }
 ```
 
@@ -243,12 +247,12 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeor
 
 @Entity('workspaces')
 export class Workspace {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @Column() name!: string;
-  @Column({ unique: true }) slug!: string;
-  @Column({ nullable: true }) stripeCustomerId?: string;
-  @Column({ default: 'starter' }) plan!: string;
-  @CreateDateColumn() createdAt!: Date;
+    @PrimaryGeneratedColumn('uuid') id!: string;
+    @Column() name!: string;
+    @Column({ unique: true }) slug!: string;
+    @Column({ nullable: true }) stripeCustomerId?: string;
+    @Column({ default: 'starter' }) plan!: string;
+    @CreateDateColumn() createdAt!: Date;
 }
 ```
 
@@ -258,15 +262,19 @@ import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeo
 import { User } from './user.entity';
 import { Workspace } from './workspace.entity';
 
-export enum MembershipRole { Owner = 'owner', Admin = 'admin', Member = 'member' }
+export enum MembershipRole {
+    Owner = 'owner',
+    Admin = 'admin',
+    Member = 'member',
+}
 
 @Entity('memberships')
 @Unique(['user', 'workspace'])
 export class Membership {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @ManyToOne(() => User, { eager: true }) user!: User;
-  @ManyToOne(() => Workspace, { eager: true }) workspace!: Workspace;
-  @Column({ type: 'enum', enum: MembershipRole, default: MembershipRole.Member }) role!: MembershipRole;
+    @PrimaryGeneratedColumn('uuid') id!: string;
+    @ManyToOne(() => User, { eager: true }) user!: User;
+    @ManyToOne(() => Workspace, { eager: true }) workspace!: Workspace;
+    @Column({ type: 'enum', enum: MembershipRole, default: MembershipRole.Member }) role!: MembershipRole;
 }
 ```
 
@@ -307,10 +315,12 @@ git commit -m "feat(data): add User, Workspace, Membership entities and initial 
 ### Task 4: Encryption utility for secrets at rest
 
 **Files:**
+
 - Create: `libs/shared/util/src/lib/crypto.ts`
 - Test: `libs/shared/util/src/lib/crypto.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `APP_ENCRYPTION_KEY` (base64, 32 bytes).
 - Produces: `encryptSecret(plaintext: string): string`, `decryptSecret(ciphertext: string): string`. Later tasks (Plan 5 tokens, webhook secrets) use these.
 
@@ -325,17 +335,19 @@ npx nx g @nx/js:lib shared-util --directory=libs/shared/util --importPath=@ships
 import { encryptSecret, decryptSecret } from './crypto';
 
 const KEY = Buffer.alloc(32, 1).toString('base64');
-beforeAll(() => { process.env.APP_ENCRYPTION_KEY = KEY; });
+beforeAll(() => {
+    process.env.APP_ENCRYPTION_KEY = KEY;
+});
 
 describe('crypto', () => {
-  it('round-trips a secret', () => {
-    const ct = encryptSecret('gho_token');
-    expect(ct).not.toContain('gho_token');
-    expect(decryptSecret(ct)).toBe('gho_token');
-  });
-  it('produces different ciphertext each call (random IV)', () => {
-    expect(encryptSecret('x')).not.toBe(encryptSecret('x'));
-  });
+    it('round-trips a secret', () => {
+        const ct = encryptSecret('gho_token');
+        expect(ct).not.toContain('gho_token');
+        expect(decryptSecret(ct)).toBe('gho_token');
+    });
+    it('produces different ciphertext each call (random IV)', () => {
+        expect(encryptSecret('x')).not.toBe(encryptSecret('x'));
+    });
 });
 ```
 
@@ -351,24 +363,24 @@ Expected: FAIL — module not found.
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 
 function key(): Buffer {
-  const k = Buffer.from(process.env.APP_ENCRYPTION_KEY ?? '', 'base64');
-  if (k.length !== 32) throw new Error('APP_ENCRYPTION_KEY must be 32 bytes base64');
-  return k;
+    const k = Buffer.from(process.env.APP_ENCRYPTION_KEY ?? '', 'base64');
+    if (k.length !== 32) throw new Error('APP_ENCRYPTION_KEY must be 32 bytes base64');
+    return k;
 }
 
 export function encryptSecret(plaintext: string): string {
-  const iv = randomBytes(12);
-  const cipher = createCipheriv('aes-256-gcm', key(), iv);
-  const enc = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return [iv.toString('base64'), tag.toString('base64'), enc.toString('base64')].join('.');
+    const iv = randomBytes(12);
+    const cipher = createCipheriv('aes-256-gcm', key(), iv);
+    const enc = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
+    const tag = cipher.getAuthTag();
+    return [iv.toString('base64'), tag.toString('base64'), enc.toString('base64')].join('.');
 }
 
 export function decryptSecret(ciphertext: string): string {
-  const [ivB64, tagB64, dataB64] = ciphertext.split('.');
-  const decipher = createDecipheriv('aes-256-gcm', key(), Buffer.from(ivB64, 'base64'));
-  decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
-  return Buffer.concat([decipher.update(Buffer.from(dataB64, 'base64')), decipher.final()]).toString('utf8');
+    const [ivB64, tagB64, dataB64] = ciphertext.split('.');
+    const decipher = createDecipheriv('aes-256-gcm', key(), Buffer.from(ivB64, 'base64'));
+    decipher.setAuthTag(Buffer.from(tagB64, 'base64'));
+    return Buffer.concat([decipher.update(Buffer.from(dataB64, 'base64')), decipher.final()]).toString('utf8');
 }
 ```
 
@@ -389,11 +401,13 @@ git commit -m "feat(util): add AES-256-GCM encrypt/decrypt for secrets at rest"
 ### Task 5: Shared contracts (zod schemas + DTO types)
 
 **Files:**
+
 - Create: `libs/shared/contracts/src/lib/auth.contracts.ts`
 - Create: `libs/shared/contracts/src/lib/workspace.contracts.ts`
 - Test: `libs/shared/contracts/src/lib/workspace.contracts.spec.ts`
 
 **Interfaces:**
+
 - Consumes: nothing.
 - Produces: `CreateWorkspaceSchema`, `CreateWorkspaceDto`, `SessionUser` type used by `web` + `api`.
 
@@ -409,12 +423,12 @@ npm i zod
 import { CreateWorkspaceSchema } from './workspace.contracts';
 
 describe('CreateWorkspaceSchema', () => {
-  it('rejects empty name', () => {
-    expect(CreateWorkspaceSchema.safeParse({ name: '' }).success).toBe(false);
-  });
-  it('accepts a valid name', () => {
-    expect(CreateWorkspaceSchema.safeParse({ name: 'Acme' }).success).toBe(true);
-  });
+    it('rejects empty name', () => {
+        expect(CreateWorkspaceSchema.safeParse({ name: '' }).success).toBe(false);
+    });
+    it('accepts a valid name', () => {
+        expect(CreateWorkspaceSchema.safeParse({ name: 'Acme' }).success).toBe(true);
+    });
 });
 ```
 
@@ -435,11 +449,11 @@ export type CreateWorkspaceDto = z.infer<typeof CreateWorkspaceSchema>;
 ```typescript
 // auth.contracts.ts
 export interface SessionUser {
-  id: string;
-  githubId: string;
-  email?: string;
-  name?: string;
-  avatarUrl?: string;
+    id: string;
+    githubId: string;
+    email?: string;
+    name?: string;
+    avatarUrl?: string;
 }
 ```
 
@@ -460,11 +474,13 @@ git commit -m "feat(contracts): add workspace zod schema and SessionUser type"
 ### Task 6: Wire TypeORM into the API app
 
 **Files:**
+
 - Modify: `apps/api/src/app/app.module.ts`
 - Create: `apps/api/src/app/config/typeorm.module.ts`
 - Test: `apps/api/src/app/config/typeorm.module.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `buildTypeOrmOptions` (Task 2), `ENTITIES` (Task 3).
 - Produces: `TypeOrmModule.forRoot` configured; repositories injectable in later API tasks.
 
@@ -480,9 +496,9 @@ npm i @nestjs/typeorm @nestjs/config
 // typeorm.module.spec.ts
 import { buildApiTypeOrmOptions } from './typeorm.module';
 describe('buildApiTypeOrmOptions', () => {
-  it('disables synchronize', () => {
-    expect(buildApiTypeOrmOptions().synchronize).toBe(false);
-  });
+    it('disables synchronize', () => {
+        expect(buildApiTypeOrmOptions().synchronize).toBe(false);
+    });
 });
 ```
 
@@ -497,7 +513,7 @@ Expected: FAIL — function not found.
 // typeorm.module.ts
 import { buildTypeOrmOptions } from '@shipshout/data-entities';
 export function buildApiTypeOrmOptions() {
-  return buildTypeOrmOptions(process.env.DATABASE_URL ?? '');
+    return buildTypeOrmOptions(process.env.DATABASE_URL ?? '');
 }
 ```
 
@@ -526,11 +542,13 @@ git commit -m "feat(api): wire TypeORM and ConfigModule into API app"
 ### Task 7: Auth library — GitHub OAuth strategy + user upsert
 
 **Files:**
+
 - Create: `libs/auth/src/lib/github.strategy.ts`
 - Create: `libs/auth/src/lib/auth.service.ts`
 - Test: `libs/auth/src/lib/auth.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `User`, `Workspace`, `Membership` entities; TypeORM repositories.
 - Produces: `AuthService.upsertFromGithub(profile): Promise<User>` — creates the user and, on first login, a default personal `Workspace` + owner `Membership`. Returns the `User`.
 
@@ -549,24 +567,30 @@ npm i -D @types/passport-github2 @types/express-session
 import { AuthService } from './auth.service';
 
 const makeRepo = () => {
-  const store: any[] = [];
-  return {
-    store,
-    findOne: jest.fn(async ({ where }) => store.find(r => r.githubId === where.githubId)),
-    create: jest.fn((d) => d),
-    save: jest.fn(async (d) => { const rec = { id: 'u1', ...d }; store.push(rec); return rec; }),
-  };
+    const store: any[] = [];
+    return {
+        store,
+        findOne: jest.fn(async ({ where }) => store.find((r) => r.githubId === where.githubId)),
+        create: jest.fn((d) => d),
+        save: jest.fn(async (d) => {
+            const rec = { id: 'u1', ...d };
+            store.push(rec);
+            return rec;
+        }),
+    };
 };
 
 describe('AuthService.upsertFromGithub', () => {
-  it('creates a user, default workspace, and owner membership on first login', async () => {
-    const users = makeRepo(); const workspaces = makeRepo(); const memberships = makeRepo();
-    const svc = new AuthService(users as any, workspaces as any, memberships as any);
-    const user = await svc.upsertFromGithub({ id: '123', username: 'ada', emails: [{ value: 'a@b.co' }], photos: [{ value: 'p.png' }] } as any);
-    expect(user.githubId).toBe('123');
-    expect(workspaces.save).toHaveBeenCalledTimes(1);
-    expect(memberships.save).toHaveBeenCalledTimes(1);
-  });
+    it('creates a user, default workspace, and owner membership on first login', async () => {
+        const users = makeRepo();
+        const workspaces = makeRepo();
+        const memberships = makeRepo();
+        const svc = new AuthService(users as any, workspaces as any, memberships as any);
+        const user = await svc.upsertFromGithub({ id: '123', username: 'ada', emails: [{ value: 'a@b.co' }], photos: [{ value: 'p.png' }] } as any);
+        expect(user.githubId).toBe('123');
+        expect(workspaces.save).toHaveBeenCalledTimes(1);
+        expect(memberships.save).toHaveBeenCalledTimes(1);
+    });
 });
 ```
 
@@ -582,34 +606,40 @@ Expected: FAIL — `AuthService` not found.
 import { Repository } from 'typeorm';
 import { User, Workspace, Membership, MembershipRole } from '@shipshout/data-entities';
 
-function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); }
+function slugify(s: string) {
+    return s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+}
 
 export class AuthService {
-  constructor(
-    private users: Repository<User>,
-    private workspaces: Repository<Workspace>,
-    private memberships: Repository<Membership>,
-  ) {}
+    constructor(
+        private users: Repository<User>,
+        private workspaces: Repository<Workspace>,
+        private memberships: Repository<Membership>,
+    ) {}
 
-  async upsertFromGithub(profile: {
-    id: string; username?: string;
-    emails?: { value: string }[]; photos?: { value: string }[];
-  }): Promise<User> {
-    let user = await this.users.findOne({ where: { githubId: profile.id } });
-    if (user) return user;
-    user = await this.users.save(this.users.create({
-      githubId: profile.id,
-      name: profile.username,
-      email: profile.emails?.[0]?.value,
-      avatarUrl: profile.photos?.[0]?.value,
-    }));
-    const ws = await this.workspaces.save(this.workspaces.create({
-      name: `${profile.username ?? 'My'} Workspace`,
-      slug: slugify(`${profile.username ?? 'ws'}-${user.id.slice(0, 6)}`),
-    }));
-    await this.memberships.save(this.memberships.create({ user, workspace: ws, role: MembershipRole.Owner }));
-    return user;
-  }
+    async upsertFromGithub(profile: { id: string; username?: string; emails?: { value: string }[]; photos?: { value: string }[] }): Promise<User> {
+        let user = await this.users.findOne({ where: { githubId: profile.id } });
+        if (user) return user;
+        user = await this.users.save(
+            this.users.create({
+                githubId: profile.id,
+                name: profile.username,
+                email: profile.emails?.[0]?.value,
+                avatarUrl: profile.photos?.[0]?.value,
+            }),
+        );
+        const ws = await this.workspaces.save(
+            this.workspaces.create({
+                name: `${profile.username ?? 'My'} Workspace`,
+                slug: slugify(`${profile.username ?? 'ws'}-${user.id.slice(0, 6)}`),
+            }),
+        );
+        await this.memberships.save(this.memberships.create({ user, workspace: ws, role: MembershipRole.Owner }));
+        return user;
+    }
 }
 ```
 
@@ -622,17 +652,17 @@ import { AuthService } from './auth.service';
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
-  constructor(private auth: AuthService) {
-    super({
-      clientID: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-      callbackURL: process.env.GITHUB_CALLBACK_URL!,
-      scope: ['user:email'],
-    });
-  }
-  async validate(_at: string, _rt: string, profile: any) {
-    return this.auth.upsertFromGithub(profile);
-  }
+    constructor(private auth: AuthService) {
+        super({
+            clientID: process.env.GITHUB_CLIENT_ID!,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
+            callbackURL: process.env.GITHUB_CALLBACK_URL!,
+            scope: ['user:email'],
+        });
+    }
+    async validate(_at: string, _rt: string, profile: any) {
+        return this.auth.upsertFromGithub(profile);
+    }
 }
 ```
 
@@ -653,6 +683,7 @@ git commit -m "feat(auth): GitHub OAuth strategy and user/workspace bootstrap on
 ### Task 8: Auth controller, session, and workspace guard in API
 
 **Files:**
+
 - Create: `apps/api/src/app/auth/auth.controller.ts`
 - Create: `apps/api/src/app/auth/auth.module.ts`
 - Create: `libs/auth/src/lib/workspace.guard.ts`
@@ -660,6 +691,7 @@ git commit -m "feat(auth): GitHub OAuth strategy and user/workspace bootstrap on
 - Test: `apps/api/src/app/auth/auth.controller.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `AuthService`, `GithubStrategy`, `Membership` repo.
 - Produces: routes `GET /api/auth/github`, `GET /api/auth/github/callback` (sets session, redirects to `WEB_BASE_URL`), `GET /api/auth/me`, `POST /api/auth/logout`; `WorkspaceGuard` that resolves `req.workspaceMembership` from `:workspaceId` and rejects non-members. Later plans depend on `WorkspaceGuard` + `req.workspaceMembership`.
 
@@ -669,25 +701,26 @@ git commit -m "feat(auth): GitHub OAuth strategy and user/workspace bootstrap on
 // workspace.guard.spec.ts
 import { WorkspaceGuard } from './workspace.guard';
 
-const ctx = (user: any, workspaceId: string) => ({
-  switchToHttp: () => ({ getRequest: () => ({ user, params: { workspaceId }, }) }),
-}) as any;
+const ctx = (user: any, workspaceId: string) =>
+    ({
+        switchToHttp: () => ({ getRequest: () => ({ user, params: { workspaceId } }) }),
+    }) as any;
 
 describe('WorkspaceGuard', () => {
-  it('denies when user has no membership in workspace', async () => {
-    const memberships = { findOne: jest.fn(async () => null) };
-    const guard = new WorkspaceGuard(memberships as any);
-    await expect(guard.canActivate(ctx({ id: 'u1' }, 'w1'))).resolves.toBe(false);
-  });
-  it('allows and attaches membership when member', async () => {
-    const membership = { id: 'm1', role: 'owner' };
-    const memberships = { findOne: jest.fn(async () => membership) };
-    const guard = new WorkspaceGuard(memberships as any);
-    const req: any = { user: { id: 'u1' }, params: { workspaceId: 'w1' } };
-    const c: any = { switchToHttp: () => ({ getRequest: () => req }) };
-    await expect(guard.canActivate(c)).resolves.toBe(true);
-    expect(req.workspaceMembership).toBe(membership);
-  });
+    it('denies when user has no membership in workspace', async () => {
+        const memberships = { findOne: jest.fn(async () => null) };
+        const guard = new WorkspaceGuard(memberships as any);
+        await expect(guard.canActivate(ctx({ id: 'u1' }, 'w1'))).resolves.toBe(false);
+    });
+    it('allows and attaches membership when member', async () => {
+        const membership = { id: 'm1', role: 'owner' };
+        const memberships = { findOne: jest.fn(async () => membership) };
+        const guard = new WorkspaceGuard(memberships as any);
+        const req: any = { user: { id: 'u1' }, params: { workspaceId: 'w1' } };
+        const c: any = { switchToHttp: () => ({ getRequest: () => req }) };
+        await expect(guard.canActivate(c)).resolves.toBe(true);
+        expect(req.workspaceMembership).toBe(membership);
+    });
 });
 ```
 
@@ -706,18 +739,18 @@ import { Membership } from '@shipshout/data-entities';
 
 @Injectable()
 export class WorkspaceGuard implements CanActivate {
-  constructor(private memberships: Repository<Membership>) {}
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context.switchToHttp().getRequest();
-    if (!req.user) return false;
-    const workspaceId = req.params.workspaceId;
-    const membership = await this.memberships.findOne({
-      where: { user: { id: req.user.id }, workspace: { id: workspaceId } },
-    });
-    if (!membership) return false;
-    req.workspaceMembership = membership;
-    return true;
-  }
+    constructor(private memberships: Repository<Membership>) {}
+    async canActivate(context: ExecutionContext): Promise<boolean> {
+        const req = context.switchToHttp().getRequest();
+        if (!req.user) return false;
+        const workspaceId = req.params.workspaceId;
+        const membership = await this.memberships.findOne({
+            where: { user: { id: req.user.id }, workspace: { id: workspaceId } },
+        });
+        if (!membership) return false;
+        req.workspaceMembership = membership;
+        return true;
+    }
 }
 ```
 
@@ -730,19 +763,24 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  @Get('github') @UseGuards(AuthGuard('github')) login() { /* redirect handled by passport */ }
+    @Get('github') @UseGuards(AuthGuard('github')) login() {
+        /* redirect handled by passport */
+    }
 
-  @Get('github/callback') @UseGuards(AuthGuard('github'))
-  callback(@Req() req: any, @Res() res: any) {
-    req.session.userId = req.user.id;
-    res.redirect(process.env.WEB_BASE_URL ?? '/');
-  }
+    @Get('github/callback')
+    @UseGuards(AuthGuard('github'))
+    callback(@Req() req: any, @Res() res: any) {
+        req.session.userId = req.user.id;
+        res.redirect(process.env.WEB_BASE_URL ?? '/');
+    }
 
-  @Get('me') me(@Req() req: any) { return req.user ?? null; }
+    @Get('me') me(@Req() req: any) {
+        return req.user ?? null;
+    }
 
-  @Post('logout') logout(@Req() req: any) {
-    return new Promise((resolve) => req.session.destroy(() => resolve({ ok: true })));
-  }
+    @Post('logout') logout(@Req() req: any) {
+        return new Promise((resolve) => req.session.destroy(() => resolve({ ok: true })));
+    }
 }
 ```
 
@@ -754,10 +792,10 @@ Register `express-session` in `apps/api/src/main.ts` with `SESSION_SECRET`, http
 // auth.controller.spec.ts
 import { AuthController } from './auth.controller';
 describe('AuthController', () => {
-  it('me returns the request user', () => {
-    const c = new AuthController();
-    expect(c.me({ user: { id: 'u1' } } as any)).toEqual({ id: 'u1' });
-  });
+    it('me returns the request user', () => {
+        const c = new AuthController();
+        expect(c.me({ user: { id: 'u1' } } as any)).toEqual({ id: 'u1' });
+    });
 });
 ```
 
@@ -776,12 +814,14 @@ git commit -m "feat(api): auth controller, session handling, and workspace membe
 ### Task 9: Workspace API (list/create/switch) + roles
 
 **Files:**
+
 - Create: `apps/api/src/app/workspaces/workspaces.controller.ts`
 - Create: `apps/api/src/app/workspaces/workspaces.service.ts`
 - Create: `apps/api/src/app/workspaces/workspaces.module.ts`
 - Test: `apps/api/src/app/workspaces/workspaces.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `Workspace`, `Membership`, `WorkspaceGuard`, `CreateWorkspaceSchema`.
 - Produces: `GET /api/workspaces` (caller's workspaces), `POST /api/workspaces` (create + owner membership), `GET /api/workspaces/:workspaceId` (guarded). `WorkspacesService.listForUser(userId)` and `createForUser(userId, dto)`.
 
@@ -792,14 +832,14 @@ git commit -m "feat(api): auth controller, session handling, and workspace membe
 import { WorkspacesService } from './workspaces.service';
 
 describe('WorkspacesService.createForUser', () => {
-  it('creates workspace and owner membership', async () => {
-    const workspaces = { create: (d:any)=>d, save: jest.fn(async (d:any)=>({ id:'w1', ...d })) };
-    const memberships = { create: (d:any)=>d, save: jest.fn(async (d:any)=>d) };
-    const svc = new WorkspacesService(workspaces as any, memberships as any);
-    const ws = await svc.createForUser('u1', { name: 'Acme' });
-    expect(ws.id).toBe('w1');
-    expect(memberships.save).toHaveBeenCalled();
-  });
+    it('creates workspace and owner membership', async () => {
+        const workspaces = { create: (d: any) => d, save: jest.fn(async (d: any) => ({ id: 'w1', ...d })) };
+        const memberships = { create: (d: any) => d, save: jest.fn(async (d: any) => d) };
+        const svc = new WorkspacesService(workspaces as any, memberships as any);
+        const ws = await svc.createForUser('u1', { name: 'Acme' });
+        expect(ws.id).toBe('w1');
+        expect(memberships.save).toHaveBeenCalled();
+    });
 });
 ```
 
@@ -816,25 +856,40 @@ import { Repository } from 'typeorm';
 import { Workspace, Membership, MembershipRole } from '@shipshout/data-entities';
 import { CreateWorkspaceDto } from '@shipshout/contracts';
 
-function slugify(s: string) { return s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); }
+function slugify(s: string) {
+    return s
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+}
 
 export class WorkspacesService {
-  constructor(private workspaces: Repository<Workspace>, private memberships: Repository<Membership>) {}
+    constructor(
+        private workspaces: Repository<Workspace>,
+        private memberships: Repository<Membership>,
+    ) {}
 
-  async listForUser(userId: string): Promise<Workspace[]> {
-    const ms = await this.memberships.find({ where: { user: { id: userId } } });
-    return ms.map(m => m.workspace);
-  }
+    async listForUser(userId: string): Promise<Workspace[]> {
+        const ms = await this.memberships.find({ where: { user: { id: userId } } });
+        return ms.map((m) => m.workspace);
+    }
 
-  async createForUser(userId: string, dto: CreateWorkspaceDto): Promise<Workspace> {
-    const ws = await this.workspaces.save(this.workspaces.create({
-      name: dto.name, slug: slugify(`${dto.name}-${Date.now().toString(36)}`),
-    }));
-    await this.memberships.save(this.memberships.create({
-      user: { id: userId } as any, workspace: ws, role: MembershipRole.Owner,
-    }));
-    return ws;
-  }
+    async createForUser(userId: string, dto: CreateWorkspaceDto): Promise<Workspace> {
+        const ws = await this.workspaces.save(
+            this.workspaces.create({
+                name: dto.name,
+                slug: slugify(`${dto.name}-${Date.now().toString(36)}`),
+            }),
+        );
+        await this.memberships.save(
+            this.memberships.create({
+                user: { id: userId } as any,
+                workspace: ws,
+                role: MembershipRole.Owner,
+            }),
+        );
+        return ws;
+    }
 }
 ```
 
@@ -847,20 +902,23 @@ import { WorkspacesService } from './workspaces.service';
 
 @Controller('workspaces')
 export class WorkspacesController {
-  constructor(private svc: WorkspacesService) {}
+    constructor(private svc: WorkspacesService) {}
 
-  @Get() list(@Req() req: any) { return this.svc.listForUser(req.user.id); }
+    @Get() list(@Req() req: any) {
+        return this.svc.listForUser(req.user.id);
+    }
 
-  @Post() create(@Req() req: any, @Body() body: unknown) {
-    const parsed = CreateWorkspaceSchema.safeParse(body);
-    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
-    return this.svc.createForUser(req.user.id, parsed.data);
-  }
+    @Post() create(@Req() req: any, @Body() body: unknown) {
+        const parsed = CreateWorkspaceSchema.safeParse(body);
+        if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
+        return this.svc.createForUser(req.user.id, parsed.data);
+    }
 
-  @Get(':workspaceId') @UseGuards(WorkspaceGuard)
-  get(@Param('workspaceId') id: string, @Req() req: any) {
-    return req.workspaceMembership.workspace;
-  }
+    @Get(':workspaceId')
+    @UseGuards(WorkspaceGuard)
+    get(@Param('workspaceId') id: string, @Req() req: any) {
+        return req.workspaceMembership.workspace;
+    }
 }
 ```
 
@@ -881,6 +939,7 @@ git commit -m "feat(api): workspace list/create/get endpoints with owner members
 ### Task 10: Web app shell — login, session, workspace switcher
 
 **Files:**
+
 - Create: `apps/web/src/app/login/page.tsx`
 - Create: `apps/web/src/app/(dashboard)/layout.tsx`
 - Create: `apps/web/src/lib/api-client.ts`
@@ -888,6 +947,7 @@ git commit -m "feat(api): workspace list/create/get endpoints with owner members
 - Test: `apps/web/src/lib/api-client.spec.ts`
 
 **Interfaces:**
+
 - Consumes: API routes `/api/auth/me`, `/api/workspaces`.
 - Produces: `apiFetch(path, init)` (credentials: 'include'), `getSessionUser()`; login page with "Sign in with GitHub" linking to `${API_BASE_URL}/api/auth/github`; dashboard layout guarding unauthenticated users and rendering a workspace switcher. Later plans (dashboard, billing) reuse `apiFetch` + layout.
 
@@ -897,12 +957,12 @@ git commit -m "feat(api): workspace list/create/get endpoints with owner members
 // api-client.spec.ts
 import { apiFetch } from './api-client';
 describe('apiFetch', () => {
-  it('sends credentials and prefixes API base', async () => {
-    const spy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({ ok: true, json: async () => ({}) } as any);
-    process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test';
-    await apiFetch('/workspaces');
-    expect(spy).toHaveBeenCalledWith('http://api.test/api/workspaces', expect.objectContaining({ credentials: 'include' }));
-  });
+    it('sends credentials and prefixes API base', async () => {
+        const spy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({ ok: true, json: async () => ({}) } as any);
+        process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test';
+        await apiFetch('/workspaces');
+        expect(spy).toHaveBeenCalledWith('http://api.test/api/workspaces', expect.objectContaining({ credentials: 'include' }));
+    });
 });
 ```
 
@@ -916,10 +976,10 @@ Expected: FAIL — `apiFetch` not found.
 ```typescript
 // api-client.ts
 export async function apiFetch(path: string, init: RequestInit = {}) {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-  const res = await fetch(`${base}/api${path}`, { credentials: 'include', ...init });
-  if (!res.ok) throw new Error(`API ${res.status}`);
-  return res.json();
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+    const res = await fetch(`${base}/api${path}`, { credentials: 'include', ...init });
+    if (!res.ok) throw new Error(`API ${res.status}`);
+    return res.json();
 }
 ```
 
@@ -927,22 +987,26 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
 // session.ts
 import { apiFetch } from './api-client';
 export async function getSessionUser() {
-  try { return await apiFetch('/auth/me'); } catch { return null; }
+    try {
+        return await apiFetch('/auth/me');
+    } catch {
+        return null;
+    }
 }
 ```
 
 ```tsx
 // login/page.tsx
 export default function LoginPage() {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/github`;
-  return (
-    <main style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
-      <div>
-        <h1>ShipShout</h1>
-        <a href={url}>Sign in with GitHub</a>
-      </div>
-    </main>
-  );
+    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/github`;
+    return (
+        <main style={{ display: 'grid', placeItems: 'center', minHeight: '100vh' }}>
+            <div>
+                <h1>ShipShout</h1>
+                <a href={url}>Sign in with GitHub</a>
+            </div>
+        </main>
+    );
 }
 ```
 
@@ -952,9 +1016,14 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '../../lib/session';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const user = await getSessionUser();
-  if (!user) redirect('/login');
-  return <div><header>ShipShout — {user.name}</header>{children}</div>;
+    const user = await getSessionUser();
+    if (!user) redirect('/login');
+    return (
+        <div>
+            <header>ShipShout — {user.name}</header>
+            {children}
+        </div>
+    );
 }
 ```
 

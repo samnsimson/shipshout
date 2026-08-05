@@ -20,12 +20,14 @@
 ### Task 1: ChannelConnection + PublishRecord entities + migration
 
 **Files:**
+
 - Create: `libs/data/entities/src/lib/entities/channel-connection.entity.ts`
 - Create: `libs/data/entities/src/lib/entities/publish-record.entity.ts`
 - Modify: `libs/data/entities/src/lib/typeorm.config.ts`
 - Test: `libs/data/entities/src/lib/entities/dispatch-entities.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `Workspace`, `Draft`, `Channel` (Plans 1/3), `ENTITIES`.
 - Produces: `ChannelConnection` (workspace, type: `Channel`, accessToken/refreshToken encrypted, externalAccountId, status), `PublishRecord` (draft, channelConnection, externalUrl, status: `PublishStatus`, error), `PublishStatus` enum (`success|failed`), `ConnectionStatus` enum (`active|revoked`).
 
@@ -37,11 +39,11 @@ import { ENTITIES } from '../typeorm.config';
 import { ChannelConnection, ConnectionStatus } from './channel-connection.entity';
 import { PublishRecord, PublishStatus } from './publish-record.entity';
 describe('dispatch entities', () => {
-  it('registers entities', () => expect(ENTITIES).toEqual(expect.arrayContaining([ChannelConnection, PublishRecord])));
-  it('has enums', () => {
-    expect(ConnectionStatus.Active).toBe('active');
-    expect(PublishStatus.Success).toBe('success');
-  });
+    it('registers entities', () => expect(ENTITIES).toEqual(expect.arrayContaining([ChannelConnection, PublishRecord])));
+    it('has enums', () => {
+        expect(ConnectionStatus.Active).toBe('active');
+        expect(PublishStatus.Success).toBe('success');
+    });
 });
 ```
 
@@ -57,16 +59,19 @@ Expected: FAIL — modules not found.
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
 import { Workspace } from './workspace.entity';
 import { Channel } from './draft.entity';
-export enum ConnectionStatus { Active = 'active', Revoked = 'revoked' }
+export enum ConnectionStatus {
+    Active = 'active',
+    Revoked = 'revoked',
+}
 @Entity('channel_connections')
 export class ChannelConnection {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @ManyToOne(() => Workspace, { eager: true }) workspace!: Workspace;
-  @Column({ type: 'enum', enum: Channel }) type!: Channel;
-  @Column({ type: 'text' }) accessToken!: string;   // encrypted
-  @Column({ type: 'text', nullable: true }) refreshToken?: string; // encrypted
-  @Column({ nullable: true }) externalAccountId?: string;
-  @Column({ type: 'enum', enum: ConnectionStatus, default: ConnectionStatus.Active }) status!: ConnectionStatus;
+    @PrimaryGeneratedColumn('uuid') id!: string;
+    @ManyToOne(() => Workspace, { eager: true }) workspace!: Workspace;
+    @Column({ type: 'enum', enum: Channel }) type!: Channel;
+    @Column({ type: 'text' }) accessToken!: string; // encrypted
+    @Column({ type: 'text', nullable: true }) refreshToken?: string; // encrypted
+    @Column({ nullable: true }) externalAccountId?: string;
+    @Column({ type: 'enum', enum: ConnectionStatus, default: ConnectionStatus.Active }) status!: ConnectionStatus;
 }
 ```
 
@@ -75,16 +80,19 @@ export class ChannelConnection {
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from 'typeorm';
 import { Draft } from './draft.entity';
 import { ChannelConnection } from './channel-connection.entity';
-export enum PublishStatus { Success = 'success', Failed = 'failed' }
+export enum PublishStatus {
+    Success = 'success',
+    Failed = 'failed',
+}
 @Entity('publish_records')
 export class PublishRecord {
-  @PrimaryGeneratedColumn('uuid') id!: string;
-  @ManyToOne(() => Draft, { eager: true }) draft!: Draft;
-  @ManyToOne(() => ChannelConnection, { eager: true, nullable: true }) channelConnection?: ChannelConnection;
-  @Column({ nullable: true }) externalUrl?: string;
-  @Column({ type: 'enum', enum: PublishStatus }) status!: PublishStatus;
-  @Column({ type: 'text', nullable: true }) error?: string;
-  @CreateDateColumn() createdAt!: Date;
+    @PrimaryGeneratedColumn('uuid') id!: string;
+    @ManyToOne(() => Draft, { eager: true }) draft!: Draft;
+    @ManyToOne(() => ChannelConnection, { eager: true, nullable: true }) channelConnection?: ChannelConnection;
+    @Column({ nullable: true }) externalUrl?: string;
+    @Column({ type: 'enum', enum: PublishStatus }) status!: PublishStatus;
+    @Column({ type: 'text', nullable: true }) error?: string;
+    @CreateDateColumn() createdAt!: Date;
 }
 ```
 
@@ -114,11 +122,13 @@ git commit -m "feat(data): ChannelConnection and PublishRecord entities + migrat
 ### Task 2: Common connector interface + registry
 
 **Files:**
+
 - Create: `libs/integrations/core/src/lib/channel-connector.ts`
 - Create: `libs/integrations/core/src/lib/connector-registry.ts`
 - Test: `libs/integrations/core/src/lib/connector-registry.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `Channel`.
 - Produces: `interface ChannelConnector { channel: Channel; publish(input: { text: string; accessToken: string }): Promise<{ externalUrl?: string }> }`; `ConnectorRegistry.get(channel): ChannelConnector`. Consumed by the dispatch worker (Task 5).
 
@@ -133,15 +143,15 @@ npx nx g @nx/js:lib integrations-core --directory=libs/integrations/core --impor
 import { ConnectorRegistry } from './connector-registry';
 import { Channel } from '@shipshout/data-entities';
 describe('ConnectorRegistry', () => {
-  it('returns a registered connector', () => {
-    const fake = { channel: Channel.X, publish: jest.fn() } as any;
-    const reg = new ConnectorRegistry([fake]);
-    expect(reg.get(Channel.X)).toBe(fake);
-  });
-  it('throws for unregistered channel', () => {
-    const reg = new ConnectorRegistry([]);
-    expect(() => reg.get(Channel.LinkedIn)).toThrow();
-  });
+    it('returns a registered connector', () => {
+        const fake = { channel: Channel.X, publish: jest.fn() } as any;
+        const reg = new ConnectorRegistry([fake]);
+        expect(reg.get(Channel.X)).toBe(fake);
+    });
+    it('throws for unregistered channel', () => {
+        const reg = new ConnectorRegistry([]);
+        expect(() => reg.get(Channel.LinkedIn)).toThrow();
+    });
 });
 ```
 
@@ -155,11 +165,16 @@ Expected: FAIL — modules not found.
 ```typescript
 // channel-connector.ts
 import { Channel } from '@shipshout/data-entities';
-export interface PublishInput { text: string; accessToken: string; }
-export interface PublishOutput { externalUrl?: string; }
+export interface PublishInput {
+    text: string;
+    accessToken: string;
+}
+export interface PublishOutput {
+    externalUrl?: string;
+}
 export interface ChannelConnector {
-  channel: Channel;
-  publish(input: PublishInput): Promise<PublishOutput>;
+    channel: Channel;
+    publish(input: PublishInput): Promise<PublishOutput>;
 }
 ```
 
@@ -168,13 +183,15 @@ export interface ChannelConnector {
 import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector } from './channel-connector';
 export class ConnectorRegistry {
-  private map = new Map<Channel, ChannelConnector>();
-  constructor(connectors: ChannelConnector[]) { connectors.forEach(c => this.map.set(c.channel, c)); }
-  get(channel: Channel): ChannelConnector {
-    const c = this.map.get(channel);
-    if (!c) throw new Error(`No connector registered for ${channel}`);
-    return c;
-  }
+    private map = new Map<Channel, ChannelConnector>();
+    constructor(connectors: ChannelConnector[]) {
+        connectors.forEach((c) => this.map.set(c.channel, c));
+    }
+    get(channel: Channel): ChannelConnector {
+        const c = this.map.get(channel);
+        if (!c) throw new Error(`No connector registered for ${channel}`);
+        return c;
+    }
 }
 ```
 
@@ -195,6 +212,7 @@ git commit -m "feat(integrations): common ChannelConnector interface and registr
 ### Task 3: X, LinkedIn, and Email connectors
 
 **Files:**
+
 - Create: `libs/integrations/x/src/lib/x.connector.ts`
 - Create: `libs/integrations/linkedin/src/lib/linkedin.connector.ts`
 - Create: `libs/integrations/email/src/lib/email.connector.ts`
@@ -202,6 +220,7 @@ git commit -m "feat(integrations): common ChannelConnector interface and registr
 - Test: `libs/integrations/email/src/lib/email.connector.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ChannelConnector`, `Channel`, channel HTTP APIs.
 - Produces: `XConnector`, `LinkedInConnector`, `EmailConnector` — each `publish({ text, accessToken })` calls the provider and returns `{ externalUrl }`. HTTP calls go through an injected `fetch`-like function for testability.
 
@@ -218,14 +237,14 @@ npx nx g @nx/js:lib integrations-email --directory=libs/integrations/email --imp
 import { XConnector } from './x.connector';
 import { Channel } from '@shipshout/data-entities';
 describe('XConnector', () => {
-  it('posts a tweet and returns the url', async () => {
-    const http = jest.fn(async ()=>({ ok:true, json: async ()=>({ data:{ id:'123' } }) }));
-    const c = new XConnector(http as any);
-    expect(c.channel).toBe(Channel.X);
-    const out = await c.publish({ text:'hi', accessToken:'tok' });
-    expect(out.externalUrl).toContain('123');
-    expect(http).toHaveBeenCalledWith('https://api.twitter.com/2/tweets', expect.objectContaining({ method:'POST' }));
-  });
+    it('posts a tweet and returns the url', async () => {
+        const http = jest.fn(async () => ({ ok: true, json: async () => ({ data: { id: '123' } }) }));
+        const c = new XConnector(http as any);
+        expect(c.channel).toBe(Channel.X);
+        const out = await c.publish({ text: 'hi', accessToken: 'tok' });
+        expect(out.externalUrl).toContain('123');
+        expect(http).toHaveBeenCalledWith('https://api.twitter.com/2/tweets', expect.objectContaining({ method: 'POST' }));
+    });
 });
 ```
 
@@ -233,13 +252,13 @@ describe('XConnector', () => {
 // email.connector.spec.ts
 import { EmailConnector } from './email.connector';
 describe('EmailConnector', () => {
-  it('sends via provider API', async () => {
-    const http = jest.fn(async ()=>({ ok:true, json: async ()=>({ id:'m1' }) }));
-    const c = new EmailConnector(http as any);
-    const out = await c.publish({ text:'subject\nbody', accessToken:'apikey' });
-    expect(http).toHaveBeenCalled();
-    expect(out.externalUrl).toBeUndefined();
-  });
+    it('sends via provider API', async () => {
+        const http = jest.fn(async () => ({ ok: true, json: async () => ({ id: 'm1' }) }));
+        const c = new EmailConnector(http as any);
+        const out = await c.publish({ text: 'subject\nbody', accessToken: 'apikey' });
+        expect(http).toHaveBeenCalled();
+        expect(out.externalUrl).toBeUndefined();
+    });
 });
 ```
 
@@ -256,18 +275,18 @@ import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector, PublishInput, PublishOutput } from '@shipshout/integrations-core';
 type Http = typeof fetch;
 export class XConnector implements ChannelConnector {
-  channel = Channel.X;
-  constructor(private http: Http = fetch) {}
-  async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
-    const res = await this.http('https://api.twitter.com/2/tweets', {
-      method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ text }),
-    });
-    if (!res.ok) throw new Error(`X publish failed: ${res.status}`);
-    const data = await res.json();
-    return { externalUrl: `https://x.com/i/web/status/${data.data.id}` };
-  }
+    channel = Channel.X;
+    constructor(private http: Http = fetch) {}
+    async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
+        const res = await this.http('https://api.twitter.com/2/tweets', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+            body: JSON.stringify({ text }),
+        });
+        if (!res.ok) throw new Error(`X publish failed: ${res.status}`);
+        const data = await res.json();
+        return { externalUrl: `https://x.com/i/web/status/${data.data.id}` };
+    }
 }
 ```
 
@@ -277,23 +296,26 @@ import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector, PublishInput, PublishOutput } from '@shipshout/integrations-core';
 type Http = typeof fetch;
 export class LinkedInConnector implements ChannelConnector {
-  channel = Channel.LinkedIn;
-  constructor(private http: Http = fetch, private authorUrn = process.env.LINKEDIN_AUTHOR_URN) {}
-  async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
-    const res = await this.http('https://api.linkedin.com/v2/ugcPosts', {
-      method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json', 'X-Restli-Protocol-Version': '2.0.0' },
-      body: JSON.stringify({
-        author: this.authorUrn,
-        lifecycleState: 'PUBLISHED',
-        specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text }, shareMediaCategory: 'NONE' } },
-        visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
-      }),
-    });
-    if (!res.ok) throw new Error(`LinkedIn publish failed: ${res.status}`);
-    const id = res.headers.get('x-restli-id') ?? '';
-    return { externalUrl: id ? `https://www.linkedin.com/feed/update/${id}` : undefined };
-  }
+    channel = Channel.LinkedIn;
+    constructor(
+        private http: Http = fetch,
+        private authorUrn = process.env.LINKEDIN_AUTHOR_URN,
+    ) {}
+    async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
+        const res = await this.http('https://api.linkedin.com/v2/ugcPosts', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json', 'X-Restli-Protocol-Version': '2.0.0' },
+            body: JSON.stringify({
+                author: this.authorUrn,
+                lifecycleState: 'PUBLISHED',
+                specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text }, shareMediaCategory: 'NONE' } },
+                visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' },
+            }),
+        });
+        if (!res.ok) throw new Error(`LinkedIn publish failed: ${res.status}`);
+        const id = res.headers.get('x-restli-id') ?? '';
+        return { externalUrl: id ? `https://www.linkedin.com/feed/update/${id}` : undefined };
+    }
 }
 ```
 
@@ -303,23 +325,23 @@ import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector, PublishInput, PublishOutput } from '@shipshout/integrations-core';
 type Http = typeof fetch;
 export class EmailConnector implements ChannelConnector {
-  channel = Channel.Email;
-  constructor(private http: Http = fetch) {}
-  async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
-    const [subject, ...bodyLines] = text.split('\n');
-    const res = await this.http('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.EMAIL_FROM ?? 'updates@shipshout.app',
-        to: process.env.EMAIL_TEST_TO ?? 'list@shipshout.app',
-        subject: subject || 'Product update',
-        text: bodyLines.join('\n'),
-      }),
-    });
-    if (!res.ok) throw new Error(`Email send failed: ${res.status}`);
-    return {};
-  }
+    channel = Channel.Email;
+    constructor(private http: Http = fetch) {}
+    async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
+        const [subject, ...bodyLines] = text.split('\n');
+        const res = await this.http('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+            body: JSON.stringify({
+                from: process.env.EMAIL_FROM ?? 'updates@shipshout.app',
+                to: process.env.EMAIL_TEST_TO ?? 'list@shipshout.app',
+                subject: subject || 'Product update',
+                text: bodyLines.join('\n'),
+            }),
+        });
+        if (!res.ok) throw new Error(`Email send failed: ${res.status}`);
+        return {};
+    }
 }
 ```
 
@@ -340,11 +362,13 @@ git commit -m "feat(integrations): X, LinkedIn, and Email channel connectors"
 ### Task 4: Buffer + Mailchimp sync connectors
 
 **Files:**
+
 - Create: `libs/integrations/buffer/src/lib/buffer.connector.ts`
 - Create: `libs/integrations/mailchimp/src/lib/mailchimp.connector.ts`
 - Test: `libs/integrations/buffer/src/lib/buffer.connector.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ChannelConnector`, `Channel`.
 - Produces: `BufferConnector` (channel `Channel.Buffer`), `MailchimpConnector` (channel `Channel.Mailchimp`), same `publish` contract.
 
@@ -360,11 +384,11 @@ npx nx g @nx/js:lib integrations-mailchimp --directory=libs/integrations/mailchi
 import { BufferConnector } from './buffer.connector';
 import { Channel } from '@shipshout/data-entities';
 it('queues an update in Buffer', async () => {
-  const http = jest.fn(async ()=>({ ok:true, json: async ()=>({ updates:[{ id:'u1' }] }) }));
-  const c = new BufferConnector(http as any);
-  expect(c.channel).toBe(Channel.Buffer);
-  await c.publish({ text:'hi', accessToken:'tok' });
-  expect(http).toHaveBeenCalled();
+    const http = jest.fn(async () => ({ ok: true, json: async () => ({ updates: [{ id: 'u1' }] }) }));
+    const c = new BufferConnector(http as any);
+    expect(c.channel).toBe(Channel.Buffer);
+    await c.publish({ text: 'hi', accessToken: 'tok' });
+    expect(http).toHaveBeenCalled();
 });
 ```
 
@@ -381,17 +405,20 @@ import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector, PublishInput, PublishOutput } from '@shipshout/integrations-core';
 type Http = typeof fetch;
 export class BufferConnector implements ChannelConnector {
-  channel = Channel.Buffer;
-  constructor(private http: Http = fetch, private profileId = process.env.BUFFER_PROFILE_ID ?? '') {}
-  async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
-    const res = await this.http('https://api.bufferapp.com/1/updates/create.json', {
-      method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ text, 'profile_ids[]': this.profileId }).toString(),
-    });
-    if (!res.ok) throw new Error(`Buffer publish failed: ${res.status}`);
-    return {};
-  }
+    channel = Channel.Buffer;
+    constructor(
+        private http: Http = fetch,
+        private profileId = process.env.BUFFER_PROFILE_ID ?? '',
+    ) {}
+    async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
+        const res = await this.http('https://api.bufferapp.com/1/updates/create.json', {
+            method: 'POST',
+            headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ text, 'profile_ids[]': this.profileId }).toString(),
+        });
+        if (!res.ok) throw new Error(`Buffer publish failed: ${res.status}`);
+        return {};
+    }
 }
 ```
 
@@ -401,18 +428,26 @@ import { Channel } from '@shipshout/data-entities';
 import { ChannelConnector, PublishInput, PublishOutput } from '@shipshout/integrations-core';
 type Http = typeof fetch;
 export class MailchimpConnector implements ChannelConnector {
-  channel = Channel.Mailchimp;
-  constructor(private http: Http = fetch, private dc = process.env.MAILCHIMP_DC ?? 'us1', private listId = process.env.MAILCHIMP_LIST_ID ?? '') {}
-  async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
-    const [subject, ...body] = text.split('\n');
-    const res = await this.http(`https://${this.dc}.api.mailchimp.com/3.0/campaigns`, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ type: 'regular', recipients: { list_id: this.listId }, settings: { subject_line: subject, title: subject, from_name: 'ShipShout', reply_to: process.env.EMAIL_FROM ?? 'updates@shipshout.app' } }),
-    });
-    if (!res.ok) throw new Error(`Mailchimp create failed: ${res.status}`);
-    return {};
-  }
+    channel = Channel.Mailchimp;
+    constructor(
+        private http: Http = fetch,
+        private dc = process.env.MAILCHIMP_DC ?? 'us1',
+        private listId = process.env.MAILCHIMP_LIST_ID ?? '',
+    ) {}
+    async publish({ text, accessToken }: PublishInput): Promise<PublishOutput> {
+        const [subject, ...body] = text.split('\n');
+        const res = await this.http(`https://${this.dc}.api.mailchimp.com/3.0/campaigns`, {
+            method: 'POST',
+            headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+            body: JSON.stringify({
+                type: 'regular',
+                recipients: { list_id: this.listId },
+                settings: { subject_line: subject, title: subject, from_name: 'ShipShout', reply_to: process.env.EMAIL_FROM ?? 'updates@shipshout.app' },
+            }),
+        });
+        if (!res.ok) throw new Error(`Mailchimp create failed: ${res.status}`);
+        return {};
+    }
 }
 ```
 
@@ -433,12 +468,14 @@ git commit -m "feat(integrations): Buffer and Mailchimp sync connectors"
 ### Task 5: OAuth connect flow for channels (API)
 
 **Files:**
+
 - Create: `apps/api/src/app/connections/connections.service.ts`
 - Create: `apps/api/src/app/connections/connections.controller.ts`
 - Create: `apps/api/src/app/connections/connections.module.ts`
 - Test: `apps/api/src/app/connections/connections.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ChannelConnection`, `encryptSecret`/`decryptSecret`, `WorkspaceGuard`, `Channel`.
 - Produces: `GET /api/workspaces/:workspaceId/connections` (list, tokens omitted), `GET /api/workspaces/:workspaceId/connections/:channel/start` (redirect to provider OAuth), `GET /api/workspaces/:workspaceId/connections/:channel/callback` (exchange code, store encrypted tokens); `ConnectionsService.saveTokens(workspaceId, channel, tokens)`, `ConnectionsService.getActive(workspaceId, channel)` returning decrypted access token for the worker.
 
@@ -448,21 +485,26 @@ git commit -m "feat(integrations): Buffer and Mailchimp sync connectors"
 // connections.service.spec.ts
 import { ConnectionsService } from './connections.service';
 import { Channel } from '@shipshout/data-entities';
-process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32,1).toString('base64');
+process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32, 1).toString('base64');
 
 describe('ConnectionsService', () => {
-  it('stores encrypted tokens and returns decrypted access token', async () => {
-    const store:any[] = [];
-    const repo = {
-      findOne: jest.fn(async ({ where }:any)=>store.find(c=>c.type===where.type)),
-      create:(d:any)=>d, save: jest.fn(async (d:any)=>{ const rec={ id:'c1', ...d }; store.push(rec); return rec; }),
-    };
-    const svc = new ConnectionsService(repo as any);
-    await svc.saveTokens('w1', Channel.X, { accessToken:'plain', refreshToken:'r' });
-    expect(store[0].accessToken).not.toBe('plain'); // encrypted
-    const tok = await svc.getActiveAccessToken('w1', Channel.X);
-    expect(tok).toBe('plain');
-  });
+    it('stores encrypted tokens and returns decrypted access token', async () => {
+        const store: any[] = [];
+        const repo = {
+            findOne: jest.fn(async ({ where }: any) => store.find((c) => c.type === where.type)),
+            create: (d: any) => d,
+            save: jest.fn(async (d: any) => {
+                const rec = { id: 'c1', ...d };
+                store.push(rec);
+                return rec;
+            }),
+        };
+        const svc = new ConnectionsService(repo as any);
+        await svc.saveTokens('w1', Channel.X, { accessToken: 'plain', refreshToken: 'r' });
+        expect(store[0].accessToken).not.toBe('plain'); // encrypted
+        const tok = await svc.getActiveAccessToken('w1', Channel.X);
+        expect(tok).toBe('plain');
+    });
 });
 ```
 
@@ -480,32 +522,31 @@ import { ChannelConnection, ConnectionStatus, Channel } from '@shipshout/data-en
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 
 export class ConnectionsService {
-  constructor(private connections: Repository<ChannelConnection>) {}
+    constructor(private connections: Repository<ChannelConnection>) {}
 
-  async saveTokens(workspaceId: string, channel: Channel, tokens: { accessToken: string; refreshToken?: string; externalAccountId?: string }) {
-    let conn = await this.connections.findOne({ where: { workspace: { id: workspaceId }, type: channel } });
-    if (!conn) conn = this.connections.create({ workspace: { id: workspaceId } as any, type: channel });
-    conn.accessToken = encryptSecret(tokens.accessToken);
-    conn.refreshToken = tokens.refreshToken ? encryptSecret(tokens.refreshToken) : undefined;
-    conn.externalAccountId = tokens.externalAccountId;
-    conn.status = ConnectionStatus.Active;
-    return this.connections.save(conn);
-  }
+    async saveTokens(workspaceId: string, channel: Channel, tokens: { accessToken: string; refreshToken?: string; externalAccountId?: string }) {
+        let conn = await this.connections.findOne({ where: { workspace: { id: workspaceId }, type: channel } });
+        if (!conn) conn = this.connections.create({ workspace: { id: workspaceId } as any, type: channel });
+        conn.accessToken = encryptSecret(tokens.accessToken);
+        conn.refreshToken = tokens.refreshToken ? encryptSecret(tokens.refreshToken) : undefined;
+        conn.externalAccountId = tokens.externalAccountId;
+        conn.status = ConnectionStatus.Active;
+        return this.connections.save(conn);
+    }
 
-  list(workspaceId: string) {
-    return this.connections.find({ where: { workspace: { id: workspaceId } } })
-      .then(cs => cs.map(c => ({ id: c.id, type: c.type, status: c.status })));
-  }
+    list(workspaceId: string) {
+        return this.connections.find({ where: { workspace: { id: workspaceId } } }).then((cs) => cs.map((c) => ({ id: c.id, type: c.type, status: c.status })));
+    }
 
-  async getActive(workspaceId: string, channel: Channel) {
-    return this.connections.findOne({ where: { workspace: { id: workspaceId }, type: channel, status: ConnectionStatus.Active } });
-  }
+    async getActive(workspaceId: string, channel: Channel) {
+        return this.connections.findOne({ where: { workspace: { id: workspaceId }, type: channel, status: ConnectionStatus.Active } });
+    }
 
-  async getActiveAccessToken(workspaceId: string, channel: Channel): Promise<string> {
-    const conn = await this.getActive(workspaceId, channel);
-    if (!conn) throw new Error(`No active ${channel} connection`);
-    return decryptSecret(conn.accessToken);
-  }
+    async getActiveAccessToken(workspaceId: string, channel: Channel): Promise<string> {
+        const conn = await this.getActive(workspaceId, channel);
+        if (!conn) throw new Error(`No active ${channel} connection`);
+        return decryptSecret(conn.accessToken);
+    }
 }
 ```
 
@@ -528,6 +569,7 @@ git commit -m "feat(api): channel OAuth connect flow with encrypted token storag
 ### Task 6: Dispatch service + worker consumer
 
 **Files:**
+
 - Create: `libs/integrations/core/src/lib/dispatch.service.ts`
 - Create: `apps/worker/src/app/dispatch.processor.ts`
 - Modify: `apps/worker/src/app/app.module.ts`
@@ -535,6 +577,7 @@ git commit -m "feat(api): channel OAuth connect flow with encrypted token storag
 - Test: `apps/worker/src/app/dispatch.processor.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `ConnectorRegistry`, `ConnectionsService` (token access), `Draft`/`DraftStatus`, `PublishRecord`/`PublishStatus`, `QUEUES.dispatch`, `DispatchJob`.
 - Produces: `DispatchService.dispatch(draftId)` — loads approved draft, resolves connection + connector, publishes (using `editedCopy ?? generatedCopy`), writes `PublishRecord`, sets draft `published`/`failed`, rethrows transient errors for retry; `DispatchProcessor` invoking it.
 
@@ -546,29 +589,37 @@ import { DispatchService } from './dispatch.service';
 import { Channel, DraftStatus, PublishStatus } from '@shipshout/data-entities';
 
 function deps(publishImpl: () => Promise<any>) {
-  const draft = { id:'d1', channel:Channel.X, generatedCopy:'g', editedCopy:'e', status:DraftStatus.Approved,
-    releaseEvent: { repository: { workspace: { id:'w1' } } } };
-  const drafts = { findOne: jest.fn(async ()=>draft), save: jest.fn(async (d:any)=>d) };
-  const records = { create:(d:any)=>d, save: jest.fn(async (d:any)=>d) };
-  const registry = { get: jest.fn(()=>({ channel:Channel.X, publish: publishImpl })) };
-  const connections = { getActive: jest.fn(async ()=>({ id:'c1' })), getActiveAccessToken: jest.fn(async ()=>'tok') };
-  return { draft, drafts, records, registry, connections };
+    const draft = {
+        id: 'd1',
+        channel: Channel.X,
+        generatedCopy: 'g',
+        editedCopy: 'e',
+        status: DraftStatus.Approved,
+        releaseEvent: { repository: { workspace: { id: 'w1' } } },
+    };
+    const drafts = { findOne: jest.fn(async () => draft), save: jest.fn(async (d: any) => d) };
+    const records = { create: (d: any) => d, save: jest.fn(async (d: any) => d) };
+    const registry = { get: jest.fn(() => ({ channel: Channel.X, publish: publishImpl })) };
+    const connections = { getActive: jest.fn(async () => ({ id: 'c1' })), getActiveAccessToken: jest.fn(async () => 'tok') };
+    return { draft, drafts, records, registry, connections };
 }
 
 describe('DispatchService.dispatch', () => {
-  it('publishes and records success', async () => {
-    const d = deps(async ()=>({ externalUrl:'https://x.com/1' }));
-    const svc = new DispatchService(d.drafts as any, d.records as any, d.registry as any, d.connections as any);
-    await svc.dispatch('d1');
-    expect(d.records.save).toHaveBeenCalledWith(expect.objectContaining({ status: PublishStatus.Success, externalUrl:'https://x.com/1' }));
-    expect(d.draft.status).toBe(DraftStatus.Published);
-  });
-  it('records failure and marks draft failed', async () => {
-    const d = deps(async ()=>{ throw new Error('rate limited'); });
-    const svc = new DispatchService(d.drafts as any, d.records as any, d.registry as any, d.connections as any);
-    await expect(svc.dispatch('d1')).rejects.toThrow();
-    expect(d.records.save).toHaveBeenCalledWith(expect.objectContaining({ status: PublishStatus.Failed }));
-  });
+    it('publishes and records success', async () => {
+        const d = deps(async () => ({ externalUrl: 'https://x.com/1' }));
+        const svc = new DispatchService(d.drafts as any, d.records as any, d.registry as any, d.connections as any);
+        await svc.dispatch('d1');
+        expect(d.records.save).toHaveBeenCalledWith(expect.objectContaining({ status: PublishStatus.Success, externalUrl: 'https://x.com/1' }));
+        expect(d.draft.status).toBe(DraftStatus.Published);
+    });
+    it('records failure and marks draft failed', async () => {
+        const d = deps(async () => {
+            throw new Error('rate limited');
+        });
+        const svc = new DispatchService(d.drafts as any, d.records as any, d.registry as any, d.connections as any);
+        await expect(svc.dispatch('d1')).rejects.toThrow();
+        expect(d.records.save).toHaveBeenCalledWith(expect.objectContaining({ status: PublishStatus.Failed }));
+    });
 });
 ```
 
@@ -586,43 +637,53 @@ import { Draft, DraftStatus, PublishRecord, PublishStatus, Channel } from '@ship
 import { ConnectorRegistry } from './connector-registry';
 
 interface ConnectionsPort {
-  getActive(workspaceId: string, channel: Channel): Promise<{ id: string } | null>;
-  getActiveAccessToken(workspaceId: string, channel: Channel): Promise<string>;
+    getActive(workspaceId: string, channel: Channel): Promise<{ id: string } | null>;
+    getActiveAccessToken(workspaceId: string, channel: Channel): Promise<string>;
 }
 
 export class DispatchService {
-  constructor(
-    private drafts: Repository<Draft>,
-    private records: Repository<PublishRecord>,
-    private registry: ConnectorRegistry,
-    private connections: ConnectionsPort,
-  ) {}
+    constructor(
+        private drafts: Repository<Draft>,
+        private records: Repository<PublishRecord>,
+        private registry: ConnectorRegistry,
+        private connections: ConnectionsPort,
+    ) {}
 
-  async dispatch(draftId: string): Promise<void> {
-    const draft = await this.drafts.findOne({ where: { id: draftId } });
-    if (!draft) throw new Error('Draft not found');
-    if (draft.status !== DraftStatus.Approved) throw new Error('Draft not approved');
-    const workspaceId = (draft as any).releaseEvent.repository.workspace.id;
-    const connector = this.registry.get(draft.channel);
-    const connection = await this.connections.getActive(workspaceId, draft.channel);
-    const text = draft.editedCopy ?? draft.generatedCopy;
-    try {
-      const token = await this.connections.getActiveAccessToken(workspaceId, draft.channel);
-      const out = await connector.publish({ text, accessToken: token });
-      await this.records.save(this.records.create({
-        draft: draft as any, channelConnection: connection as any, status: PublishStatus.Success, externalUrl: out.externalUrl,
-      }));
-      draft.status = DraftStatus.Published;
-      await this.drafts.save(draft);
-    } catch (err: any) {
-      await this.records.save(this.records.create({
-        draft: draft as any, channelConnection: connection as any, status: PublishStatus.Failed, error: String(err?.message ?? err),
-      }));
-      draft.status = DraftStatus.Failed;
-      await this.drafts.save(draft);
-      throw err; // let BullMQ retry transient failures
+    async dispatch(draftId: string): Promise<void> {
+        const draft = await this.drafts.findOne({ where: { id: draftId } });
+        if (!draft) throw new Error('Draft not found');
+        if (draft.status !== DraftStatus.Approved) throw new Error('Draft not approved');
+        const workspaceId = (draft as any).releaseEvent.repository.workspace.id;
+        const connector = this.registry.get(draft.channel);
+        const connection = await this.connections.getActive(workspaceId, draft.channel);
+        const text = draft.editedCopy ?? draft.generatedCopy;
+        try {
+            const token = await this.connections.getActiveAccessToken(workspaceId, draft.channel);
+            const out = await connector.publish({ text, accessToken: token });
+            await this.records.save(
+                this.records.create({
+                    draft: draft as any,
+                    channelConnection: connection as any,
+                    status: PublishStatus.Success,
+                    externalUrl: out.externalUrl,
+                }),
+            );
+            draft.status = DraftStatus.Published;
+            await this.drafts.save(draft);
+        } catch (err: any) {
+            await this.records.save(
+                this.records.create({
+                    draft: draft as any,
+                    channelConnection: connection as any,
+                    status: PublishStatus.Failed,
+                    error: String(err?.message ?? err),
+                }),
+            );
+            draft.status = DraftStatus.Failed;
+            await this.drafts.save(draft);
+            throw err; // let BullMQ retry transient failures
+        }
     }
-  }
 }
 ```
 
@@ -635,10 +696,12 @@ import { DispatchService } from '@shipshout/integrations-core';
 
 @Processor(QUEUES.dispatch)
 export class DispatchProcessor extends WorkerHost {
-  constructor(private dispatch: DispatchService) { super(); }
-  async process(job: Job<DispatchJob>): Promise<void> {
-    await this.dispatch.dispatch(job.data.draftId);
-  }
+    constructor(private dispatch: DispatchService) {
+        super();
+    }
+    async process(job: Job<DispatchJob>): Promise<void> {
+        await this.dispatch.dispatch(job.data.draftId);
+    }
 }
 ```
 

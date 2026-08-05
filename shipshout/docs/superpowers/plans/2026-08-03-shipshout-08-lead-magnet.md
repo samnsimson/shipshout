@@ -20,10 +20,12 @@
 ### Task 1: IP rate limiter (Redis-backed, testable)
 
 **Files:**
+
 - Create: `libs/shared/util/src/lib/rate-limiter.ts`
 - Test: `libs/shared/util/src/lib/rate-limiter.spec.ts`
 
 **Interfaces:**
+
 - Consumes: an injected store with `incr(key)` + `expire(key, seconds)` (Redis in prod, fake in tests).
 - Produces: `RateLimiter.check(key: string): Promise<{ allowed: boolean; remaining: number }>` — fixed window (`limit` per `windowSeconds`).
 
@@ -34,21 +36,27 @@
 import { RateLimiter } from './rate-limiter';
 
 function fakeStore() {
-  const counts = new Map<string, number>();
-  return { counts,
-    incr: jest.fn(async (k:string)=>{ const n=(counts.get(k)??0)+1; counts.set(k,n); return n; }),
-    expire: jest.fn(async ()=>{}),
-  };
+    const counts = new Map<string, number>();
+    return {
+        counts,
+        incr: jest.fn(async (k: string) => {
+            const n = (counts.get(k) ?? 0) + 1;
+            counts.set(k, n);
+            return n;
+        }),
+        expire: jest.fn(async () => {}),
+    };
 }
 
 describe('RateLimiter', () => {
-  it('allows up to the limit then blocks', async () => {
-    const store = fakeStore();
-    const rl = new RateLimiter(store as any, 3, 60);
-    expect((await rl.check('ip:1')).allowed).toBe(true);
-    await rl.check('ip:1'); await rl.check('ip:1');
-    expect((await rl.check('ip:1')).allowed).toBe(false);
-  });
+    it('allows up to the limit then blocks', async () => {
+        const store = fakeStore();
+        const rl = new RateLimiter(store as any, 3, 60);
+        expect((await rl.check('ip:1')).allowed).toBe(true);
+        await rl.check('ip:1');
+        await rl.check('ip:1');
+        expect((await rl.check('ip:1')).allowed).toBe(false);
+    });
 });
 ```
 
@@ -61,14 +69,21 @@ Expected: FAIL — module not found.
 
 ```typescript
 // rate-limiter.ts
-export interface CounterStore { incr(key: string): Promise<number>; expire(key: string, seconds: number): Promise<void>; }
+export interface CounterStore {
+    incr(key: string): Promise<number>;
+    expire(key: string, seconds: number): Promise<void>;
+}
 export class RateLimiter {
-  constructor(private store: CounterStore, private limit: number, private windowSeconds: number) {}
-  async check(key: string): Promise<{ allowed: boolean; remaining: number }> {
-    const n = await this.store.incr(key);
-    if (n === 1) await this.store.expire(key, this.windowSeconds);
-    return { allowed: n <= this.limit, remaining: Math.max(0, this.limit - n) };
-  }
+    constructor(
+        private store: CounterStore,
+        private limit: number,
+        private windowSeconds: number,
+    ) {}
+    async check(key: string): Promise<{ allowed: boolean; remaining: number }> {
+        const n = await this.store.incr(key);
+        if (n === 1) await this.store.expire(key, this.windowSeconds);
+        return { allowed: n <= this.limit, remaining: Math.max(0, this.limit - n) };
+    }
 }
 ```
 
@@ -89,6 +104,7 @@ git commit -m "feat(util): fixed-window IP rate limiter with injectable store"
 ### Task 2: Public generation endpoint
 
 **Files:**
+
 - Create: `apps/api/src/app/public/public-generate.service.ts`
 - Create: `apps/api/src/app/public/public.controller.ts`
 - Create: `apps/api/src/app/public/public.module.ts`
@@ -96,6 +112,7 @@ git commit -m "feat(util): fixed-window IP rate limiter with injectable store"
 - Test: `apps/api/src/app/public/public-generate.service.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `AiEngine`, `buildPrompt`, `RateLimiter`, `Tone`, `Channel`.
 - Produces: `POST /api/public/tweet` `{ releaseNotes: string }` → `{ tweet: string }` (429 when rate-limited); `PublicGenerateService.generateTweet(ip, releaseNotes): Promise<{ tweet: string }>`. `PublicTweetSchema` (releaseNotes max 4000 chars).
 
@@ -113,23 +130,23 @@ export type PublicTweetDto = z.infer<typeof PublicTweetSchema>;
 import { PublicGenerateService } from './public-generate.service';
 
 function make(allowed: boolean) {
-  const engine = { generate: jest.fn(async ()=>({ text:'🚀 New release!', provider:'openai', model:'m', latencyMs:1 })) };
-  const rl = { check: jest.fn(async ()=>({ allowed, remaining: 0 })) };
-  return { engine, rl, svc: new PublicGenerateService(engine as any, rl as any) };
+    const engine = { generate: jest.fn(async () => ({ text: '🚀 New release!', provider: 'openai', model: 'm', latencyMs: 1 })) };
+    const rl = { check: jest.fn(async () => ({ allowed, remaining: 0 })) };
+    return { engine, rl, svc: new PublicGenerateService(engine as any, rl as any) };
 }
 
 describe('PublicGenerateService.generateTweet', () => {
-  it('returns a tweet when under the rate limit', async () => {
-    const { svc, engine } = make(true);
-    const out = await svc.generateTweet('1.2.3.4', 'Refactored auth');
-    expect(out.tweet).toContain('New release');
-    expect(engine.generate).toHaveBeenCalled();
-  });
-  it('throws a rate-limit error when over the limit', async () => {
-    const { svc, engine } = make(false);
-    await expect(svc.generateTweet('1.2.3.4', 'x')).rejects.toThrow(/rate/i);
-    expect(engine.generate).not.toHaveBeenCalled();
-  });
+    it('returns a tweet when under the rate limit', async () => {
+        const { svc, engine } = make(true);
+        const out = await svc.generateTweet('1.2.3.4', 'Refactored auth');
+        expect(out.tweet).toContain('New release');
+        expect(engine.generate).toHaveBeenCalled();
+    });
+    it('throws a rate-limit error when over the limit', async () => {
+        const { svc, engine } = make(false);
+        await expect(svc.generateTweet('1.2.3.4', 'x')).rejects.toThrow(/rate/i);
+        expect(engine.generate).not.toHaveBeenCalled();
+    });
 });
 ```
 
@@ -148,15 +165,18 @@ import { buildPrompt, CHANNEL_CONSTRAINTS } from '@shipshout/core-domain';
 import { Tone, Channel } from '@shipshout/data-entities';
 
 export class PublicGenerateService {
-  constructor(private engine: AiEngine, private limiter: RateLimiter) {}
-  async generateTweet(ip: string, releaseNotes: string): Promise<{ tweet: string }> {
-    const { allowed } = await this.limiter.check(`public-tweet:${ip}`);
-    if (!allowed) throw new Error('Rate limit exceeded. Please try again later.');
-    const prompt = buildPrompt({ commitSummary: releaseNotes, tone: Tone.HypeStartup, emojiPolicy: true, channel: Channel.X });
-    const r = await this.engine.generate(prompt, { maxTokens: 120 });
-    const max = CHANNEL_CONSTRAINTS[Channel.X].maxChars ?? 280;
-    return { tweet: r.text.slice(0, max) };
-  }
+    constructor(
+        private engine: AiEngine,
+        private limiter: RateLimiter,
+    ) {}
+    async generateTweet(ip: string, releaseNotes: string): Promise<{ tweet: string }> {
+        const { allowed } = await this.limiter.check(`public-tweet:${ip}`);
+        if (!allowed) throw new Error('Rate limit exceeded. Please try again later.');
+        const prompt = buildPrompt({ commitSummary: releaseNotes, tone: Tone.HypeStartup, emojiPolicy: true, channel: Channel.X });
+        const r = await this.engine.generate(prompt, { maxTokens: 120 });
+        const max = CHANNEL_CONSTRAINTS[Channel.X].maxChars ?? 280;
+        return { tweet: r.text.slice(0, max) };
+    }
 }
 ```
 
@@ -168,19 +188,19 @@ import { PublicGenerateService } from './public-generate.service';
 
 @Controller('public')
 export class PublicController {
-  constructor(private svc: PublicGenerateService) {}
-  @Post('tweet')
-  async tweet(@Req() req: any, @Body() body: unknown) {
-    const parsed = PublicTweetSchema.safeParse(body);
-    if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
-    const ip = (req.headers['x-forwarded-for']?.split(',')[0] ?? req.ip ?? 'unknown').trim();
-    try {
-      return await this.svc.generateTweet(ip, parsed.data.releaseNotes);
-    } catch (e: any) {
-      if (/rate/i.test(e?.message)) throw new HttpException(e.message, HttpStatus.TOO_MANY_REQUESTS);
-      throw e;
+    constructor(private svc: PublicGenerateService) {}
+    @Post('tweet')
+    async tweet(@Req() req: any, @Body() body: unknown) {
+        const parsed = PublicTweetSchema.safeParse(body);
+        if (!parsed.success) throw new BadRequestException(parsed.error.flatten());
+        const ip = (req.headers['x-forwarded-for']?.split(',')[0] ?? req.ip ?? 'unknown').trim();
+        try {
+            return await this.svc.generateTweet(ip, parsed.data.releaseNotes);
+        } catch (e: any) {
+            if (/rate/i.test(e?.message)) throw new HttpException(e.message, HttpStatus.TOO_MANY_REQUESTS);
+            throw e;
+        }
     }
-  }
 }
 ```
 
@@ -203,11 +223,13 @@ git commit -m "feat(api): public rate-limited tweet generator endpoint"
 ### Task 3: Public lead-magnet page
 
 **Files:**
+
 - Create: `apps/web/src/app/tools/tweet-generator/page.tsx`
 - Create: `apps/web/src/app/tools/tweet-generator/generator.tsx`
 - Test: `apps/web/src/app/tools/tweet-generator/generator.spec.tsx`
 
 **Interfaces:**
+
 - Consumes: public endpoint `/api/public/tweet`.
 - Produces: an unauthenticated page: textarea for release notes, Generate button, result display, copy-to-clipboard, and a sign-up CTA linking to `/login`.
 
@@ -217,11 +239,11 @@ git commit -m "feat(api): public rate-limited tweet generator endpoint"
 // generator.spec.tsx
 import { generateTweet } from './generator';
 it('calls the public endpoint', async () => {
-  const spy = jest.spyOn(global,'fetch' as any).mockResolvedValue({ ok:true, json: async ()=>({ tweet:'hi' }) } as any);
-  process.env.NEXT_PUBLIC_API_BASE_URL='http://api.test';
-  const out = await generateTweet('notes');
-  expect(out.tweet).toBe('hi');
-  expect(spy).toHaveBeenCalledWith('http://api.test/api/public/tweet', expect.objectContaining({ method:'POST' }));
+    const spy = jest.spyOn(global, 'fetch' as any).mockResolvedValue({ ok: true, json: async () => ({ tweet: 'hi' }) } as any);
+    process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test';
+    const out = await generateTweet('notes');
+    expect(out.tweet).toBe('hi');
+    expect(spy).toHaveBeenCalledWith('http://api.test/api/public/tweet', expect.objectContaining({ method: 'POST' }));
 });
 ```
 
@@ -238,39 +260,57 @@ Expected: FAIL — module not found.
 import { useState } from 'react';
 
 export async function generateTweet(releaseNotes: string): Promise<{ tweet: string }> {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-  const res = await fetch(`${base}/api/public/tweet`, {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ releaseNotes }),
-  });
-  if (res.status === 429) throw new Error('Rate limit reached — sign up for more.');
-  if (!res.ok) throw new Error('Generation failed');
-  return res.json();
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+    const res = await fetch(`${base}/api/public/tweet`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ releaseNotes }),
+    });
+    if (res.status === 429) throw new Error('Rate limit reached — sign up for more.');
+    if (!res.ok) throw new Error('Generation failed');
+    return res.json();
 }
 
 export function Generator() {
-  const [notes, setNotes] = useState(''); const [tweet, setTweet] = useState(''); const [err, setErr] = useState('');
-  const [loading, setLoading] = useState(false);
-  async function run() {
-    setErr(''); setLoading(true);
-    try { setTweet((await generateTweet(notes)).tweet); }
-    catch (e: any) { setErr(e.message); }
-    finally { setLoading(false); }
-  }
-  return (
-    <div style={{ maxWidth: 640, margin: '0 auto' }}>
-      <textarea value={notes} onChange={(e)=>setNotes(e.target.value)} rows={8} style={{ width:'100%' }}
-        placeholder="Paste your GitHub release notes or commit log..." />
-      <button onClick={run} disabled={loading || !notes}>{loading ? 'Generating…' : 'Generate tweet'}</button>
-      {err && <p style={{ color:'crimson' }}>{err}</p>}
-      {tweet && (
-        <div style={{ border:'1px solid #ddd', borderRadius:8, padding:16, marginTop:16 }}>
-          <p>{tweet}</p>
-          <button onClick={()=>navigator.clipboard.writeText(tweet)}>Copy</button>
+    const [notes, setNotes] = useState('');
+    const [tweet, setTweet] = useState('');
+    const [err, setErr] = useState('');
+    const [loading, setLoading] = useState(false);
+    async function run() {
+        setErr('');
+        setLoading(true);
+        try {
+            setTweet((await generateTweet(notes)).tweet);
+        } catch (e: any) {
+            setErr(e.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+    return (
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+            <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={8}
+                style={{ width: '100%' }}
+                placeholder="Paste your GitHub release notes or commit log..."
+            />
+            <button onClick={run} disabled={loading || !notes}>
+                {loading ? 'Generating…' : 'Generate tweet'}
+            </button>
+            {err && <p style={{ color: 'crimson' }}>{err}</p>}
+            {tweet && (
+                <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16, marginTop: 16 }}>
+                    <p>{tweet}</p>
+                    <button onClick={() => navigator.clipboard.writeText(tweet)}>Copy</button>
+                </div>
+            )}
+            <p style={{ marginTop: 24 }}>
+                Want automatic multi-channel posts on every release? <a href="/login">Sign up for ShipShout →</a>
+            </p>
         </div>
-      )}
-      <p style={{ marginTop:24 }}>Want automatic multi-channel posts on every release? <a href="/login">Sign up for ShipShout →</a></p>
-    </div>
-  );
+    );
 }
 ```
 
@@ -278,13 +318,13 @@ export function Generator() {
 // tools/tweet-generator/page.tsx
 import { Generator } from './generator';
 export default function TweetGeneratorPage() {
-  return (
-    <main style={{ padding: 32 }}>
-      <h1>Release Notes → Tweet Generator</h1>
-      <p>Turn your dev release notes into a ready-to-post tweet, free.</p>
-      <Generator />
-    </main>
-  );
+    return (
+        <main style={{ padding: 32 }}>
+            <h1>Release Notes → Tweet Generator</h1>
+            <p>Turn your dev release notes into a ready-to-post tweet, free.</p>
+            <Generator />
+        </main>
+    );
 }
 ```
 

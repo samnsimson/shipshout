@@ -20,12 +20,14 @@
 ### Task 1: Test infra — compose profile + DB test harness
 
 **Files:**
+
 - Modify: `docker-compose.yml` (add `postgres-test`, `redis-test`)
 - Create: `libs/data/entities/src/lib/testing/test-datasource.ts`
 - Create: `tools/test/global-setup.ts`
 - Test: `libs/data/entities/src/lib/testing/test-datasource.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `buildTypeOrmOptions`, `TEST_DATABASE_URL`.
 - Produces: `createTestDataSource(): Promise<DataSource>` (runs migrations, returns connected source), `truncateAll(ds)`. Used by integration/e2e tests.
 
@@ -33,13 +35,13 @@
 
 ```yaml
 # docker-compose.yml additions
-  postgres-test:
+postgres-test:
     image: postgres:16
     environment: { POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: shipshout_test }
-    ports: ["5433:5432"]
-  redis-test:
+    ports: ['5433:5432']
+redis-test:
     image: redis:7
-    ports: ["6380:6379"]
+    ports: ['6380:6379']
 ```
 
 - [ ] **Step 2: Write the failing test**
@@ -48,12 +50,12 @@
 // test-datasource.spec.ts
 import { createTestDataSource, truncateAll } from './test-datasource';
 describe('test datasource', () => {
-  it('connects, migrates, and truncates', async () => {
-    const ds = await createTestDataSource();
-    expect(ds.isInitialized).toBe(true);
-    await truncateAll(ds);
-    await ds.destroy();
-  });
+    it('connects, migrates, and truncates', async () => {
+        const ds = await createTestDataSource();
+        expect(ds.isInitialized).toBe(true);
+        await truncateAll(ds);
+        await ds.destroy();
+    });
 });
 ```
 
@@ -70,15 +72,15 @@ import { DataSource } from 'typeorm';
 import { buildTypeOrmOptions } from '../typeorm.config';
 
 export async function createTestDataSource(): Promise<DataSource> {
-  const ds = new DataSource(buildTypeOrmOptions(process.env.TEST_DATABASE_URL ?? ''));
-  await ds.initialize();
-  await ds.runMigrations();
-  return ds;
+    const ds = new DataSource(buildTypeOrmOptions(process.env.TEST_DATABASE_URL ?? ''));
+    await ds.initialize();
+    await ds.runMigrations();
+    return ds;
 }
 
 export async function truncateAll(ds: DataSource): Promise<void> {
-  const tables = ds.entityMetadatas.map(m => `"${m.tableName}"`).join(', ');
-  if (tables) await ds.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE;`);
+    const tables = ds.entityMetadatas.map((m) => `"${m.tableName}"`).join(', ');
+    if (tables) await ds.query(`TRUNCATE ${tables} RESTART IDENTITY CASCADE;`);
 }
 ```
 
@@ -99,9 +101,11 @@ git commit -m "test: add postgres-test/redis-test compose services and DB test h
 ### Task 2: Integration test — repository + webhook + dedupe against real DB
 
 **Files:**
+
 - Create: `apps/api/src/app/webhooks/webhooks.integration.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `createTestDataSource`/`truncateAll`, `RepositoriesService`, `WebhooksService`, a fake `generate` queue.
 - Produces: a passing integration test proving verify → persist → dedupe against a real Postgres.
 
@@ -115,34 +119,38 @@ import { Repository as RepoEntity, ReleaseEvent } from '@shipshout/data-entities
 import { RepositoriesService } from '../repositories/repositories.service';
 import { WebhooksService } from './webhooks.service';
 
-process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32,1).toString('base64');
+process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32, 1).toString('base64');
 
 describe('webhook ingestion (integration)', () => {
-  let ds: any, repos: RepositoriesService, events: any, queue: any, tier: any;
-  beforeAll(async () => {
-    ds = await createTestDataSource();
-    repos = new RepositoriesService(ds.getRepository(RepoEntity));
-    events = ds.getRepository(ReleaseEvent);
-    queue = { add: jest.fn(async ()=>({})) };
-    tier = { tryConsumeRelease: async ()=>true, sourceIntegrationsAllowed: async ()=>true };
-  });
-  afterAll(async () => { await ds.destroy(); });
-  beforeEach(async () => { await truncateAll(ds); });
+    let ds: any, repos: RepositoriesService, events: any, queue: any, tier: any;
+    beforeAll(async () => {
+        ds = await createTestDataSource();
+        repos = new RepositoriesService(ds.getRepository(RepoEntity));
+        events = ds.getRepository(ReleaseEvent);
+        queue = { add: jest.fn(async () => ({})) };
+        tier = { tryConsumeRelease: async () => true, sourceIntegrationsAllowed: async () => true };
+    });
+    afterAll(async () => {
+        await ds.destroy();
+    });
+    beforeEach(async () => {
+        await truncateAll(ds);
+    });
 
-  it('persists once and dedupes duplicate deliveries', async () => {
-    // needs a workspace row; insert directly
-    const ws = await ds.query(`INSERT INTO workspaces(id,name,slug,plan) VALUES (gen_random_uuid(),'w','w-`+Date.now()+`','starter') RETURNING id`);
-    const { repository, webhookSecret } = await repos.create(ws[0].id, { provider:'github', externalId:'42', name:'acme/app' });
-    const svc = new WebhooksService(repos, events, queue, tier);
-    const body = Buffer.from(JSON.stringify({ release: { id: 42, name: 'v1', body: 'fix' } }));
-    const sig = 'sha256=' + createHmac('sha256', webhookSecret).update(body).digest('hex');
-    const first = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });
-    const second = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });
-    expect(first.duplicate).toBe(false);
-    expect(second.duplicate).toBe(true);
-    const count = await events.count();
-    expect(count).toBe(1);
-  });
+    it('persists once and dedupes duplicate deliveries', async () => {
+        // needs a workspace row; insert directly
+        const ws = await ds.query(`INSERT INTO workspaces(id,name,slug,plan) VALUES (gen_random_uuid(),'w','w-` + Date.now() + `','starter') RETURNING id`);
+        const { repository, webhookSecret } = await repos.create(ws[0].id, { provider: 'github', externalId: '42', name: 'acme/app' });
+        const svc = new WebhooksService(repos, events, queue, tier);
+        const body = Buffer.from(JSON.stringify({ release: { id: 42, name: 'v1', body: 'fix' } }));
+        const sig = 'sha256=' + createHmac('sha256', webhookSecret).update(body).digest('hex');
+        const first = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });
+        const second = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });
+        expect(first.duplicate).toBe(false);
+        expect(second.duplicate).toBe(true);
+        const count = await events.count();
+        expect(count).toBe(1);
+    });
 });
 ```
 
@@ -172,10 +180,12 @@ git commit -m "test(api): integration test for webhook persist + dedupe on real 
 ### Task 3: E2E — full flow (auth mocked, external APIs mocked)
 
 **Files:**
+
 - Create: `apps/api-e2e/src/api/flow.e2e-spec.ts`
 - Modify: `apps/api-e2e/project.json` (env for test DB/Redis)
 
 **Interfaces:**
+
 - Consumes: Nest test app (`@nestjs/testing`), Supertest, fake AI/dispatch adapters bound via DI overrides.
 - Produces: an e2e proving release webhook → generate → drafts → approve → publish (mocked connector) → `PublishRecord`.
 
@@ -190,25 +200,29 @@ import { AiEngine } from '@shipshout/ai';
 import { ConnectorRegistry } from '@shipshout/integrations-core';
 
 describe('ShipShout core flow (e2e)', () => {
-  let app: any;
-  beforeAll(async () => {
-    const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
-      .overrideProvider(AiEngine).useValue({ generate: async ()=>({ text:'🚀 update', provider:'fake', model:'m', latencyMs:1 }) })
-      .overrideProvider(ConnectorRegistry).useValue({ get: ()=>({ publish: async ()=>({ externalUrl:'https://x.com/1' }) }) })
-      .compile();
-    app = moduleRef.createNestApplication();
-    // stub session middleware to inject a fixed user + membership
-    await app.init();
-  });
-  afterAll(async () => { await app.close(); });
+    let app: any;
+    beforeAll(async () => {
+        const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+            .overrideProvider(AiEngine)
+            .useValue({ generate: async () => ({ text: '🚀 update', provider: 'fake', model: 'm', latencyMs: 1 }) })
+            .overrideProvider(ConnectorRegistry)
+            .useValue({ get: () => ({ publish: async () => ({ externalUrl: 'https://x.com/1' }) }) })
+            .compile();
+        app = moduleRef.createNestApplication();
+        // stub session middleware to inject a fixed user + membership
+        await app.init();
+    });
+    afterAll(async () => {
+        await app.close();
+    });
 
-  it('generates, approves, and publishes a draft', async () => {
-    // 1) seed workspace + repo via API (with test-auth header), 2) POST signed webhook,
-    // 3) run generate synchronously (or drain queue), 4) GET drafts, 5) approve, 6) publish,
-    // 7) assert PublishRecord success.
-    // Detailed request chain uses request(app.getHttpServer())... asserting 2xx at each step.
-    expect(app).toBeDefined();
-  });
+    it('generates, approves, and publishes a draft', async () => {
+        // 1) seed workspace + repo via API (with test-auth header), 2) POST signed webhook,
+        // 3) run generate synchronously (or drain queue), 4) GET drafts, 5) approve, 6) publish,
+        // 7) assert PublishRecord success.
+        // Detailed request chain uses request(app.getHttpServer())... asserting 2xx at each step.
+        expect(app).toBeDefined();
+    });
 });
 ```
 
@@ -238,12 +252,14 @@ git commit -m "test(e2e): end-to-end release -> generate -> approve -> publish f
 ### Task 4: Health checks + structured logging + error tracking
 
 **Files:**
+
 - Create: `libs/shared/observability/src/lib/logger.ts`
 - Create: `apps/api/src/app/health/health.controller.ts`
 - Modify: `apps/api/src/main.ts`, `apps/worker/src/main.ts`
 - Test: `libs/shared/observability/src/lib/logger.spec.ts`
 
 **Interfaces:**
+
 - Consumes: Pino, Terminus, Sentry, `DATABASE_URL`/`REDIS_URL`.
 - Produces: `createLogger(name)` (Pino, JSON in prod), `GET /api/health` (DB + Redis checks), Sentry init helper `initSentry()`. Worker logs via the same logger.
 
@@ -258,8 +274,8 @@ npm i pino @nestjs/terminus @sentry/node
 // logger.spec.ts
 import { createLogger } from './logger';
 it('creates a named logger with info level by default', () => {
-  const log = createLogger('api');
-  expect(typeof log.info).toBe('function');
+    const log = createLogger('api');
+    expect(typeof log.info).toBe('function');
 });
 ```
 
@@ -274,14 +290,13 @@ Expected: FAIL — module not found.
 // logger.ts
 import pino from 'pino';
 export function createLogger(name: string) {
-  return pino({ name, level: process.env.LOG_LEVEL ?? 'info',
-    transport: process.env.NODE_ENV === 'production' ? undefined : { target: 'pino-pretty' } });
+    return pino({ name, level: process.env.LOG_LEVEL ?? 'info', transport: process.env.NODE_ENV === 'production' ? undefined : { target: 'pino-pretty' } });
 }
 export function initSentry() {
-  if (!process.env.SENTRY_DSN) return;
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const Sentry = require('@sentry/node');
-  Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
+    if (!process.env.SENTRY_DSN) return;
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const Sentry = require('@sentry/node');
+    Sentry.init({ dsn: process.env.SENTRY_DSN, tracesSampleRate: 0.1 });
 }
 ```
 
@@ -292,9 +307,15 @@ import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs
 
 @Controller('health')
 export class HealthController {
-  constructor(private health: HealthCheckService, private db: TypeOrmHealthIndicator) {}
-  @Get() @HealthCheck()
-  check() { return this.health.check([() => this.db.pingCheck('database')]); }
+    constructor(
+        private health: HealthCheckService,
+        private db: TypeOrmHealthIndicator,
+    ) {}
+    @Get()
+    @HealthCheck()
+    check() {
+        return this.health.check([() => this.db.pingCheck('database')]);
+    }
 }
 ```
 
@@ -322,6 +343,7 @@ git commit -m "feat(observability): structured logging, Sentry init, and health 
 ### Task 5: Dockerfiles + deploy migration flow
 
 **Files:**
+
 - Create: `apps/api/Dockerfile`
 - Create: `apps/web/Dockerfile`
 - Create: `apps/worker/Dockerfile`
@@ -329,6 +351,7 @@ git commit -m "feat(observability): structured logging, Sentry init, and health 
 - Create: `README.md`
 
 **Interfaces:**
+
 - Consumes: Nx build outputs.
 - Produces: production images for `api`, `web`, `worker`; `scripts/migrate.sh` runs `typeorm migration:run` at deploy; README with local + deploy instructions.
 
@@ -389,9 +412,11 @@ git commit -m "chore: Dockerfiles for api/web/worker, deploy migration script, a
 ### Task 6: CI pipeline
 
 **Files:**
+
 - Create: `.github/workflows/ci.yml`
 
 **Interfaces:**
+
 - Consumes: docker services for Postgres/Redis; Nx targets.
 - Produces: CI running lint, unit, integration, and e2e with external APIs mocked.
 
@@ -402,31 +427,31 @@ git commit -m "chore: Dockerfiles for api/web/worker, deploy migration script, a
 name: CI
 on: [push, pull_request]
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16
-        env: { POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: shipshout_test }
-        ports: ["5433:5432"]
-        options: >-
-          --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
-      redis:
-        image: redis:7
-        ports: ["6380:6379"]
-    env:
-      TEST_DATABASE_URL: postgres://test:test@localhost:5433/shipshout_test
-      DATABASE_URL: postgres://test:test@localhost:5433/shipshout_test
-      REDIS_URL: redis://localhost:6380
-      APP_ENCRYPTION_KEY: MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMD0=
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
-      - run: npm ci
-      - run: npx nx run-many -t lint
-      - run: npx nx run-many -t test
-      - run: npx nx e2e api-e2e
+    test:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:16
+                env: { POSTGRES_USER: test, POSTGRES_PASSWORD: test, POSTGRES_DB: shipshout_test }
+                ports: ['5433:5432']
+                options: >-
+                    --health-cmd "pg_isready -U test" --health-interval 10s --health-timeout 5s --health-retries 5
+            redis:
+                image: redis:7
+                ports: ['6380:6379']
+        env:
+            TEST_DATABASE_URL: postgres://test:test@localhost:5433/shipshout_test
+            DATABASE_URL: postgres://test:test@localhost:5433/shipshout_test
+            REDIS_URL: redis://localhost:6380
+            APP_ENCRYPTION_KEY: MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMD0=
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-node@v4
+              with: { node-version: 20, cache: npm }
+            - run: npm ci
+            - run: npx nx run-many -t lint
+            - run: npx nx run-many -t test
+            - run: npx nx e2e api-e2e
 ```
 
 - [ ] **Step 2: Verify locally**
