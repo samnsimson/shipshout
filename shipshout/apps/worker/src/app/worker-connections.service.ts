@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Channel } from '@shipshout/database';
 import { decryptSecret } from '@shipshout/shared-util';
-import type { ConnectionsPort } from '@shipshout/integrations-core';
+import { ConnectionsPort } from '@shipshout/integrations-core';
 import { ChannelConnectionRepository } from './channel-connection.repository';
 
 @Injectable()

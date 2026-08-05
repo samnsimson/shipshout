@@ -1,4 +1,4 @@
-import { LinkedInConnector } from './linkedin.connector.js';
+import { LinkedInConnector } from './linkedin.connector';
 import { Channel } from '@shipshout/database';
 
 describe('LinkedInConnector', () => {

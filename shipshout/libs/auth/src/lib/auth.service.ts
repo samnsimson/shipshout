@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { MembershipRole } from '@shipshout/database';
-import { UserRepository } from './repositories/user.repository.js';
-import { WorkspaceRepository } from './repositories/workspace.repository.js';
-import { MembershipRepository } from './repositories/membership.repository.js';
+import { UserRepository } from './repositories/user.repository';
+import { WorkspaceRepository } from './repositories/workspace.repository';
+import { MembershipRepository } from './repositories/membership.repository';
 
 function slugify(s: string) {
     return s

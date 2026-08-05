@@ -1,4 +1,4 @@
-import { MailchimpConnector } from './mailchimp.connector.js';
+import { MailchimpConnector } from './mailchimp.connector';
 import { Channel } from '@shipshout/database';
 
 describe('MailchimpConnector', () => {

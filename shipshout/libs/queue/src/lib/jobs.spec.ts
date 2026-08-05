@@ -1,5 +1,5 @@
-import { QUEUES } from './queue.constants.js';
-import type { GenerateJob, DispatchJob } from './jobs.js';
+import { QUEUES } from './queue.constants';
+import { GenerateJob, DispatchJob } from './jobs';
 
 describe('queue contracts', () => {
     it('defines queue names', () => {

@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { BullModule } from '@nestjs/bullmq';
-import { QUEUES } from './queue.constants.js';
+import { QUEUES } from './queue.constants';
 
 function connection() {
     const url = new URL(process.env.REDIS_URL ?? 'redis://localhost:6379');

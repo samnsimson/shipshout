@@ -1,4 +1,4 @@
-import { BillingService } from './billing.service.js';
+import { BillingService } from './billing.service';
 import { Tier } from '@shipshout/database';
 
 describe('BillingService.createCheckoutSession', () => {

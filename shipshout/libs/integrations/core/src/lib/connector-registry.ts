@@ -1,5 +1,5 @@
 import { Channel } from '@shipshout/database';
-import { ChannelConnector } from './channel-connector.js';
+import { ChannelConnector } from './channel-connector';
 
 export class ConnectorRegistry {
     private map = new Map<Channel, ChannelConnector>();

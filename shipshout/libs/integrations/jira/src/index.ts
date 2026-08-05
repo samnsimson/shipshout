@@ -1,2 +1,2 @@
-export * from './lib/verify.js';
-export * from './lib/normalize.js';
+export * from './lib/verify';
+export * from './lib/normalize';

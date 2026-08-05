@@ -4,18 +4,8 @@ import { Test } from '@nestjs/testing';
 import { getQueueToken } from '@nestjs/bullmq';
 import request from 'supertest';
 import session from 'express-session';
-import {
-    AiEngine,
-    GenerationService,
-    BrandProfileRepository,
-    DraftRepository,
-    ReleaseEventRepository,
-} from '@shipshout/ai';
-import {
-    DispatchService,
-    DraftRepository as DispatchDraftRepository,
-    PublishRecordRepository,
-} from '@shipshout/integrations-core';
+import { AiEngine, GenerationService, BrandProfileRepository, DraftRepository, ReleaseEventRepository } from '@shipshout/ai';
+import { DispatchService, DraftRepository as DispatchDraftRepository, PublishRecordRepository } from '@shipshout/integrations-core';
 import {
     BrandProfile,
     Channel,
@@ -134,10 +124,7 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
         );
         await generation.generateForEvent(pendingGenerate!.releaseEventId, [Channel.X]);
 
-        const draftsRes = await request(app.getHttpServer())
-            .get(`/api/workspaces/${workspaceId}/drafts`)
-            .set('x-e2e-user', userId)
-            .expect(200);
+        const draftsRes = await request(app.getHttpServer()).get(`/api/workspaces/${workspaceId}/drafts`).set('x-e2e-user', userId).expect(200);
         const draft = draftsRes.body[0];
         expect(draft).toBeDefined();
 

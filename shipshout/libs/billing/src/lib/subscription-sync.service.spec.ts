@@ -1,4 +1,4 @@
-import { SubscriptionSyncService } from './subscription-sync.service.js';
+import { SubscriptionSyncService } from './subscription-sync.service';
 import { Tier, SubscriptionStatus } from '@shipshout/database';
 
 describe('SubscriptionSyncService.applyEvent', () => {

@@ -1,5 +1,5 @@
 import { createHmac } from 'crypto';
-import { verifyGithubSignature } from './verify-signature.js';
+import { verifyGithubSignature } from './verify-signature';
 
 describe('verifyGithubSignature', () => {
     const secret = 's3cret';

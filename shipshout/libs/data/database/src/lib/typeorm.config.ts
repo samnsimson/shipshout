@@ -1,17 +1,17 @@
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { DataSourceOptions } from 'typeorm';
-import { User } from './entities/user.entity.js';
-import { Workspace } from './entities/workspace.entity.js';
-import { Membership } from './entities/membership.entity.js';
-import { Repository } from './entities/repository.entity.js';
-import { BrandProfile } from './entities/brand-profile.entity.js';
-import { ReleaseEvent } from './entities/release-event.entity.js';
-import { Draft } from './entities/draft.entity.js';
-import { ChannelConnection } from './entities/channel-connection.entity.js';
-import { PublishRecord } from './entities/publish-record.entity.js';
-import { Subscription } from './entities/subscription.entity.js';
-import { UsageCounter } from './entities/usage-counter.entity.js';
+import { User } from './entities/user.entity';
+import { Workspace } from './entities/workspace.entity';
+import { Membership } from './entities/membership.entity';
+import { Repository } from './entities/repository.entity';
+import { BrandProfile } from './entities/brand-profile.entity';
+import { ReleaseEvent } from './entities/release-event.entity';
+import { Draft } from './entities/draft.entity';
+import { ChannelConnection } from './entities/channel-connection.entity';
+import { PublishRecord } from './entities/publish-record.entity';
+import { Subscription } from './entities/subscription.entity';
+import { UsageCounter } from './entities/usage-counter.entity';
 
 const entities: Function[] = [
     User,

@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
-import type { Response } from 'express';
+import { Response } from 'express';
 import { WorkspaceGuard } from '@shipshout/auth';
 import { ConnectionsService } from './connections.service';
-import { parseChannel } from './oauth.config.js';
+import { parseChannel } from './oauth.config';
 
 @Controller('workspaces/:workspaceId/connections')
 @UseGuards(WorkspaceGuard)

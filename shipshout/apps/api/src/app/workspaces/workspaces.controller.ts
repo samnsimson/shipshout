@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { WorkspaceGuard } from '@shipshout/auth';
 import { CreateWorkspaceSchema } from '@shipshout/contracts';
-import type { Request } from 'express';
+import { Request } from 'express';
 import { WorkspacesService } from './workspaces.service';
 
 @Controller('workspaces')

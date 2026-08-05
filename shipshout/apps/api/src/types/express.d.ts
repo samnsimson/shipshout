@@ -1,5 +1,5 @@
-import type { Membership } from '@shipshout/database';
-import type { User } from '@shipshout/database';
+import { Membership } from '@shipshout/database';
+import { User } from '@shipshout/database';
 
 declare module 'express-session' {
     interface SessionData {

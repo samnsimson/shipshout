@@ -1,5 +1,5 @@
 import { Tone, Channel } from '@shipshout/database';
-import { CHANNEL_CONSTRAINTS } from './channel-constraints.js';
+import { CHANNEL_CONSTRAINTS } from './channel-constraints';
 
 export { CHANNEL_CONSTRAINTS };
 

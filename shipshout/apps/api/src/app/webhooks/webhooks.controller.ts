@@ -1,5 +1,5 @@
 import { Controller, Headers, HttpCode, Post, Req } from '@nestjs/common';
-import type { Request } from 'express';
+import { Request } from 'express';
 import { WebhooksService } from './webhooks.service';
 
 @Controller('webhooks')

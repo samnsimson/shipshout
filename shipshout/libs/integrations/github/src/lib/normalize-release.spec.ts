@@ -1,4 +1,4 @@
-import { normalizeGithubRelease } from './normalize-release.js';
+import { normalizeGithubRelease } from './normalize-release';
 
 it('extracts id and summary from a release payload', () => {
     const out = normalizeGithubRelease({

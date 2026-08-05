@@ -1,5 +1,5 @@
-import { ENTITIES } from '../typeorm.config.js';
-import { Draft, DraftStatus, Channel } from './draft.entity.js';
+import { ENTITIES } from '../typeorm.config';
+import { Draft, DraftStatus, Channel } from './draft.entity';
 
 describe('Draft entity', () => {
     it('is registered', () => expect(ENTITIES).toContain(Draft));

@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
-import { Workspace } from './workspace.entity.js';
+import { Workspace } from './workspace.entity';
 
 @Entity('usage_counters')
 @Unique(['workspace', 'period'])

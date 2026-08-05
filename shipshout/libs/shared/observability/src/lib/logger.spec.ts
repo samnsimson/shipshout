@@ -1,4 +1,4 @@
-import { createLogger } from './logger.js';
+import { createLogger } from './logger';
 
 describe('createLogger', () => {
     it('creates a named logger with info level by default', () => {

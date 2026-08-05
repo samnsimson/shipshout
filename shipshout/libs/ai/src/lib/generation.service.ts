@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AiEngine } from './ai-engine.js';
+import { AiEngine } from './ai-engine';
 import { buildPrompt, CHANNEL_CONSTRAINTS } from '@shipshout/core-domain';
 import { ReleaseEventStatus, BrandProfile, DraftStatus, Channel, Tone } from '@shipshout/database';
-import { BrandProfileRepository, DraftRepository, ReleaseEventRepository } from './repositories/generation.repositories.js';
+import { BrandProfileRepository, DraftRepository, ReleaseEventRepository } from './repositories/generation.repositories';
 
 @Injectable()
 export class GenerationService {

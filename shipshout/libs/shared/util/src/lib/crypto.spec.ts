@@ -1,4 +1,4 @@
-import { encryptSecret, decryptSecret } from './crypto.js';
+import { encryptSecret, decryptSecret } from './crypto';
 
 const KEY = Buffer.alloc(32, 1).toString('base64');
 beforeAll(() => {

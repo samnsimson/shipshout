@@ -1,2 +1,2 @@
-export * from './lib/build-prompt.js';
-export * from './lib/channel-constraints.js';
+export * from './lib/build-prompt';
+export * from './lib/channel-constraints';

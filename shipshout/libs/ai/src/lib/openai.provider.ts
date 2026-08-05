@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { AiProvider, AiPrompt, AiResult } from './ai-provider.js';
+import { AiProvider, AiPrompt, AiResult } from './ai-provider';
 
 export class OpenAiProvider implements AiProvider {
     name = 'openai';

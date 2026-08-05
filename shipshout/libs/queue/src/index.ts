@@ -1,2 +1,2 @@
-export * from './lib/queue.constants.js';
-export * from './lib/jobs.js';
+export * from './lib/queue.constants';
+export * from './lib/jobs';

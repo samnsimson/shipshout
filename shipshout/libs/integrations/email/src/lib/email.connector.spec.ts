@@ -1,4 +1,4 @@
-import { EmailConnector } from './email.connector.js';
+import { EmailConnector } from './email.connector';
 
 describe('EmailConnector', () => {
     it('sends via provider API', async () => {

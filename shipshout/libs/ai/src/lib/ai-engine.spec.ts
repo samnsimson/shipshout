@@ -1,4 +1,4 @@
-import { AiEngine } from './ai-engine.js';
+import { AiEngine } from './ai-engine';
 
 const ok = (name: string) => ({
     name,

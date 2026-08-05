@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { createLogger, initSentry } from '@shipshout/observability';
+import { initSentry, PinoLoggerService } from '@shipshout/observability';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
     initSentry();
-    const log = createLogger('worker');
-    await NestFactory.createApplicationContext(AppModule);
-    log.info('ShipShout worker started');
+    const logger = new PinoLoggerService('worker');
+    await NestFactory.createApplicationContext(AppModule, { logger });
+    logger.log('ShipShout worker started', 'Bootstrap');
 }
 
 bootstrap().catch((err) => {

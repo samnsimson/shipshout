@@ -31,12 +31,7 @@ import { GenerateProcessor } from './generate.processor';
 import { WorkerConnectionsService } from './worker-connections.service';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
-        TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()),
-        DatabaseModule,
-        QueueModule,
-    ],
+    imports: [ConfigModule.forRoot({ isGlobal: true }), TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()), DatabaseModule, QueueModule],
     providers: [
         {
             provide: AiEngine,

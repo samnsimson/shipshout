@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import type { Queue } from 'bullmq';
+import { Queue } from 'bullmq';
 import { DraftStatus } from '@shipshout/database';
 import { UpdateDraftDto } from '@shipshout/contracts';
 import { QUEUES, DispatchJob } from '@shipshout/queue';

@@ -1,4 +1,4 @@
-import { buildPrompt, CHANNEL_CONSTRAINTS } from './build-prompt.js';
+import { buildPrompt, CHANNEL_CONSTRAINTS } from './build-prompt';
 import { Tone, Channel } from '@shipshout/database';
 
 describe('buildPrompt', () => {

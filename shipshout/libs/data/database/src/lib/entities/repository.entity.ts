@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Workspace } from './workspace.entity.js';
-import { SourceProvider } from './source-provider.enum.js';
+import { Workspace } from './workspace.entity';
+import { SourceProvider } from './source-provider.enum';
 
 @Entity('repositories')
 export class Repository {

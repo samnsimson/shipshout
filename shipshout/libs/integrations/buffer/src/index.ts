@@ -1,1 +1,1 @@
-export * from './lib/buffer.connector.js';
+export * from './lib/buffer.connector';

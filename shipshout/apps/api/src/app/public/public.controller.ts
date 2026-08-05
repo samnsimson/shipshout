@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, HttpException, HttpStatus, Post, Req } from '@nestjs/common';
-import type { Request } from 'express';
+import { Request } from 'express';
 import { PublicTweetSchema } from '@shipshout/contracts';
 import { PublicGenerateService } from './public-generate.service';
 

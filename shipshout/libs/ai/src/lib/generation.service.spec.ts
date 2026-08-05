@@ -1,4 +1,4 @@
-import { GenerationService } from './generation.service.js';
+import { GenerationService } from './generation.service';
 import { Channel, DraftStatus, Tone } from '@shipshout/database';
 
 function deps() {

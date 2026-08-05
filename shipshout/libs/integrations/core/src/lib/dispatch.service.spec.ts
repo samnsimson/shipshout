@@ -1,4 +1,4 @@
-import { DispatchService } from './dispatch.service.js';
+import { DispatchService } from './dispatch.service';
 import { Channel, DraftStatus, PublishStatus } from '@shipshout/database';
 
 function deps(publishImpl: () => Promise<any>) {

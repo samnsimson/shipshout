@@ -1,4 +1,4 @@
-import { WorkspaceGuard } from './workspace.guard.js';
+import { WorkspaceGuard } from './workspace.guard';
 
 const ctx = (user: any, workspaceId: string) =>
     ({

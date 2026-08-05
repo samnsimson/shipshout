@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DraftStatus, PublishStatus, Channel } from '@shipshout/database';
-import { ConnectorRegistry } from './connector-registry.js';
-import { DraftRepository, PublishRecordRepository } from './repositories/dispatch.repositories.js';
+import { ConnectorRegistry } from './connector-registry';
+import { DraftRepository, PublishRecordRepository } from './repositories/dispatch.repositories';
 
 export interface ConnectionsPort {
     getActive(workspaceId: string, channel: Channel): Promise<{ id: string } | null>;

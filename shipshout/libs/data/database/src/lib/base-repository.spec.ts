@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { BaseRepository } from './base-repository.js';
+import { BaseRepository } from './base-repository';
 
 class Entity {
     id!: string;

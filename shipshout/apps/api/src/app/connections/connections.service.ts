@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Channel, ConnectionStatus } from '@shipshout/database';
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
-import { channelOAuthConfig, channelSlug } from './oauth.config.js';
+import { channelOAuthConfig, channelSlug } from './oauth.config';
 import { ChannelConnectionRepository } from './channel-connection.repository';
 
 @Injectable()

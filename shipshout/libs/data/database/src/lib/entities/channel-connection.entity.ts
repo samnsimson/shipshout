@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Workspace } from './workspace.entity.js';
-import { Channel } from './draft.entity.js';
+import { Workspace } from './workspace.entity';
+import { Channel } from './draft.entity';
 
 export enum ConnectionStatus {
     Active = 'active',

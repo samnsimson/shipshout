@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { MembershipRepository } from './repositories/membership.repository.js';
+import { MembershipRepository } from './repositories/membership.repository';
 
 @Injectable()
 export class WorkspaceGuard implements CanActivate {

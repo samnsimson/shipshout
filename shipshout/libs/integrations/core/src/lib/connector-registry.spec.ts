@@ -1,4 +1,4 @@
-import { ConnectorRegistry } from './connector-registry.js';
+import { ConnectorRegistry } from './connector-registry';
 import { Channel } from '@shipshout/database';
 
 describe('ConnectorRegistry', () => {

@@ -1,5 +1,5 @@
 import { Body, Controller, Headers, HttpCode, Param, Post, Req, UseGuards } from '@nestjs/common';
-import type { Request } from 'express';
+import { Request } from 'express';
 import Stripe from 'stripe';
 import { WorkspaceGuard } from '@shipshout/auth';
 import { Tier } from '@shipshout/database';

@@ -1,1 +1,1 @@
-export * from './lib/x.connector.js';
+export * from './lib/x.connector';

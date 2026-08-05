@@ -1,7 +1,7 @@
-import { ENTITIES } from '../typeorm.config.js';
-import { User } from './user.entity.js';
-import { Workspace } from './workspace.entity.js';
-import { Membership, MembershipRole } from './membership.entity.js';
+import { ENTITIES } from '../typeorm.config';
+import { User } from './user.entity';
+import { Workspace } from './workspace.entity';
+import { Membership, MembershipRole } from './membership.entity';
 
 describe('core entities', () => {
     it('registers all core entities', () => {

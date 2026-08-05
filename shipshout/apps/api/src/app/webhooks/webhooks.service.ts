@@ -1,6 +1,6 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
-import type { Queue } from 'bullmq';
+import { Queue } from 'bullmq';
 import { SourceProvider } from '@shipshout/database';
 import { verifyGithubSignature, normalizeGithubRelease } from '@shipshout/integrations-github';
 import { verifyLinearSignature, normalizeLinear } from '@shipshout/integrations-linear';
@@ -77,8 +77,7 @@ export class WebhooksService {
         const norm = normalizeLinear(payload);
         if (!norm.isCompletion) return { accepted: false };
         const repo = await this.repos.findByExternalId(SourceProvider.Linear, norm.externalId);
-        const verified =
-            !!repo && verifyLinearSignature(rawBody, headers['linear-signature'] ?? '', this.repos.decryptSecret(repo.webhookSecret));
+        const verified = !!repo && verifyLinearSignature(rawBody, headers['linear-signature'] ?? '', this.repos.decryptSecret(repo.webhookSecret));
         return this.ingestNormalized({
             source: SourceProvider.Linear,
             externalId: norm.externalId,

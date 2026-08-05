@@ -1,4 +1,4 @@
-import { AiProvider, AiPrompt } from './ai-provider.js';
+import { AiProvider, AiPrompt } from './ai-provider';
 
 export interface EngineResult {
     text: string;

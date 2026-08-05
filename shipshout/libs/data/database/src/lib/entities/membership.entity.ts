@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, Unique } from 'typeorm';
-import { User } from './user.entity.js';
-import { Workspace } from './workspace.entity.js';
+import { User } from './user.entity';
+import { Workspace } from './workspace.entity';
 
 export enum MembershipRole {
     Owner = 'owner',

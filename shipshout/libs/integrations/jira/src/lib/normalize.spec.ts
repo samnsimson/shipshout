@@ -1,4 +1,4 @@
-import { normalizeJira } from './normalize.js';
+import { normalizeJira } from './normalize';
 
 describe('normalizeJira', () => {
     it('extracts issue summary and done status', () => {

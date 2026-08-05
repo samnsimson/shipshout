@@ -1,4 +1,4 @@
-import { CreateWorkspaceSchema } from './workspace.contracts.js';
+import { CreateWorkspaceSchema } from './workspace.contracts';
 
 describe('CreateWorkspaceSchema', () => {
     it('rejects empty name', () => {

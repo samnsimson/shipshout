@@ -1,4 +1,4 @@
-import { XConnector } from './x.connector.js';
+import { XConnector } from './x.connector';
 import { Channel } from '@shipshout/database';
 
 describe('XConnector', () => {

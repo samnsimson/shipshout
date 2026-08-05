@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { AiProvider, AiPrompt, AiResult } from './ai-provider.js';
+import { AiProvider, AiPrompt, AiResult } from './ai-provider';
 
 export class ClaudeProvider implements AiProvider {
     name = 'claude';

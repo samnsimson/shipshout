@@ -1,4 +1,4 @@
-import { BufferConnector } from './buffer.connector.js';
+import { BufferConnector } from './buffer.connector';
 import { Channel } from '@shipshout/database';
 
 it('queues an update in Buffer', async () => {

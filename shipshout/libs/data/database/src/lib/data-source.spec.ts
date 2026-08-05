@@ -1,4 +1,4 @@
-import { buildTypeOrmOptions } from './typeorm.config.js';
+import { buildTypeOrmOptions } from './typeorm.config';
 
 describe('buildTypeOrmOptions', () => {
     it('never enables synchronize and uses migrations', () => {

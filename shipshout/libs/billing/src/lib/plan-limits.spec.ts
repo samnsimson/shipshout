@@ -1,4 +1,4 @@
-import { PLAN_LIMITS, checkRepoLimit, checkReleaseLimit } from './plan-limits.js';
+import { PLAN_LIMITS, checkRepoLimit, checkReleaseLimit } from './plan-limits';
 import { Tier } from '@shipshout/database';
 
 describe('plan limits', () => {

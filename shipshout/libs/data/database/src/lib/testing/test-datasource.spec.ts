@@ -1,4 +1,4 @@
-import { createTestDataSource, truncateAll } from './test-datasource.js';
+import { createTestDataSource, truncateAll } from './test-datasource';
 
 const hasTestDb = !!process.env.TEST_DATABASE_URL;
 

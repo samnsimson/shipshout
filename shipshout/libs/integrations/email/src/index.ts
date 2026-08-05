@@ -1,1 +1,1 @@
-export * from './lib/email.connector.js';
+export * from './lib/email.connector';

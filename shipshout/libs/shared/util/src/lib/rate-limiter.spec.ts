@@ -1,4 +1,4 @@
-import { RateLimiter } from './rate-limiter.js';
+import { RateLimiter } from './rate-limiter';
 
 function fakeStore() {
     const counts = new Map<string, number>();

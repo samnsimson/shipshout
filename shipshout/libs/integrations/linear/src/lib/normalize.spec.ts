@@ -1,4 +1,4 @@
-import { normalizeLinear } from './normalize.js';
+import { normalizeLinear } from './normalize';
 
 describe('normalizeLinear', () => {
     it('marks completed issues and extracts summary', () => {

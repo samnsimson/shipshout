@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { Workspace } from './workspace.entity.js';
+import { Workspace } from './workspace.entity';
 
 export enum Tier {
     Starter = 'starter',
