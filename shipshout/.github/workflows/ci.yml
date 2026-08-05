@@ -1,0 +1,35 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: shipshout_test
+        ports:
+          - 5435:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6381:6379
+    env:
+      TEST_DATABASE_URL: postgres://test:test@localhost:5435/shipshout_test
+      DATABASE_URL: postgres://test:test@localhost:5435/shipshout_test
+      REDIS_URL: redis://localhost:6381
+      APP_ENCRYPTION_KEY: MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMD0=
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx nx run-many -t lint
+      - run: bunx nx run-many -t test
+      - run: bunx nx e2e api-e2e
