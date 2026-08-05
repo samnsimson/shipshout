@@ -1,6 +1,6 @@
 export interface GenerateJob {
-  releaseEventId: string;
+    releaseEventId: string;
 }
 export interface DispatchJob {
-  draftId: string;
+    draftId: string;
 }
