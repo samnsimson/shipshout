@@ -6,17 +6,15 @@ export class ClaudeProvider implements AiProvider {
     private client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
     async generate(prompt: AiPrompt, opts?: { maxTokens?: number }): Promise<AiResult> {
         const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest';
+        const maxTokens = opts?.maxTokens ?? 400;
         const res = await this.client.messages.create({
             model,
-            max_tokens: opts?.maxTokens ?? 400,
+            max_tokens: maxTokens,
             system: prompt.system,
             messages: [{ role: 'user', content: prompt.user }],
         });
         const text = res.content.map((b) => (b.type === 'text' ? b.text : '')).join('');
-        return {
-            text,
-            model,
-            tokens: res.usage ? res.usage.input_tokens + res.usage.output_tokens : undefined,
-        };
+        const tokens = res.usage ? res.usage.input_tokens + res.usage.output_tokens : undefined;
+        return { text, model, tokens };
     }
 }
