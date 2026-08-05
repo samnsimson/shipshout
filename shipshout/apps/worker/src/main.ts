@@ -1,10 +1,12 @@
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { createLogger, initSentry } from '@shipshout/observability';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
+    initSentry();
+    const log = createLogger('worker');
     await NestFactory.createApplicationContext(AppModule);
-    Logger.log('ShipShout worker started');
+    log.info('ShipShout worker started');
 }
 
 bootstrap();

@@ -4,14 +4,16 @@
  */
 
 import 'reflect-metadata';
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import session from 'express-session';
+import { initSentry, createLogger } from '@shipshout/observability';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true });
+    initSentry();
+    const log = createLogger('api');
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true, logger: false });
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
     app.enableCors({
@@ -28,7 +30,7 @@ async function bootstrap() {
     );
     const port = process.env.PORT || 3000;
     await app.listen(port);
-    Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+    log.info(`Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
 bootstrap();

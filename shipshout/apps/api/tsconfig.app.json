@@ -18,6 +18,9 @@
             "path": "../../libs/queue/tsconfig.lib.json"
         },
         {
+            "path": "../../libs/shared/observability/tsconfig.lib.json"
+        },
+        {
             "path": "../../libs/integrations/linear/tsconfig.lib.json"
         },
         {

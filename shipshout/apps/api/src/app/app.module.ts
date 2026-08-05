@@ -14,6 +14,7 @@ import { DraftsModule } from './drafts/drafts.module';
 import { BrandModule } from './brand/brand.module';
 import { ConnectionsModule } from './connections/connections.module';
 import { BillingModule } from './billing/billing.module';
+import { HealthModule } from './health/health.module';
 import { PublicModule } from './public/public.module';
 import { QueueModule } from '@shipshout/queue/module';
 
@@ -32,6 +33,7 @@ import { QueueModule } from '@shipshout/queue/module';
         ConnectionsModule,
         BillingModule,
         PublicModule,
+        HealthModule,
     ],
     controllers: [AppController],
     providers: [AppService],
