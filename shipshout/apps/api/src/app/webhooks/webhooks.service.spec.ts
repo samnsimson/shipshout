@@ -7,7 +7,7 @@ function make() {
     const secret = 's3cret';
     const body = Buffer.from(JSON.stringify({ release: { id: 42, name: 'v1', body: 'fix' } }));
     const repos = {
-        findByExternalId: jest.fn(async () => ({ id: 'r1', enabled: true, webhookSecret: 'cipher' })),
+        findByExternalId: jest.fn(async () => ({ id: 'r1', enabled: true, webhookSecret: 'cipher', workspace: { id: 'w1' } })),
         decryptSecret: jest.fn(() => secret),
     };
     const events = {
@@ -16,7 +16,8 @@ function make() {
         save: jest.fn(async (d: any) => ({ id: 'e1', ...d })),
     };
     const queue = { add: jest.fn(async () => ({})) };
-    const svc = new WebhooksService(repos as any, events as any, queue as any);
+    const tiers = { tryConsumeRelease: jest.fn(async () => true) };
+    const svc = new WebhooksService(repos as any, events as any, tiers as any, queue as any);
     const sig = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex');
     return { svc, body, sig, events, queue };
 }

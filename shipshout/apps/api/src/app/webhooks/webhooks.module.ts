@@ -1,4 +1,5 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { BillingModule } from '../billing/billing.module';
 import { QueueModule } from '@shipshout/queue/module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { DatabaseModule } from '../config/database.module';
@@ -7,7 +8,7 @@ import { WebhooksService } from './webhooks.service';
 import { ReleaseEventRepository } from './release-event.repository';
 
 @Module({
-    imports: [DatabaseModule, RepositoriesModule, QueueModule],
+    imports: [DatabaseModule, forwardRef(() => BillingModule), RepositoriesModule, QueueModule],
     controllers: [WebhooksController],
     providers: [ReleaseEventRepository, WebhooksService],
 })

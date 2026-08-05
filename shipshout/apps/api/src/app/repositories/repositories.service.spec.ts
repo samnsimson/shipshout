@@ -8,7 +8,8 @@ describe('RepositoriesService.create', () => {
             create: (d: any) => d,
             save: jest.fn(async (d: any) => ({ id: 'r1', ...d })),
         };
-        const svc = new RepositoriesService(repo as any);
+        const tiers = { assertCanAddRepo: jest.fn(async () => undefined) };
+        const svc = new RepositoriesService(repo as any, tiers as any);
         const { repository, webhookSecret } = await svc.create('w1', {
             provider: 'github',
             externalId: '42',

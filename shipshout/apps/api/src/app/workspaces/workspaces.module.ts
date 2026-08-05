@@ -9,5 +9,6 @@ import { MembershipRepository, WorkspaceRepository } from './repositories/worksp
     imports: [DatabaseModule, AuthModule],
     controllers: [WorkspacesController],
     providers: [WorkspaceRepository, MembershipRepository, WorkspacesService],
+    exports: [WorkspaceRepository],
 })
 export class WorkspacesModule {}

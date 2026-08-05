@@ -13,6 +13,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
 import { DraftsModule } from './drafts/drafts.module';
 import { BrandModule } from './brand/brand.module';
 import { ConnectionsModule } from './connections/connections.module';
+import { BillingModule } from './billing/billing.module';
 import { QueueModule } from '@shipshout/queue/module';
 
 @Module({
@@ -28,6 +29,7 @@ import { QueueModule } from '@shipshout/queue/module';
         DraftsModule,
         BrandModule,
         ConnectionsModule,
+        BillingModule,
     ],
     controllers: [AppController],
     providers: [AppService],
