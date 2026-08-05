@@ -3,11 +3,19 @@ import { AiProvider, AiPrompt, AiResult } from './ai-provider.js';
 
 export class ClaudeProvider implements AiProvider {
     name = 'claude';
-    private client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    private client?: Anthropic;
+
+    private getClient(): Anthropic {
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) throw new Error('ANTHROPIC_API_KEY is not configured');
+        if (!this.client) this.client = new Anthropic({ apiKey });
+        return this.client;
+    }
+
     async generate(prompt: AiPrompt, opts?: { maxTokens?: number }): Promise<AiResult> {
         const model = process.env.ANTHROPIC_MODEL ?? 'claude-3-5-sonnet-latest';
         const maxTokens = opts?.maxTokens ?? 400;
-        const res = await this.client.messages.create({
+        const res = await this.getClient().messages.create({
             model,
             max_tokens: maxTokens,
             system: prompt.system,

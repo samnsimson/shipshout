@@ -19,7 +19,7 @@ import { TierService } from './tier.service';
         TierService,
         {
             provide: Stripe,
-            useFactory: () => new Stripe(process.env.STRIPE_SECRET_KEY ?? ''),
+            useFactory: () => new Stripe(process.env.STRIPE_SECRET_KEY ?? 'sk_test_placeholder'),
         },
         {
             provide: BillingService,

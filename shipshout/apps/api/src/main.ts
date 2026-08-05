@@ -33,4 +33,7 @@ async function bootstrap() {
     log.info(`Application is running on: http://localhost:${port}/${globalPrefix}`);
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});

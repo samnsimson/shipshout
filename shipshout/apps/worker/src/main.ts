@@ -9,4 +9,7 @@ async function bootstrap() {
     log.info('ShipShout worker started');
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+    console.error(err);
+    process.exit(1);
+});
