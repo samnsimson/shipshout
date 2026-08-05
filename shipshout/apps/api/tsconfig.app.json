@@ -18,6 +18,12 @@
             "path": "../../libs/queue/tsconfig.lib.json"
         },
         {
+            "path": "../../libs/integrations/linear/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/jira/tsconfig.lib.json"
+        },
+        {
             "path": "../../libs/integrations/github/tsconfig.lib.json"
         },
         {

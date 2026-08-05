@@ -95,6 +95,8 @@
         "@shipshout/contracts": "workspace:*",
         "@shipshout/database": "workspace:*",
         "@shipshout/integrations-github": "workspace:*",
+        "@shipshout/integrations-jira": "workspace:*",
+        "@shipshout/integrations-linear": "workspace:*",
         "@shipshout/queue": "workspace:*",
         "@shipshout/shared-util": "workspace:*",
         "@nestjs/bullmq": "^11.0.4",
