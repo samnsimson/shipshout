@@ -30,10 +30,16 @@
             "path": "../../libs/data/database/tsconfig.lib.json"
         },
         {
+            "path": "../../libs/core/domain/tsconfig.lib.json"
+        },
+        {
             "path": "../../libs/shared/contracts/tsconfig.lib.json"
         },
         {
             "path": "../../libs/billing/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/ai/tsconfig.lib.json"
         },
         {
             "path": "../../libs/auth/tsconfig.lib.json"

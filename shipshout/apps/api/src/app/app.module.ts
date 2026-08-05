@@ -14,6 +14,7 @@ import { DraftsModule } from './drafts/drafts.module';
 import { BrandModule } from './brand/brand.module';
 import { ConnectionsModule } from './connections/connections.module';
 import { BillingModule } from './billing/billing.module';
+import { PublicModule } from './public/public.module';
 import { QueueModule } from '@shipshout/queue/module';
 
 @Module({
@@ -30,6 +31,7 @@ import { QueueModule } from '@shipshout/queue/module';
         BrandModule,
         ConnectionsModule,
         BillingModule,
+        PublicModule,
     ],
     controllers: [AppController],
     providers: [AppService],
