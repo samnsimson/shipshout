@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Tier } from '@shipshout/database';
-import { checkRepoLimit, checkReleaseLimit } from '@shipshout/billing';
+import { PLAN_LIMITS, checkRepoLimit, checkReleaseLimit } from '@shipshout/billing';
 import { ConnectedRepoRepository } from '../repositories/connected-repo.repository';
 import { SubscriptionRepository, UsageCounterRepository } from './billing.repositories';
 
@@ -26,6 +26,11 @@ export class TierService {
         const tier = await this.tier(workspaceId);
         const count = await this.repos.count({ where: { workspace: { id: workspaceId } } });
         if (!checkRepoLimit(tier, count)) throw new Error(`Repository limit reached for ${tier} plan`);
+    }
+
+    async sourceIntegrationsAllowed(workspaceId: string): Promise<boolean> {
+        const tier = await this.tier(workspaceId);
+        return PLAN_LIMITS[tier].sourceIntegrations;
     }
 
     async tryConsumeRelease(workspaceId: string): Promise<boolean> {

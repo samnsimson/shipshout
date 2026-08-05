@@ -16,7 +16,7 @@ function make() {
         save: jest.fn(async (d: any) => ({ id: 'e1', ...d })),
     };
     const queue = { add: jest.fn(async () => ({})) };
-    const tiers = { tryConsumeRelease: jest.fn(async () => true) };
+    const tiers = { tryConsumeRelease: jest.fn(async () => true), sourceIntegrationsAllowed: jest.fn(async () => true) };
     const svc = new WebhooksService(repos as any, events as any, tiers as any, queue as any);
     const sig = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex');
     return { svc, body, sig, events, queue };
