@@ -30,12 +30,12 @@ export const ENTITIES = entities;
 
 const migrationsDir = join(dirname(fileURLToPath(import.meta.url)), 'migrations');
 
-export function buildTypeOrmOptions(databaseUrl: string): DataSourceOptions {
+export function buildTypeOrmOptions(databaseUrl: string, opts?: { migrations?: boolean }): DataSourceOptions {
     return {
         type: 'postgres',
         url: databaseUrl,
         synchronize: false,
         entities,
-        migrations: [join(migrationsDir, '*.js')],
+        ...(opts?.migrations ? { migrations: [join(migrationsDir, '*.js')] } : {}),
     };
 }
