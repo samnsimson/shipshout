@@ -90,6 +90,8 @@
         "@shipshout/contracts": "workspace:*",
         "@shipshout/database": "workspace:*",
         "@shipshout/integrations-github": "workspace:*",
+        "@shipshout/integrations-jira": "workspace:*",
+        "@shipshout/integrations-linear": "workspace:*",
         "@shipshout/queue": "workspace:*",
         "@shipshout/shared-util": "workspace:*",
         "bullmq": "^6.0.6",
@@ -227,6 +229,20 @@
     },
     "libs/integrations/github": {
       "name": "@shipshout/integrations-github",
+      "version": "0.0.1",
+      "dependencies": {
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/jira": {
+      "name": "@shipshout/integrations-jira",
+      "version": "0.0.1",
+      "dependencies": {
+        "tslib": "^2.3.0",
+      },
+    },
+    "libs/integrations/linear": {
+      "name": "@shipshout/integrations-linear",
       "version": "0.0.1",
       "dependencies": {
         "tslib": "^2.3.0",
@@ -1053,6 +1069,10 @@
     "@shipshout/integrations-email": ["@shipshout/integrations-email@workspace:libs/integrations/email"],
 
     "@shipshout/integrations-github": ["@shipshout/integrations-github@workspace:libs/integrations/github"],
+
+    "@shipshout/integrations-jira": ["@shipshout/integrations-jira@workspace:libs/integrations/jira"],
+
+    "@shipshout/integrations-linear": ["@shipshout/integrations-linear@workspace:libs/integrations/linear"],
 
     "@shipshout/integrations-linkedin": ["@shipshout/integrations-linkedin@workspace:libs/integrations/linkedin"],
 
