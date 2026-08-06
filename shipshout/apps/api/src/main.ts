@@ -19,7 +19,11 @@ async function bootstrap() {
             resave: false,
             secret: process.env.SESSION_SECRET ?? 'dev-session-secret',
             saveUninitialized: false,
-            cookie: { httpOnly: true, sameSite: 'lax' },
+            cookie: {
+                httpOnly: true,
+                sameSite: 'lax',
+                ...(process.env.NODE_ENV !== 'production' && { domain: 'localhost' }),
+            },
         }),
     );
     const port = process.env.PORT || 3000;

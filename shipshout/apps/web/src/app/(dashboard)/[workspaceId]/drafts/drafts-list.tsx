@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button, Show, SimpleGrid, Spinner, Text, VStack } from '@chakra-ui/react';
 import { LuGithub, LuMegaphone } from 'react-icons/lu';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -9,35 +10,71 @@ import { DraftCard } from './draft-card';
 
 type Draft = { id: string; channel: string; generatedCopy: string; editedCopy?: string; status: string };
 
-export function DraftsList({ workspaceId, initialDrafts, poll }: { workspaceId: string; initialDrafts: Draft[]; poll?: boolean }) {
-    const [drafts, setDrafts] = useState(initialDrafts);
-    const [polling, setPolling] = useState(poll && initialDrafts.length === 0);
+export function DraftsList({ workspaceId, poll }: { workspaceId: string; poll?: boolean }) {
+    const router = useRouter();
+    const [drafts, setDrafts] = useState<Draft[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [polling, setPolling] = useState(false);
+
+    const fetchDrafts = useCallback(async () => {
+        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
+        const res = await fetch(`${base}/api/workspaces/${workspaceId}/drafts`, { credentials: 'include' });
+        if (res.status === 403) {
+            router.push('/forbidden');
+            return null;
+        }
+        if (res.status === 401) {
+            router.push('/login');
+            return null;
+        }
+        if (!res.ok) return null;
+        return (await res.json()) as Draft[];
+    }, [router, workspaceId]);
 
     useEffect(() => {
-        setDrafts(initialDrafts);
-        if (initialDrafts.length > 0) setPolling(false);
-    }, [initialDrafts]);
+        let cancelled = false;
+
+        const load = async () => {
+            setLoading(true);
+            const data = await fetchDrafts();
+            if (cancelled || data === null) return;
+            setDrafts(data);
+            setLoading(false);
+            if (poll && data.length === 0) setPolling(true);
+        };
+
+        void load();
+        return () => {
+            cancelled = true;
+        };
+    }, [fetchDrafts, poll]);
 
     useEffect(() => {
         if (!polling) return;
 
-        const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
-        const fetchDrafts = async () => {
-            const res = await fetch(`${base}/api/workspaces/${workspaceId}/drafts`, { credentials: 'include' });
-            if (!res.ok) return;
-            const data: Draft[] = await res.json();
+        const interval = window.setInterval(async () => {
+            const data = await fetchDrafts();
+            if (data === null) return;
             setDrafts(data);
+            setLoading(false);
             if (data.length > 0) setPolling(false);
-        };
+        }, 2000);
 
-        void fetchDrafts();
-        const interval = window.setInterval(() => void fetchDrafts(), 2000);
         const timeout = window.setTimeout(() => setPolling(false), 60000);
         return () => {
             window.clearInterval(interval);
             window.clearTimeout(timeout);
         };
-    }, [polling, workspaceId]);
+    }, [polling, fetchDrafts]);
+
+    if (loading && drafts.length === 0) {
+        return (
+            <VStack gap="2" py="8" color="fg.muted">
+                <Spinner size="md" color="brand.solid" />
+                <Text fontSize="sm">{poll ? 'Generating drafts…' : 'Loading drafts…'}</Text>
+            </VStack>
+        );
+    }
 
     return (
         <Show
