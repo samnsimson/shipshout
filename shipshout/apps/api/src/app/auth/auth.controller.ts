@@ -10,13 +10,6 @@ export class AuthController {
         /* redirect handled by passport */
     }
 
-    @Get('github/callback')
-    @UseGuards(AuthGuard('github'))
-    callback(@Req() req: Request, @Res() res: Response) {
-        req.session.userId = req.user.id;
-        res.redirect(process.env.WEB_BASE_URL ?? '/');
-    }
-
     @Get('me')
     me(@Req() req: Request) {
         return req.user ?? null;

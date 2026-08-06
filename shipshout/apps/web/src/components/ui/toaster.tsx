@@ -3,6 +3,7 @@
 import {
   Toaster as ChakraToaster,
   Portal,
+  Show,
   Spinner,
   Stack,
   Toast,
@@ -20,21 +21,23 @@ export const Toaster = () => {
       <ChakraToaster toaster={toaster} insetInline={{ mdDown: "4" }}>
         {(toast) => (
           <Toast.Root width={{ md: "sm" }}>
-            {toast.type === "loading" ? (
+            <Show when={toast.type === "loading"} fallback={<Toast.Indicator />}>
               <Spinner size="sm" color="blue.solid" />
-            ) : (
-              <Toast.Indicator />
-            )}
+            </Show>
             <Stack gap="1" flex="1" maxWidth="100%">
-              {toast.title && <Toast.Title>{toast.title}</Toast.Title>}
-              {toast.description && (
-                <Toast.Description>{toast.description}</Toast.Description>
-              )}
+              <Show when={toast.title}>
+                {(title) => <Toast.Title>{title}</Toast.Title>}
+              </Show>
+              <Show when={toast.description}>
+                {(description) => <Toast.Description>{description}</Toast.Description>}
+              </Show>
             </Stack>
-            {toast.action && (
-              <Toast.ActionTrigger>{toast.action.label}</Toast.ActionTrigger>
-            )}
-            {toast.closable && <Toast.CloseTrigger />}
+            <Show when={toast.action}>
+              {(action) => <Toast.ActionTrigger>{action.label}</Toast.ActionTrigger>}
+            </Show>
+            <Show when={toast.closable}>
+              <Toast.CloseTrigger />
+            </Show>
           </Toast.Root>
         )}
       </ChakraToaster>

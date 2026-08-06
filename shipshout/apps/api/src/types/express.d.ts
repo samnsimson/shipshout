@@ -4,6 +4,11 @@ import { User } from '@shipshout/database';
 declare module 'express-session' {
     interface SessionData {
         userId?: string;
+        githubRepoConnect?: {
+            workspaceId: string;
+            accessToken: string;
+            repos: { id: number; full_name: string }[];
+        };
     }
 }
 

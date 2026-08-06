@@ -99,7 +99,7 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
     });
 
     it('generates, approves, and publishes a draft', async () => {
-        const payload = { release: { id: 42, name: 'v1.0', body: 'Ship faster' } };
+        const payload = { repository: { id: 42 }, release: { id: 999, name: 'v1.0', body: 'Ship faster' } };
         const bodyStr = JSON.stringify(payload);
         const body = Buffer.from(bodyStr);
         const sig = 'sha256=' + createHmac('sha256', webhookSecret).update(body).digest('hex');

@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import NextLink from 'next/link';
+import { Button, Card, Clipboard, Container, Show, Text, Textarea } from '@chakra-ui/react';
+import { LuCheck, LuClipboard } from 'react-icons/lu';
 
 export async function generateTweet(releaseNotes: string): Promise<{ tweet: string }> {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
@@ -33,29 +36,45 @@ export function Generator() {
     }
 
     return (
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
-            <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={8}
-                style={{ width: '100%' }}
-                placeholder="Paste your GitHub release notes or commit log..."
-            />
-            <button type="button" onClick={run} disabled={loading || !notes}>
-                {loading ? 'Generating…' : 'Generate tweet'}
-            </button>
-            {err ? <p style={{ color: 'crimson' }}>{err}</p> : null}
-            {tweet ? (
-                <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 16, marginTop: 16 }}>
-                    <p>{tweet}</p>
-                    <button type="button" onClick={() => navigator.clipboard.writeText(tweet)}>
-                        Copy
-                    </button>
-                </div>
-            ) : null}
-            <p style={{ marginTop: 24 }}>
-                Want automatic multi-channel posts on every release? <a href="/login">Sign up for ShipShout →</a>
-            </p>
-        </div>
+        <Container maxW="2xl">
+            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={8} placeholder="Paste your GitHub release notes or commit log..." bg="bg.panel" />
+            <Button mt="4" size="lg" colorPalette="signal" onClick={run} loading={loading} loadingText="Generating…" disabled={!notes}>
+                Generate tweet
+            </Button>
+            <Show when={err}>
+                {(message) => (
+                    <Text color="fg.error" mt="3">
+                        {message}
+                    </Text>
+                )}
+            </Show>
+            <Show when={tweet}>
+                {(content) => (
+                    <Card.Root mt="6">
+                        <Card.Body>
+                            <Text>{content}</Text>
+                        </Card.Body>
+                        <Card.Footer>
+                            <Clipboard.Root value={content}>
+                                <Clipboard.Trigger asChild>
+                                    <Button size="sm" variant="surface">
+                                        <Clipboard.Indicator copied={<LuCheck />}>
+                                            <LuClipboard />
+                                        </Clipboard.Indicator>
+                                        <Clipboard.CopyText />
+                                    </Button>
+                                </Clipboard.Trigger>
+                            </Clipboard.Root>
+                        </Card.Footer>
+                    </Card.Root>
+                )}
+            </Show>
+            <Text mt="8" textAlign="center" color="fg.muted">
+                Want automatic multi-channel posts on every release?{' '}
+                <NextLink href="/login" style={{ color: 'inherit', textDecoration: 'underline' }}>
+                    Sign up for ShipShout →
+                </NextLink>
+            </Text>
+        </Container>
     );
 }

@@ -1,8 +1,12 @@
-import { createRepository, simulateRelease } from './repositories';
+import { connectGithubUrl, createRepository, simulateRelease } from './repositories';
 
 describe('repositories lib', () => {
     beforeEach(() => {
         process.env.NEXT_PUBLIC_API_BASE_URL = 'http://api.test';
+    });
+
+    it('builds GitHub connect URL', () => {
+        expect(connectGithubUrl('w1')).toBe('http://api.test/api/workspaces/w1/repositories/github/start');
     });
 
     it('POSTs a new repository', async () => {

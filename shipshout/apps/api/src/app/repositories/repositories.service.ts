@@ -27,6 +27,24 @@ export class RepositoriesService {
         return { repository, webhookSecret };
     }
 
+    async createFromGithub(workspaceId: string, repo: { id: number; full_name: string }) {
+        const externalId = String(repo.id);
+        const existing = await this.repos.findByExternalIdForWorkspace(workspaceId, 'github' as any, externalId);
+        if (existing) return { repository: existing, webhookSecret: null as string | null, created: false };
+        await this.tiers.assertCanAddRepo(workspaceId);
+        const webhookSecret = randomBytes(32).toString('hex');
+        const repository = await this.repos.save(
+            this.repos.create({
+                workspace: { id: workspaceId },
+                provider: 'github' as any,
+                externalId,
+                name: repo.full_name,
+                webhookSecret: encryptSecret(webhookSecret),
+            }),
+        );
+        return { repository, webhookSecret, created: true };
+    }
+
     list(workspaceId: string) {
         return this.repos.listForWorkspace(workspaceId);
     }

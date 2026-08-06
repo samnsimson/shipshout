@@ -81,13 +81,19 @@ export class WebhooksService {
     }
 
     async handleGithub(rawBody: Buffer, headers: Record<string, string | undefined>) {
+        const event = headers['x-github-event'];
+        if (event && event !== 'release') return { accepted: false };
+
         const payload = JSON.parse(rawBody.toString('utf8'));
         const norm = normalizeGithubRelease(payload);
         const repo = await this.repos.findByExternalId('github', norm.externalId);
         if (!repo || !repo.enabled) return { accepted: false };
 
-        const secret = this.repos.decryptSecret(repo.webhookSecret);
-        const verified = verifyGithubSignature(rawBody, headers['x-hub-signature-256'] ?? '', secret);
+        const signature = headers['x-hub-signature-256'] ?? '';
+        const appSecret = process.env.GITHUB_APP_WEBHOOK_SECRET;
+        const verified =
+            (appSecret ? verifyGithubSignature(rawBody, signature, appSecret) : false) ||
+            verifyGithubSignature(rawBody, signature, this.repos.decryptSecret(repo.webhookSecret));
         return this.ingestNormalized({
             source: SourceProvider.Github,
             externalId: norm.externalId,

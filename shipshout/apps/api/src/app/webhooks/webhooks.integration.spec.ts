@@ -46,7 +46,7 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
         const ws = await ds.query(`INSERT INTO workspaces(name,slug,plan) VALUES ('w','w-${Date.now()}','starter') RETURNING id`);
         const { webhookSecret } = await repos.create(ws[0].id, { provider: 'github', externalId: '42', name: 'acme/app' });
         const svc = new WebhooksService(repos, events, tier as any, queue as any);
-        const body = Buffer.from(JSON.stringify({ release: { id: 42, name: 'v1', body: 'fix' } }));
+        const body = Buffer.from(JSON.stringify({ repository: { id: 42 }, release: { id: 999, name: 'v1', body: 'fix' } }));
         const sig = 'sha256=' + createHmac('sha256', webhookSecret).update(body).digest('hex');
         const first = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });
         const second = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });

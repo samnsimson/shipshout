@@ -1,7 +1,7 @@
 # Production-Grade Web UI — Design Spec
 
 **Date:** 2026-08-06
-**Status:** Approved (design), pending implementation plan
+**Status:** Approved (design). Implementation plan: `docs/superpowers/plans/2026-08-06-web-production-ui-implementation.md`
 **Source idea:** Chakra UI is installed (`ChakraProvider`, color-mode, toaster,
 tooltip snippets already scaffolded) but unused — every page in `apps/web` is
 raw HTML with inline `style={{}}` objects and no design tokens.

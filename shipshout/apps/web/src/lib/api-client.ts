@@ -1,3 +1,13 @@
+export class ApiError extends Error {
+    readonly status: number;
+
+    constructor(status: number) {
+        super(`API ${status}`);
+        this.name = 'ApiError';
+        this.status = status;
+    }
+}
+
 export async function apiFetch(path: string, init: RequestInit = {}) {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL ?? '';
     const extraHeaders: Record<string, string> = {};
@@ -13,6 +23,6 @@ export async function apiFetch(path: string, init: RequestInit = {}) {
         ...init,
         headers: { ...extraHeaders, ...(init.headers as Record<string, string>) },
     });
-    if (!res.ok) throw new Error(`API ${res.status}`);
+    if (!res.ok) throw new ApiError(res.status);
     return res.json();
 }

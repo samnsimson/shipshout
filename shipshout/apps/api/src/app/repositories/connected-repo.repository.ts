@@ -13,6 +13,10 @@ export class ConnectedRepoRepository extends BaseRepository<ConnectedRepo> {
         return this.findOneBy({ provider, externalId });
     }
 
+    findByExternalIdForWorkspace(workspaceId: string, provider: ConnectedRepo['provider'], externalId: string) {
+        return this.findOneBy({ workspace: { id: workspaceId }, provider, externalId });
+    }
+
     listForWorkspace(workspaceId: string) {
         return this.find({ where: { workspace: { id: workspaceId } } });
     }
