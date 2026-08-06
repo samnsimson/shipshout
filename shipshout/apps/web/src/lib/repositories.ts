@@ -20,10 +20,3 @@ export const createRepository = (ws: string, dto: { provider: string; externalId
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(dto),
     });
-
-export const simulateRelease = (ws: string, repositoryId: string, dto: { title?: string; notes?: string }) =>
-    apiFetch(`/workspaces/${ws}/repositories/${repositoryId}/simulate-release`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(dto),
-    });

@@ -9,7 +9,14 @@ import { ConnectGithub } from './connect-github';
 import { ConnectGithubToast } from './connect-github-toast';
 import { RepositoryRow } from './repository-row';
 
-type Repo = { id: string; provider: string; name: string; enabled: boolean };
+type Repo = {
+    id: string;
+    provider: string;
+    name: string;
+    enabled: boolean;
+    lastReleaseAt: string | null;
+    lastReleaseStatus: 'received' | 'generating' | 'drafted' | 'failed' | null;
+};
 
 export default async function RepositoriesPage({ params }: { params: Promise<{ workspaceId: string }> }) {
     const { workspaceId } = await params;

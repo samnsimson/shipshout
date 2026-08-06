@@ -12,6 +12,9 @@ const TONE_BY_STATUS: Record<string, Tone> = {
     connected: 'positive',
     not_connected: 'neutral',
     disabled: 'neutral',
+    received: 'neutral',
+    drafted: 'positive',
+    failed: 'neutral',
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

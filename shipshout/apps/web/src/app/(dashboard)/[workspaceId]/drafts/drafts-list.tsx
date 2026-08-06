@@ -97,7 +97,7 @@ export function DraftsList({ workspaceId, poll }: { workspaceId: string; poll?: 
                 </VStack>
             }
         >
-            <EmptyState title="No drafts yet" description="Connect a repo and push a release to get started." icon={<LuMegaphone />}>
+            <EmptyState title="No drafts yet" description="Publish a release on GitHub to generate drafts." icon={<LuMegaphone />}>
                 <Button asChild colorPalette="brand" mt="2">
                     <a href={connectGithubUrl(workspaceId)}>
                         <LuGithub /> Connect with GitHub
