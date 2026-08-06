@@ -17,11 +17,21 @@ describe('GithubReposService', () => {
         expect(url).toContain(encodeURIComponent('repo:ws-1'));
     });
 
-    it('builds GitHub App install URL when app env is configured', () => {
+    it('uses OAuth start URL even when GitHub App is configured', () => {
         process.env.GITHUB_APP_SLUG = 'shipshout';
         process.env.GITHUB_APP_ID = '1';
         process.env.GITHUB_APP_PRIVATE_KEY = 'key';
         const svc = new GithubReposService({} as any);
-        expect(svc.startUrl('ws-1')).toBe('https://github.com/apps/shipshout/installations/new?state=ws-1');
+        const url = svc.startUrl('ws-1');
+        expect(url).toContain('github.com/login/oauth/authorize');
+        expect(url).toContain(encodeURIComponent('repo:ws-1'));
+    });
+
+    it('detects GitHub App configuration', () => {
+        process.env.GITHUB_APP_SLUG = 'shipshout';
+        process.env.GITHUB_APP_ID = '1';
+        process.env.GITHUB_APP_PRIVATE_KEY = 'key';
+        const svc = new GithubReposService({} as any);
+        expect(svc.usesGithubApp()).toBe(true);
     });
 });

@@ -35,7 +35,6 @@ export class GithubReposService {
     }
 
     startUrl(workspaceId: string) {
-        if (this.usesGithubApp()) return `https://github.com/apps/${process.env.GITHUB_APP_SLUG}/installations/new?state=${workspaceId}`;
         const params = new URLSearchParams({
             client_id: process.env.GITHUB_CLIENT_ID!,
             redirect_uri: this.oauthRedirectUri(),
