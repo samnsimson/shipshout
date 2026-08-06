@@ -1,6 +1,5 @@
-import { randomUUID } from 'crypto';
 import { InjectQueue } from '@nestjs/bullmq';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { SourceProvider } from '@shipshout/database';
 import { verifyGithubSignature, normalizeGithubRelease } from '@shipshout/integrations-github';
@@ -38,20 +37,6 @@ export class WebhooksService {
             commitSummary: input.commitSummary,
             requireSourceIntegration: input.requireSourceIntegration,
             rawPayload: input.rawPayload ?? { externalId: input.externalId },
-        });
-    }
-
-    async simulateRelease(workspaceId: string, repositoryId: string, dto: { title?: string; notes?: string }): Promise<{ accepted: boolean; duplicate?: boolean }> {
-        const repo = await this.repos.findById(repositoryId);
-        if (!repo || repo.workspace.id !== workspaceId) throw new NotFoundException('Repository not found');
-        const title = dto.title?.trim() || `Test release ${new Date().toISOString()}`;
-        const notes = dto.notes?.trim() || 'Testing the ShipShout pipeline.';
-        return this.acceptEvent(repo, {
-            source: SourceProvider.Github,
-            deliveryId: `sim-${randomUUID()}`,
-            commitSummary: [title, notes].join('\n'),
-            requireSourceIntegration: false,
-            rawPayload: { simulated: true, title, notes },
         });
     }
 
