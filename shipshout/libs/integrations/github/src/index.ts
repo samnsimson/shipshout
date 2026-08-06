@@ -1,3 +1,3 @@
-export * from './lib/verify-signature';
-export * from './lib/normalize-release';
-export * from './lib/github-api';
+export * from './lib/utils/verify-signature';
+export * from './lib/utils/normalize-release';
+export * from './lib/utils/github-api';

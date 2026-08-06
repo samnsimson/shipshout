@@ -1,1 +1,1 @@
-export * from './lib/mailchimp.connector';
+export * from './lib/connectors/mailchimp.connector';

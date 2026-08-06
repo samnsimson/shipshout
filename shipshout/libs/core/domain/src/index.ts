@@ -1,2 +1,2 @@
-export * from './lib/build-prompt';
-export * from './lib/channel-constraints';
+export * from './lib/utils/build-prompt';
+export * from './lib/utils/channel-constraints';

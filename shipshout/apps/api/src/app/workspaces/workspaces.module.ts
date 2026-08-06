@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { DatabaseModule } from '../config/database.module';
-import { WorkspacesController } from './workspaces.controller';
-import { WorkspacesService } from './workspaces.service';
+import { WorkspacesController } from './controllers/workspaces.controller';
+import { WorkspacesService } from './services/workspaces.service';
 import { MembershipRepository, WorkspaceRepository } from './repositories/workspace.repository';
 
 @Module({

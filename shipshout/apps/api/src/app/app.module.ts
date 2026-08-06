@@ -1,10 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from './controllers/app.controller';
+import { AppService } from './services/app.service';
 import { AuthModule } from './auth/auth.module';
-import { SessionUserMiddleware } from './auth/session-user.middleware';
+import { SessionUserMiddleware } from './auth/middleware/session-user.middleware';
 import { buildApiTypeOrmOptions } from './config/typeorm.module';
 import { DatabaseModule } from './config/database.module';
 import { WorkspacesModule } from './workspaces/workspaces.module';

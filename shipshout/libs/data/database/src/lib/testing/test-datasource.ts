@@ -1,6 +1,6 @@
 import { DataSource } from 'typeorm';
-import { buildTypeOrmOptions } from '../typeorm.config.js';
-import { MIGRATIONS } from '../migration-classes.js';
+import { buildTypeOrmOptions } from '../config/typeorm.config.js';
+import { MIGRATIONS } from '../config/migration-classes.js';
 
 export async function createTestDataSource(): Promise<DataSource> {
     const ds = new DataSource({

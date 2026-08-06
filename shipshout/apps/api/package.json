@@ -94,7 +94,6 @@
         "@shipshout/auth": "workspace:*",
         "@shipshout/ai": "workspace:*",
         "@shipshout/billing": "workspace:*",
-        "@shipshout/contracts": "workspace:*",
         "@shipshout/core-domain": "workspace:*",
         "@shipshout/database": "workspace:*",
         "@shipshout/integrations-github": "workspace:*",

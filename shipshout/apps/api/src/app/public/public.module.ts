@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { AiEngine, ClaudeProvider, OpenAiProvider } from '@shipshout/ai';
 import { CounterStore, RateLimiter } from '@shipshout/shared-util';
-import { PublicController } from './public.controller';
-import { PublicGenerateService } from './public-generate.service';
+import { PublicController } from './controllers/public.controller';
+import { PublicGenerateService } from './services/public-generate.service';
 
 function redisCounterStore(): CounterStore {
     const redis = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379');

@@ -1,2 +1,2 @@
-export * from './lib/queue.constants';
-export * from './lib/jobs';
+export * from './lib/constants/queue.constants';
+export * from './lib/utils/jobs';

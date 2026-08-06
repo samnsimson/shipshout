@@ -16,9 +16,6 @@
             "path": "./libs/shared/util"
         },
         {
-            "path": "./libs/shared/contracts"
-        },
-        {
             "path": "./libs/auth"
         },
         {

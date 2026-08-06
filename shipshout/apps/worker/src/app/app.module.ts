@@ -20,11 +20,11 @@ import {
 import { QueueModule } from '@shipshout/queue/module';
 import { buildWorkerTypeOrmOptions } from './config/typeorm.module';
 import { DatabaseModule } from './config/database.module';
-import { ChannelConnectionRepository } from './channel-connection.repository';
-import { DispatchProcessor } from './dispatch.processor';
-import { GenerateProcessor } from './generate.processor';
-import { WorkerConnectionsService } from './worker-connections.service';
-import { buildConnectorRegistry } from './connector-registry.factory';
+import { ChannelConnectionRepository } from './repositories/channel-connection.repository';
+import { DispatchProcessor } from './processors/dispatch.processor';
+import { GenerateProcessor } from './processors/generate.processor';
+import { WorkerConnectionsService } from './services/worker-connections.service';
+import { buildConnectorRegistry } from './factories/connector-registry.factory';
 
 @Module({
     imports: [ConfigModule.forRoot({ isGlobal: true }), TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()), DatabaseModule, QueueModule],

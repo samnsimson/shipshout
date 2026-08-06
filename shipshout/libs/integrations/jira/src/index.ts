@@ -1,2 +1,2 @@
-export * from './lib/verify';
-export * from './lib/normalize';
+export * from './lib/utils/normalize';
+export * from './lib/utils/verify';

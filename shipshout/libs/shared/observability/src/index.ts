@@ -1,2 +1,2 @@
-export * from './lib/logger';
-export * from './lib/pino-logger.service';
+export * from './lib/utils/logger';
+export * from './lib/services/pino-logger.service';

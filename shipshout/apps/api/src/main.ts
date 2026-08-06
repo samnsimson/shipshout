@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -9,6 +10,7 @@ async function bootstrap() {
     initSentry();
     const logger = new PinoLoggerService('api');
     const app = await NestFactory.create<NestExpressApplication>(AppModule, { rawBody: true, logger });
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
     app.enableCors({ origin: process.env.WEB_BASE_URL ?? 'http://localhost:4200', credentials: true });

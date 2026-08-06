@@ -6,9 +6,9 @@ import { DatabaseModule } from '../config/database.module';
 import { WorkspacesModule } from '../workspaces/workspaces.module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { WorkspaceRepository } from '../workspaces/repositories/workspace.repository';
-import { BillingController } from './billing.controller';
-import { SubscriptionRepository, UsageCounterRepository } from './billing.repositories';
-import { TierService } from './tier.service';
+import { BillingController } from './controllers/billing.controller';
+import { SubscriptionRepository, UsageCounterRepository } from './repositories/billing.repositories';
+import { TierService } from './services/tier.service';
 
 @Module({
     imports: [DatabaseModule, AuthModule, WorkspacesModule, forwardRef(() => RepositoriesModule)],

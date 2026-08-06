@@ -1,1 +1,1 @@
-export * from './lib/linkedin.connector';
+export * from './lib/connectors/linkedin.connector';

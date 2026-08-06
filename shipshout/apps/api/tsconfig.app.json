@@ -36,9 +36,6 @@
             "path": "../../libs/core/domain/tsconfig.lib.json"
         },
         {
-            "path": "../../libs/shared/contracts/tsconfig.lib.json"
-        },
-        {
             "path": "../../libs/billing/tsconfig.lib.json"
         },
         {

@@ -1,1 +1,1 @@
-export * from './lib/email.connector';
+export * from './lib/connectors/email.connector';

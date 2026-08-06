@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { PassportModule } from '@nestjs/passport';
 import { AuthService, GithubStrategy, WorkspaceGuard, UserRepository, WorkspaceRepository, MembershipRepository } from '@shipshout/auth';
-import { AuthController } from './auth.controller';
-import { SessionUserMiddleware } from './session-user.middleware';
+import { AuthController } from './controllers/auth.controller';
+import { SessionUserMiddleware } from './middleware/session-user.middleware';
 import { DatabaseModule } from '../config/database.module';
 
 @Module({
