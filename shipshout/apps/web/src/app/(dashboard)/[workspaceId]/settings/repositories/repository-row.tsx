@@ -53,11 +53,18 @@ export function RepositoryRow({ workspaceId, repo }: { workspaceId: string; repo
                                     setSending(true);
                                     try {
                                         const res = await simulateRelease(workspaceId, repo.id, { title, notes });
-                                        toaster.create({
-                                            type: res.accepted ? 'success' : 'error',
-                                            title: res.accepted ? 'Queued — check Drafts in a few seconds.' : 'Not accepted (usage limit reached?).',
-                                        });
-                                        router.refresh();
+                                        if (res.accepted) {
+                                            toaster.create({
+                                                type: 'success',
+                                                title: 'Queued — generating drafts now.',
+                                            });
+                                            router.push(`/${workspaceId}/drafts?generating=1`);
+                                        } else {
+                                            toaster.create({
+                                                type: 'error',
+                                                title: 'Not accepted (usage limit reached?).',
+                                            });
+                                        }
                                     } catch (error) {
                                         if (handleForbiddenClient(error, router.push)) return;
                                         toaster.create({ type: 'error', title: 'Failed to send test release.' });

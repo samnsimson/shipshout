@@ -5,8 +5,8 @@
     "scripts": {
         "docker:up": "docker compose up -d",
         "docker:down": "docker compose down",
-        "dev": "dotenv -e .env -- nx run-many -t dev --exclude=worker --output-style=stream",
-        "dev:all": "dotenv -e .env -- nx run-many -t dev --output-style=stream",
+        "dev": "dotenv -e .env -- nx run-many -t dev --output-style=stream",
+        "dev:web-api": "dotenv -e .env -- nx run-many -t dev --exclude=worker --output-style=stream",
         "test": "nx run-many -t test --all",
         "build": "nx run-many -t build --projects=api,web,worker,database",
         "migration:run": "nx build database && dotenv -e .env -- typeorm migration:run -d libs/data/database/dist/lib/config/data-source.js",

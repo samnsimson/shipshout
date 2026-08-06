@@ -38,8 +38,8 @@ bun run migration:gen -- libs/data/database/src/lib/migrations/MigrationName
 4. Start apps:
 
 ```sh
-bun run dev          # API + web
-bun run dev:all      # API + web + worker
+bun run dev          # API + web + worker (required for draft generation)
+bun run dev:web-api  # API + web only (no background jobs)
 ```
 
 - API: http://localhost:3000/api
