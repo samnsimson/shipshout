@@ -1,16 +1,27 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { WebhookStatus } from '@shipshout/database';
-import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 import {
     createGithubAppJwt,
     exchangeGithubCode,
     fetchGithubRepos,
+    fetchInstallation,
     fetchInstallationAccessToken,
-    fetchInstallationRepos,
+    fetchInstallationReposWithToken,
+    githubAppPermissionsUpgradeUrl,
+    installationCanListRepos,
+    installationCanManageWebhooks,
     registerGithubWebhook,
     GithubRepoSummary,
 } from '@shipshout/integrations-github';
+import { WebhookStatus } from '@shipshout/database';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 import { RepositoriesService } from './repositories.service';
+
+export class GithubPermissionsRequiredError extends Error {
+    constructor(public upgradeUrl: string) {
+        super('GitHub App permissions required');
+        this.name = 'GithubPermissionsRequiredError';
+    }
+}
 
 export type PendingGithubConnect = {
     workspaceId: string;
@@ -47,6 +58,10 @@ export class GithubReposService {
         return `https://github.com/login/oauth/authorize?${params}`;
     }
 
+    permissionsUpgradeUrl(workspaceId: string) {
+        return githubAppPermissionsUpgradeUrl(process.env.GITHUB_APP_SLUG!, workspaceId);
+    }
+
     oauthRedirectUri() {
         return process.env.GITHUB_CALLBACK_URL ?? `${process.env.API_BASE_URL}/api/auth/github/callback`;
     }
@@ -78,7 +93,12 @@ export class GithubReposService {
 
     async prepareInstallationSelection(workspaceId: string, installationId: string): Promise<GithubConnectPrepareResult> {
         const jwt = createGithubAppJwt(process.env.GITHUB_APP_ID!, process.env.GITHUB_APP_PRIVATE_KEY!);
-        const allRepos = await fetchInstallationRepos(installationId, jwt);
+        const installation = await fetchInstallation(installationId, jwt);
+        if (!installationCanListRepos(installation.permissions) || !installationCanManageWebhooks(installation.permissions))
+            throw new GithubPermissionsRequiredError(this.permissionsUpgradeUrl(workspaceId));
+
+        const token = await fetchInstallationAccessToken(installationId, jwt);
+        const allRepos = await fetchInstallationReposWithToken(token);
         const githubRepos = await this.filterNewRepos(workspaceId, allRepos);
         const repos = githubRepos.map((r) => ({ id: r.id, full_name: r.full_name }));
         return {
@@ -99,7 +119,7 @@ export class GithubReposService {
         const selected = session.repos.filter((r) => repoIds.includes(r.id));
         if (selected.length === 0) throw new BadRequestException('Selected repositories are not available');
         const accessToken = await this.connectToken(session);
-        return this.importRepos(workspaceId, selected, accessToken, !!session.installationId);
+        return this.importRepos(workspaceId, selected, accessToken);
     }
 
     private async connectToken(session: PendingGithubConnect) {
@@ -116,28 +136,18 @@ export class GithubReposService {
         return githubRepos.filter((r) => !connected.has(String(r.id)));
     }
 
-    private async importRepos(
-        workspaceId: string,
-        githubRepos: { id: number; full_name: string }[],
-        accessToken: string,
-        viaApp: boolean,
-    ) {
+    private async importRepos(workspaceId: string, githubRepos: { id: number; full_name: string }[], accessToken: string) {
         let imported = 0;
         let skipped = 0;
         let failed = 0;
         for (const repo of githubRepos) {
             try {
-                const { repository, webhookSecret, created } = await this.repos.createFromGithub(
-                    workspaceId,
-                    repo,
-                    viaApp ? { webhookStatus: WebhookStatus.Active } : undefined,
-                );
+                const { repository, webhookSecret, created } = await this.repos.createFromGithub(workspaceId, repo);
                 if (!created) {
                     skipped++;
                     continue;
                 }
                 imported++;
-                if (viaApp) continue;
                 if (!webhookSecret) continue;
                 try {
                     await registerGithubWebhook(repo.full_name, accessToken, this.webhookUrl(), webhookSecret);

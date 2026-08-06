@@ -1,9 +1,8 @@
 'use client';
 
 import { Button, Card, Flex, Stack, Text } from '@chakra-ui/react';
-import { LuGithub } from 'react-icons/lu';
 import { StatusBadge } from '@/components/status-badge';
-import { connectGithubUrl } from '../../../../../lib/repositories';
+import { connectGithubUrl, githubPermissionsUpgradeUrl } from '../../../../../lib/repositories';
 
 type Repo = {
     id: string;
@@ -35,9 +34,7 @@ export function RepositoryRow({ workspaceId, repo }: { workspaceId: string; repo
                         </Stack>
                         {repo.webhookStatus === 'failed' && (
                             <Button asChild size="sm" variant="outline" colorPalette="brand">
-                                <a href={connectGithubUrl(workspaceId)}>
-                                    <LuGithub /> Reconnect
-                                </a>
+                                <a href={connectGithubUrl(workspaceId)}>Reconnect</a>
                             </Button>
                         )}
                     </Flex>
@@ -45,7 +42,11 @@ export function RepositoryRow({ workspaceId, repo }: { workspaceId: string; repo
                         <Stack gap="1">
                             <StatusBadge status="setup_failed" label="Setup failed" />
                             <Text fontSize="sm" color="fg.muted">
-                                Reconnect the repository or check GitHub admin permissions.
+                                Reconnect the repository or{' '}
+                                <a href={githubPermissionsUpgradeUrl(workspaceId)} style={{ color: 'var(--chakra-colors-brand-fg)', textDecoration: 'underline' }}>
+                                    approve GitHub App permissions
+                                </a>
+                                .
                             </Text>
                         </Stack>
                     ) : isWebhookHealthy(repo) ? (

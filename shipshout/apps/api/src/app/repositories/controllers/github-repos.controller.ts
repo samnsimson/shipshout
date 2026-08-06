@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Get, Logger, Param, Post, Query,
 import { Request, Response } from 'express';
 import { WorkspaceGuard } from '@shipshout/auth';
 import { ImportGithubReposDto } from '../dtos/import-github-repos.dto';
-import { GithubReposService } from '../services/github-repos.service';
+import { GithubPermissionsRequiredError, GithubReposService } from '../services/github-repos.service';
 
 @Controller('workspaces/:workspaceId/repositories/github')
 @UseGuards(WorkspaceGuard)
@@ -12,6 +12,12 @@ export class GithubReposController {
     @Get('start')
     start(@Param('workspaceId') ws: string, @Res() res: Response) {
         res.redirect(this.svc.startUrl(ws));
+    }
+
+    @Get('permissions-upgrade')
+    permissionsUpgrade(@Param('workspaceId') ws: string, @Res() res: Response) {
+        if (!this.svc.usesGithubApp()) throw new BadRequestException('GitHub App is not configured');
+        res.redirect(this.svc.permissionsUpgradeUrl(ws));
     }
 
     @Get('pending')
@@ -58,6 +64,7 @@ export class GithubInstallController {
                 res.redirect(`${process.env.WEB_BASE_URL}/${workspaceId}/settings/repositories/select`);
             });
         } catch (err) {
+            if (err instanceof GithubPermissionsRequiredError) return res.redirect(err.upgradeUrl);
             this.log.error(`GitHub App install failed: ${err instanceof Error ? err.message : err}`);
             return res.redirect(`${process.env.WEB_BASE_URL}/${workspaceId}/settings/repositories?error=connect_failed`);
         }

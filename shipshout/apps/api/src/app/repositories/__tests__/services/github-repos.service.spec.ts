@@ -1,5 +1,5 @@
 import { WebhookStatus } from '@shipshout/database';
-import { GithubReposService } from '../../services/github-repos.service';
+import { GithubPermissionsRequiredError, GithubReposService } from '../../services/github-repos.service';
 
 jest.mock('@shipshout/shared-util', () => ({
     encryptSecret: (v: string) => v,
@@ -10,12 +10,24 @@ jest.mock('@shipshout/integrations-github', () => ({
     createGithubAppJwt: jest.fn(() => 'jwt'),
     exchangeGithubCode: jest.fn(),
     fetchGithubRepos: jest.fn(),
+    fetchInstallation: jest.fn(),
     fetchInstallationAccessToken: jest.fn(async () => 'install-token'),
+    fetchInstallationReposWithToken: jest.fn(async () => [{ id: 1, full_name: 'o/r' }]),
     fetchInstallationRepos: jest.fn(),
+    githubAppPermissionsUpgradeUrl: jest.fn((slug: string, state?: string) =>
+        `https://github.com/apps/${slug}/installations/new/permissions${state ? `?state=${state}` : ''}`,
+    ),
+    installationCanListRepos: jest.fn((p: Record<string, string>) => p.metadata === 'read'),
+    installationCanManageWebhooks: jest.fn((p: Record<string, string>) => p.administration === 'write'),
     registerGithubWebhook: jest.fn(),
 }));
 
-import { registerGithubWebhook } from '@shipshout/integrations-github';
+import {
+    fetchInstallation,
+    installationCanListRepos,
+    installationCanManageWebhooks,
+    registerGithubWebhook,
+} from '@shipshout/integrations-github';
 
 describe('GithubReposService', () => {
     beforeEach(() => {
@@ -53,7 +65,22 @@ describe('GithubReposService', () => {
         expect(svc.usesGithubApp()).toBe(true);
     });
 
-    it('marks webhook active on App import without registering per-repo hooks', async () => {
+    it('throws permissions upgrade error when installation lacks webhook access', async () => {
+        process.env.GITHUB_APP_SLUG = 'shipshout';
+        process.env.GITHUB_APP_ID = '1';
+        process.env.GITHUB_APP_PRIVATE_KEY = 'key';
+        (fetchInstallation as jest.Mock).mockResolvedValue({ id: 1, permissions: {} });
+        const svc = new GithubReposService({ listGithubExternalIds: jest.fn(async () => []) } as any);
+        await expect(svc.prepareInstallationSelection('ws-1', '123')).rejects.toBeInstanceOf(GithubPermissionsRequiredError);
+    });
+
+    it('registers webhooks on App import when permissions are granted', async () => {
+        process.env.GITHUB_APP_SLUG = 'shipshout';
+        process.env.GITHUB_APP_ID = '1';
+        process.env.GITHUB_APP_PRIVATE_KEY = 'key';
+        (fetchInstallation as jest.Mock).mockResolvedValue({ id: 1, permissions: { metadata: 'read', administration: 'write' } });
+        (installationCanListRepos as jest.Mock).mockReturnValue(true);
+        (installationCanManageWebhooks as jest.Mock).mockReturnValue(true);
         const repos = {
             listGithubExternalIds: jest.fn(async () => []),
             createFromGithub: jest.fn(async () => ({ repository: { id: 'r1' }, webhookSecret: 'secret', created: true })),
@@ -61,8 +88,8 @@ describe('GithubReposService', () => {
         };
         const svc = new GithubReposService(repos as any);
         await svc.importSelected('ws-1', { workspaceId: 'ws-1', installationId: '123', repos: [{ id: 1, full_name: 'o/r' }] }, [1]);
-        expect(repos.createFromGithub).toHaveBeenCalledWith('ws-1', { id: 1, full_name: 'o/r' }, { webhookStatus: WebhookStatus.Active });
-        expect(registerGithubWebhook).not.toHaveBeenCalled();
+        expect(registerGithubWebhook).toHaveBeenCalled();
+        expect(repos.setWebhookStatus).toHaveBeenCalledWith('r1', WebhookStatus.Active);
     });
 
     it('registers OAuth webhook and marks active on success', async () => {

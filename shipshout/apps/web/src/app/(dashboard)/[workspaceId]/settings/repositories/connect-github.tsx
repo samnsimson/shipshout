@@ -10,7 +10,8 @@ export function ConnectGithub({ workspaceId }: { workspaceId: string }) {
             <Card.Body>
                 <Card.Title mb="2">Connect a repository</Card.Title>
                 <Text color="fg.muted" mb="4">
-                    Authorize ShipShout on GitHub, then choose which repositories to connect on the next screen.
+                    GitHub will ask you to select repositories and approve permissions so ShipShout can register release
+                    webhooks automatically. No manual webhook setup required.
                 </Text>
                 <Button asChild colorPalette="brand">
                     <a href={connectGithubUrl(workspaceId)}>

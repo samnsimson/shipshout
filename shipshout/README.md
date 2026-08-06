@@ -49,9 +49,13 @@ bun run dev:web-api  # API + web only (no background jobs)
 
 ## GitHub repository connect
 
-When `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, and `GITHUB_APP_SLUG` are set, **Connect with GitHub** uses the GitHub App install flow and webhooks are automatic (configure the App webhook once in GitHub — see `.env.example`).
+When `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, and `GITHUB_APP_SLUG` are set, **Connect with GitHub** uses the GitHub App install flow. GitHub prompts users to approve **Metadata (read)** and **Administration (read & write)** permissions; ShipShout then registers release webhooks automatically.
 
-Without the App, OAuth connect auto-registers a per-repo webhook when you import repositories (requires admin access on the repo).
+Configure these once in your GitHub App → **Permissions & events**:
+- **Metadata:** Read-only
+- **Administration:** Read and write
+
+Also set the App webhook URL in **General** (see `.env.example`). Without the App, OAuth connect auto-registers per-repo webhooks (requires repo admin access).
 
 Draft generation triggers on **GitHub Release published** events. Local dev (`localhost` API URL) cannot receive GitHub webhooks unless you tunnel the API.
 

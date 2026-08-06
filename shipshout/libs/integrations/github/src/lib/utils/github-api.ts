@@ -78,6 +78,34 @@ export async function fetchInstallationRepos(installationId: string, appJwt: str
     return fetchInstallationReposWithToken(token);
 }
 
+export async function fetchInstallation(installationId: string, appJwt: string) {
+    const res = await fetch(`https://api.github.com/app/installations/${installationId}`, {
+        headers: {
+            Authorization: `Bearer ${appJwt}`,
+            Accept: 'application/vnd.github+json',
+            'X-GitHub-Api-Version': '2022-11-28',
+        },
+    });
+    if (!res.ok) throw new Error(`GitHub installation fetch failed: ${res.status}`);
+    const data = (await res.json()) as { id: number; permissions?: Record<string, string> };
+    return { id: data.id, permissions: data.permissions ?? {} };
+}
+
+export function installationCanListRepos(permissions: Record<string, string>) {
+    return permissions.metadata === 'read' || permissions.metadata === 'write';
+}
+
+export function installationCanManageWebhooks(permissions: Record<string, string>) {
+    return permissions.administration === 'write';
+}
+
+export function githubAppPermissionsUpgradeUrl(appSlug: string, state?: string) {
+    const params = new URLSearchParams();
+    if (state) params.set('state', state);
+    const q = params.toString();
+    return `https://github.com/apps/${appSlug}/installations/new/permissions${q ? `?${q}` : ''}`;
+}
+
 export async function registerGithubWebhook(fullName: string, accessToken: string, webhookUrl: string, secret: string) {
     const res = await fetch(`https://api.github.com/repos/${fullName}/hooks`, {
         method: 'POST',

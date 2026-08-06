@@ -5,6 +5,9 @@ export const listRepositories = (ws: string) => apiFetch(`/workspaces/${ws}/repo
 export const connectGithubUrl = (ws: string) =>
     `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/workspaces/${ws}/repositories/github/start`;
 
+export const githubPermissionsUpgradeUrl = (ws: string) =>
+    `${process.env.NEXT_PUBLIC_API_BASE_URL ?? ''}/api/workspaces/${ws}/repositories/github/permissions-upgrade`;
+
 export const listPendingGithubRepos = (ws: string) => apiFetch(`/workspaces/${ws}/repositories/github/pending`);
 
 export const importGithubRepos = (ws: string, repoIds: number[]) =>
