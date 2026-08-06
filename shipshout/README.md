@@ -47,6 +47,14 @@ bun run dev:web-api  # API + web only (no background jobs)
 - Health: http://localhost:3000/api/health
 - Lead magnet: http://localhost:4200/tools/tweet-generator
 
+## GitHub repository connect
+
+When `GITHUB_APP_ID`, `GITHUB_APP_PRIVATE_KEY`, and `GITHUB_APP_SLUG` are set, **Connect with GitHub** uses the GitHub App install flow and webhooks are automatic (configure the App webhook once in GitHub — see `.env.example`).
+
+Without the App, OAuth connect auto-registers a per-repo webhook when you import repositories (requires admin access on the repo).
+
+Draft generation triggers on **GitHub Release published** events. Local dev (`localhost` API URL) cannot receive GitHub webhooks unless you tunnel the API.
+
 ## Testing
 
 Unit tests (all projects):

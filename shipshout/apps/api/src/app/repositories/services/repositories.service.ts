@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { randomBytes } from 'crypto';
+import { WebhookStatus } from '@shipshout/database';
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 import { RegisterRepoDto } from '../dtos/register-repo.dto';
 import { TierService } from '../../billing/services/tier.service';
@@ -29,7 +30,11 @@ export class RepositoriesService {
         return { repository, webhookSecret };
     }
 
-    async createFromGithub(workspaceId: string, repo: { id: number; full_name: string }) {
+    async createFromGithub(
+        workspaceId: string,
+        repo: { id: number; full_name: string },
+        opts?: { webhookStatus?: WebhookStatus },
+    ) {
         const externalId = String(repo.id);
         const existing = await this.repos.findByExternalIdForWorkspace(workspaceId, 'github' as any, externalId);
         if (existing) return { repository: existing, webhookSecret: null as string | null, created: false };
@@ -42,9 +47,19 @@ export class RepositoriesService {
                 externalId,
                 name: repo.full_name,
                 webhookSecret: encryptSecret(webhookSecret),
+                webhookStatus: opts?.webhookStatus ?? WebhookStatus.Pending,
             }),
         );
         return { repository, webhookSecret, created: true };
+    }
+
+    async setWebhookStatus(repositoryId: string, webhookStatus: WebhookStatus) {
+        await this.repos.update(repositoryId, { webhookStatus });
+    }
+
+    async listGithubExternalIds(workspaceId: string) {
+        const repos = await this.repos.listForWorkspace(workspaceId);
+        return repos.filter((r) => r.provider === 'github').map((r) => r.externalId);
     }
 
     async list(workspaceId: string) {
@@ -57,6 +72,7 @@ export class RepositoriesService {
                 provider: r.provider,
                 name: r.name,
                 enabled: r.enabled,
+                webhookStatus: r.webhookStatus,
                 lastReleaseAt: ev ? ev.createdAt.toISOString() : null,
                 lastReleaseStatus: ev ? ev.status : null,
             };

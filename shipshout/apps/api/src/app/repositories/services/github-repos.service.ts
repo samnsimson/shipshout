@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { WebhookStatus } from '@shipshout/database';
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
 import {
     createGithubAppJwt,
@@ -35,6 +36,8 @@ export class GithubReposService {
     }
 
     startUrl(workspaceId: string) {
+        if (this.usesGithubApp())
+            return `https://github.com/apps/${process.env.GITHUB_APP_SLUG}/installations/new?${new URLSearchParams({ state: workspaceId })}`;
         const params = new URLSearchParams({
             client_id: process.env.GITHUB_CLIENT_ID!,
             redirect_uri: this.oauthRedirectUri(),
@@ -96,7 +99,7 @@ export class GithubReposService {
         const selected = session.repos.filter((r) => repoIds.includes(r.id));
         if (selected.length === 0) throw new BadRequestException('Selected repositories are not available');
         const accessToken = await this.connectToken(session);
-        return this.importRepos(workspaceId, selected, accessToken);
+        return this.importRepos(workspaceId, selected, accessToken, !!session.installationId);
     }
 
     private async connectToken(session: PendingGithubConnect) {
@@ -109,29 +112,39 @@ export class GithubReposService {
     }
 
     private async filterNewRepos(workspaceId: string, githubRepos: GithubRepoSummary[]) {
-        const existing = await this.repos.list(workspaceId);
-        const connected = new Set(existing.map((r) => r.externalId));
+        const connected = new Set(await this.repos.listGithubExternalIds(workspaceId));
         return githubRepos.filter((r) => !connected.has(String(r.id)));
     }
 
-    private async importRepos(workspaceId: string, githubRepos: { id: number; full_name: string }[], accessToken: string) {
+    private async importRepos(
+        workspaceId: string,
+        githubRepos: { id: number; full_name: string }[],
+        accessToken: string,
+        viaApp: boolean,
+    ) {
         let imported = 0;
         let skipped = 0;
         let failed = 0;
         for (const repo of githubRepos) {
             try {
-                const { webhookSecret, created } = await this.repos.createFromGithub(workspaceId, repo);
+                const { repository, webhookSecret, created } = await this.repos.createFromGithub(
+                    workspaceId,
+                    repo,
+                    viaApp ? { webhookStatus: WebhookStatus.Active } : undefined,
+                );
                 if (!created) {
                     skipped++;
                     continue;
                 }
                 imported++;
-                if (webhookSecret) {
-                    try {
-                        await registerGithubWebhook(repo.full_name, accessToken, this.webhookUrl(), webhookSecret);
-                    } catch (err) {
-                        this.log.warn(`Webhook registration failed for ${repo.full_name}: ${err instanceof Error ? err.message : err}`);
-                    }
+                if (viaApp) continue;
+                if (!webhookSecret) continue;
+                try {
+                    await registerGithubWebhook(repo.full_name, accessToken, this.webhookUrl(), webhookSecret);
+                    await this.repos.setWebhookStatus(repository.id, WebhookStatus.Active);
+                } catch (err) {
+                    await this.repos.setWebhookStatus(repository.id, WebhookStatus.Failed);
+                    this.log.warn(`Webhook registration failed for ${repo.full_name}: ${err instanceof Error ? err.message : err}`);
                 }
             } catch (err) {
                 failed++;
