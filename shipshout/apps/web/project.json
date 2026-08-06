@@ -17,7 +17,7 @@
             "continuous": true,
             "options": {
                 "cwd": "apps/web",
-                "command": "next dev --port 4200"
+                "command": "next dev --webpack --port 4200"
             }
         }
     }
