@@ -17,11 +17,6 @@ import {
     DraftRepository as DispatchDraftRepository,
     PublishRecordRepository,
 } from '@shipshout/integrations-core';
-import { XConnector } from '@shipshout/integrations-x';
-import { LinkedInConnector } from '@shipshout/integrations-linkedin';
-import { EmailConnector } from '@shipshout/integrations-email';
-import { BufferConnector } from '@shipshout/integrations-buffer';
-import { MailchimpConnector } from '@shipshout/integrations-mailchimp';
 import { QueueModule } from '@shipshout/queue/module';
 import { buildWorkerTypeOrmOptions } from './config/typeorm.module';
 import { DatabaseModule } from './config/database.module';
@@ -29,6 +24,7 @@ import { ChannelConnectionRepository } from './channel-connection.repository';
 import { DispatchProcessor } from './dispatch.processor';
 import { GenerateProcessor } from './generate.processor';
 import { WorkerConnectionsService } from './worker-connections.service';
+import { buildConnectorRegistry } from './connector-registry.factory';
 
 @Module({
     imports: [ConfigModule.forRoot({ isGlobal: true }), TypeOrmModule.forRoot(buildWorkerTypeOrmOptions()), DatabaseModule, QueueModule],
@@ -44,8 +40,7 @@ import { WorkerConnectionsService } from './worker-connections.service';
         GenerateProcessor,
         {
             provide: ConnectorRegistry,
-            useFactory: () =>
-                new ConnectorRegistry([new XConnector(), new LinkedInConnector(), new EmailConnector(), new BufferConnector(), new MailchimpConnector()]),
+            useFactory: () => buildConnectorRegistry(),
         },
         ChannelConnectionRepository,
         WorkerConnectionsService,

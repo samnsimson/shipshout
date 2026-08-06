@@ -35,6 +35,10 @@ export class RepositoriesService {
         return this.repos.findByExternalId(provider as any, externalId);
     }
 
+    findById(id: string) {
+        return this.repos.findOneBy({ id });
+    }
+
     decryptSecret(cipher: string) {
         return decryptSecret(cipher);
     }

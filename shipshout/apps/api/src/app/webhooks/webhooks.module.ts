@@ -3,13 +3,15 @@ import { BillingModule } from '../billing/billing.module';
 import { QueueModule } from '@shipshout/queue/module';
 import { RepositoriesModule } from '../repositories/repositories.module';
 import { DatabaseModule } from '../config/database.module';
+import { AuthModule } from '../auth/auth.module';
 import { WebhooksController } from './webhooks.controller';
+import { RepositorySimulateController } from './repository-simulate.controller';
 import { WebhooksService } from './webhooks.service';
 import { ReleaseEventRepository } from './release-event.repository';
 
 @Module({
-    imports: [DatabaseModule, forwardRef(() => BillingModule), RepositoriesModule, QueueModule],
-    controllers: [WebhooksController],
+    imports: [DatabaseModule, AuthModule, forwardRef(() => BillingModule), RepositoriesModule, QueueModule],
+    controllers: [WebhooksController, RepositorySimulateController],
     providers: [ReleaseEventRepository, WebhooksService],
 })
 export class WebhooksModule {}

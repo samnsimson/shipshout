@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { apiFetch } from '../../lib/api-client';
 import { getSessionUser } from '../../lib/session';
+import { CreateWorkspaceForm } from './create-workspace-form';
 
 async function getWorkspaces() {
     try {
@@ -19,6 +20,7 @@ export default async function DashboardPage() {
         <main style={{ padding: '2rem' }}>
             <h1>Dashboard</h1>
             <p>Create a workspace to get started.</p>
+            <CreateWorkspaceForm />
         </main>
     );
 }

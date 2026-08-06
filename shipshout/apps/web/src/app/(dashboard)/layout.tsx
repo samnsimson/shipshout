@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { apiFetch } from '../../lib/api-client';
 import { getSessionUser } from '../../lib/session';
+import { WorkspaceSwitcher } from './workspace-switcher';
 
 async function getWorkspaces() {
     try {
@@ -35,17 +36,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 {activeWs ? (
                     <nav style={{ display: 'flex', gap: '1rem', marginLeft: 'auto' }}>
                         <Link href={`/${activeWs}/drafts`}>Drafts</Link>
+                        <Link href={`/${activeWs}/settings/repositories`}>Repositories</Link>
+                        <Link href={`/${activeWs}/settings/connections`}>Connections</Link>
                         <Link href={`/${activeWs}/settings/brand`}>Brand</Link>
                         <Link href={`/${activeWs}/settings/billing`}>Billing</Link>
                     </nav>
                 ) : null}
-                <select aria-label="Workspace" style={{ marginLeft: activeWs ? 0 : 'auto' }}>
-                    {workspaces.map((ws: { id: string; name: string }) => (
-                        <option key={ws.id} value={ws.id}>
-                            {ws.name}
-                        </option>
-                    ))}
-                </select>
+                <WorkspaceSwitcher workspaces={workspaces} activeId={activeWs} />
             </header>
             {children}
         </div>
