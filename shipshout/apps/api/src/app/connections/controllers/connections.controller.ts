@@ -1,7 +1,8 @@
-import { BadRequestException, Controller, Get, Param, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Controller, Delete, Get, Param, Post, Query, Res, UseGuards, Body } from '@nestjs/common';
 import { Response } from 'express';
 import { WorkspaceGuard } from '@shipshout/auth';
 import { ConnectionsService } from '../services/connections.service';
+import { EmailConnectDto } from '../dtos/email-connect.dto';
 import { parseChannel } from '../utils/oauth.config';
 
 @Controller('workspaces/:workspaceId/connections')
@@ -12,6 +13,28 @@ export class ConnectionsController {
     @Get()
     list(@Param('workspaceId') ws: string) {
         return this.svc.list(ws);
+    }
+
+    @Get('config')
+    config() {
+        return this.svc.oauthConfig();
+    }
+
+    @Post('email/connect')
+    async connectEmail(@Param('workspaceId') ws: string, @Body() dto: EmailConnectDto) {
+        try {
+            await this.svc.connectEmail(ws, dto.apiKey);
+            return { connected: true };
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new BadRequestException(message);
+        }
+    }
+
+    @Delete('email')
+    async disconnectEmail(@Param('workspaceId') ws: string) {
+        await this.svc.disconnectEmail(ws);
+        return { disconnected: true };
     }
 
     @Get(':channel/start')
@@ -29,5 +52,4 @@ export class ConnectionsController {
         await this.svc.exchangeCode(ws, parseChannel(channel), code);
         res.redirect(`${process.env.WEB_BASE_URL}/${ws}/settings/connections`);
     }
-
 }

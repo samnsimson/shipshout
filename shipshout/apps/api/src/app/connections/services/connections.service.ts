@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Channel, ConnectionStatus } from '@shipshout/database';
 import { encryptSecret, decryptSecret } from '@shipshout/shared-util';
-import { channelOAuthConfig, channelSlug } from '../utils/oauth.config';
+import { channelOAuthConfig, channelSlug, isOAuthConfigured } from '../utils/oauth.config';
 import { ChannelConnectionRepository } from '../repositories/channel-connection.repository';
 
 @Injectable()
@@ -72,5 +72,32 @@ export class ConnectionsService {
             accessToken: data.access_token,
             refreshToken: data.refresh_token,
         });
+    }
+
+    async validateResendKey(apiKey: string): Promise<void> {
+        const res = await fetch('https://api.resend.com/domains', {
+            headers: { authorization: `Bearer ${apiKey}` },
+        });
+        if (!res.ok) throw new Error('Invalid Resend API key');
+    }
+
+    async connectEmail(workspaceId: string, apiKey: string) {
+        await this.validateResendKey(apiKey);
+        return this.saveTokens(workspaceId, Channel.Email, { accessToken: apiKey });
+    }
+
+    async disconnectEmail(workspaceId: string) {
+        const conn = await this.connections.findForWorkspaceAndChannel(workspaceId, Channel.Email);
+        if (conn) await this.connections.remove(conn);
+    }
+
+    oauthConfig() {
+        return {
+            x: isOAuthConfigured(Channel.X),
+            linkedin: isOAuthConfigured(Channel.LinkedIn),
+            buffer: isOAuthConfigured(Channel.Buffer),
+            mailchimp: isOAuthConfigured(Channel.Mailchimp),
+            email: true,
+        };
     }
 }

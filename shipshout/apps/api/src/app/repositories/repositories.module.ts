@@ -8,11 +8,12 @@ import { GithubOAuthCallbackController } from './controllers/github-oauth-callba
 import { RepositoriesService } from './services/repositories.service';
 import { GithubReposService } from './services/github-repos.service';
 import { ConnectedRepoRepository } from './repositories/connected-repo.repository';
+import { ReleaseEventRepository } from '../webhooks/repositories/release-event.repository';
 
 @Module({
     imports: [DatabaseModule, AuthModule, forwardRef(() => BillingModule)],
     controllers: [RepositoriesController, GithubReposController, GithubInstallController, GithubOAuthCallbackController],
-    providers: [ConnectedRepoRepository, RepositoriesService, GithubReposService],
+    providers: [ConnectedRepoRepository, ReleaseEventRepository, RepositoriesService, GithubReposService],
     exports: [RepositoriesService, ConnectedRepoRepository, GithubReposService],
 })
 export class RepositoriesModule {}

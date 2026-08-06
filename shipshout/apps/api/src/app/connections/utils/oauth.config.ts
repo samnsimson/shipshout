@@ -54,3 +54,12 @@ export function parseChannel(raw: string): Channel {
     if (!values.includes(raw)) throw new Error(`Unknown channel: ${raw}`);
     return raw as Channel;
 }
+
+export function isOAuthConfigured(channel: Channel): boolean {
+    try {
+        const cfg = channelOAuthConfig(channel);
+        return Boolean(cfg.clientId && cfg.clientSecret);
+    } catch {
+        return false;
+    }
+}

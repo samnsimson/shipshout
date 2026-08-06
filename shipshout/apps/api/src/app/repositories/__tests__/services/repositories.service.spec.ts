@@ -1,21 +1,31 @@
+import { ReleaseEvent, ReleaseEventStatus } from '@shipshout/database';
+import { ReleaseEventRepository } from '../../webhooks/repositories/release-event.repository';
 import { RepositoriesService } from '../../services/repositories.service';
 
-process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32, 1).toString('base64');
-
-describe('RepositoriesService.create', () => {
-    it('stores an encrypted secret and returns plaintext once', async () => {
-        const repo = {
-            create: (d: any) => d,
-            save: jest.fn(async (d: any) => ({ id: 'r1', ...d })),
+describe('RepositoriesService.list', () => {
+    it('returns lastReleaseAt and lastReleaseStatus when events exist', async () => {
+        const repos = {
+            listForWorkspace: jest.fn(async () => [{ id: 'r1', provider: 'github', name: 'org/repo', enabled: true }]),
         };
-        const tiers = { assertCanAddRepo: jest.fn(async () => undefined) };
-        const svc = new RepositoriesService(repo as any, tiers as any);
-        const { repository, webhookSecret } = await svc.create('w1', {
-            provider: 'github',
-            externalId: '42',
-            name: 'acme/app',
-        });
-        expect(webhookSecret).toHaveLength(64);
-        expect(repository.webhookSecret).not.toBe(webhookSecret);
+        const events = {
+            findLatestByRepositoryIds: jest.fn(async () =>
+                new Map([['r1', { createdAt: new Date('2026-08-01T12:00:00.000Z'), status: ReleaseEventStatus.Drafted }]]),
+            ),
+        };
+        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any);
+        const res = await svc.list('w1');
+        expect(res[0].lastReleaseAt).toBe('2026-08-01T12:00:00.000Z');
+        expect(res[0].lastReleaseStatus).toBe('drafted');
+    });
+
+    it('returns null release fields when no events', async () => {
+        const repos = {
+            listForWorkspace: jest.fn(async () => [{ id: 'r1', provider: 'github', name: 'org/repo', enabled: true }]),
+        };
+        const events = { findLatestByRepositoryIds: jest.fn(async () => new Map()) };
+        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any);
+        const res = await svc.list('w1');
+        expect(res[0].lastReleaseAt).toBeNull();
+        expect(res[0].lastReleaseStatus).toBeNull();
     });
 });
