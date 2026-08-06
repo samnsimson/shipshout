@@ -6,6 +6,7 @@ export enum WebhookStatus {
     Pending = 'pending',
     Active = 'active',
     Failed = 'failed',
+    Disconnected = 'disconnected',
 }
 
 @Entity('repositories')
@@ -19,4 +20,5 @@ export class Repository {
     @Column({ default: true }) enabled!: boolean;
     @Column({ type: 'enum', enum: WebhookStatus, default: WebhookStatus.Pending })
     webhookStatus!: WebhookStatus;
+    @Column({ nullable: true }) githubInstallationId?: string;
 }

@@ -6,6 +6,7 @@ import { RegisterRepoDto } from '../dtos/register-repo.dto';
 import { TierService } from '../../billing/services/tier.service';
 import { ConnectedRepoRepository } from '../repositories/connected-repo.repository';
 import { ReleaseEventRepository } from '../../webhooks/repositories/release-event.repository';
+import { GithubInstallationSyncService } from './github-installation-sync.service';
 
 @Injectable()
 export class RepositoriesService {
@@ -13,6 +14,7 @@ export class RepositoriesService {
         private repos: ConnectedRepoRepository,
         private tiers: TierService,
         private events: ReleaseEventRepository,
+        private installationSync: GithubInstallationSyncService,
     ) {}
 
     async create(workspaceId: string, dto: RegisterRepoDto) {
@@ -33,11 +35,20 @@ export class RepositoriesService {
     async createFromGithub(
         workspaceId: string,
         repo: { id: number; full_name: string },
-        opts?: { webhookStatus?: WebhookStatus },
+        opts?: { webhookStatus?: WebhookStatus; githubInstallationId?: string },
     ) {
         const externalId = String(repo.id);
         const existing = await this.repos.findByExternalIdForWorkspace(workspaceId, 'github' as any, externalId);
-        if (existing) return { repository: existing, webhookSecret: null as string | null, created: false };
+        if (existing) {
+            if (opts?.githubInstallationId || opts?.webhookStatus) {
+                await this.repos.update(existing.id, {
+                    ...(opts.githubInstallationId && { githubInstallationId: opts.githubInstallationId }),
+                    ...(opts.webhookStatus && { webhookStatus: opts.webhookStatus }),
+                });
+                Object.assign(existing, opts);
+            }
+            return { repository: existing, webhookSecret: null as string | null, created: false };
+        }
         await this.tiers.assertCanAddRepo(workspaceId);
         const webhookSecret = randomBytes(32).toString('hex');
         const repository = await this.repos.save(
@@ -48,9 +59,14 @@ export class RepositoriesService {
                 name: repo.full_name,
                 webhookSecret: encryptSecret(webhookSecret),
                 webhookStatus: opts?.webhookStatus ?? WebhookStatus.Pending,
+                githubInstallationId: opts?.githubInstallationId,
             }),
         );
         return { repository, webhookSecret, created: true };
+    }
+
+    async setGithubConnection(repositoryId: string, githubInstallationId: string, webhookStatus: WebhookStatus) {
+        await this.repos.update(repositoryId, { githubInstallationId, webhookStatus });
     }
 
     async setWebhookStatus(repositoryId: string, webhookStatus: WebhookStatus) {
@@ -62,7 +78,16 @@ export class RepositoriesService {
         return repos.filter((r) => r.provider === 'github').map((r) => r.externalId);
     }
 
+    /** Repos with webhooks successfully configured — used to filter the connect picker. */
+    async listActiveGithubExternalIds(workspaceId: string) {
+        const repos = await this.repos.listForWorkspace(workspaceId);
+        return repos
+            .filter((r) => r.provider === 'github' && r.webhookStatus === WebhookStatus.Active)
+            .map((r) => r.externalId);
+    }
+
     async list(workspaceId: string) {
+        await this.installationSync.reconcileWorkspace(workspaceId);
         const repos = await this.repos.listForWorkspace(workspaceId);
         const latest = await this.events.findLatestByRepositoryIds(repos.map((r) => r.id));
         return repos.map((r) => {

@@ -20,6 +20,12 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
         assertCanAddRepo: () => Promise<void>;
     };
 
+    let installationSync: {
+        reconcileWorkspace: jest.Mock;
+        handleInstallation: jest.Mock;
+        handleInstallationRepositories: jest.Mock;
+    };
+
     beforeAll(async () => {
         ds = await createTestDataSource();
         const connectedRepo = new ConnectedRepoRepository(ds.getRepository(RepoEntity));
@@ -28,8 +34,13 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
             sourceIntegrationsAllowed: async () => true,
             assertCanAddRepo: async () => undefined,
         };
-        repos = new RepositoriesService(connectedRepo, tier as any);
+        installationSync = {
+            reconcileWorkspace: jest.fn(async () => undefined),
+            handleInstallation: jest.fn(),
+            handleInstallationRepositories: jest.fn(),
+        };
         events = new ReleaseEventRepository(ds.getRepository(ReleaseEvent));
+        repos = new RepositoriesService(connectedRepo, tier as any, events, installationSync as any);
         queue = { add: jest.fn(async () => ({})) };
     });
 
@@ -45,7 +56,7 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
     it('persists once and dedupes duplicate deliveries', async () => {
         const ws = await ds.query(`INSERT INTO workspaces(name,slug,plan) VALUES ('w','w-${Date.now()}','starter') RETURNING id`);
         const { webhookSecret } = await repos.create(ws[0].id, { provider: 'github', externalId: '42', name: 'acme/app' });
-        const svc = new WebhooksService(repos, events, tier as any, queue as any);
+        const svc = new WebhooksService(repos, events, tier as any, installationSync as any, queue as any);
         const body = Buffer.from(JSON.stringify({ repository: { id: 42 }, release: { id: 999, name: 'v1', body: 'fix' } }));
         const sig = 'sha256=' + createHmac('sha256', webhookSecret).update(body).digest('hex');
         const first = await svc.handleGithub(body, { 'x-hub-signature-256': sig, 'x-github-delivery': 'd1' });

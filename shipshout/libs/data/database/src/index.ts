@@ -2,6 +2,8 @@ export * from './lib/config/typeorm.config.js';
 export * from './lib/config/data-source.js';
 export * from './lib/repositories/base-repository.js';
 export * from './lib/entities/user.entity.js';
+export { UserIdentity, IdentityProvider } from './lib/entities/user-identity.entity.js';
+export { AuthToken, AuthTokenType } from './lib/entities/auth-token.entity.js';
 export * from './lib/entities/workspace.entity.js';
 export * from './lib/entities/membership.entity.js';
 export * from './lib/entities/source-provider.enum.js';

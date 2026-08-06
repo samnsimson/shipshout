@@ -59,6 +59,23 @@ Also set the App webhook URL in **General** (see `.env.example`). Without the Ap
 
 Draft generation triggers on **GitHub Release published** events. Local dev (`localhost` API URL) cannot receive GitHub webhooks unless you tunnel the API.
 
+## User authentication
+
+Sign-in methods: **GitHub**, **Google**, and **email/password** (with email verification). Sessions use the API cookie (`connect.sid`).
+
+Configure in `.env`:
+
+| Variable | Purpose |
+|---|---|
+| `GITHUB_CLIENT_*` | GitHub OAuth login |
+| `GOOGLE_CLIENT_*` | Google OAuth login |
+| `RESEND_API_KEY` + `AUTH_EMAIL_FROM` | Verification and password-reset emails (platform-level, not workspace Resend keys) |
+| `SESSION_SECRET` | Session signing |
+
+**Email/password flow:** register at `/signup` → verify via email link → sign in at `/login`. Password reset at `/forgot-password`.
+
+**Account linking:** Settings → Account (`/{workspaceId}/settings/account`) — connect GitHub, Google, or add a password to the same user.
+
 ## Testing
 
 Unit tests (all projects):

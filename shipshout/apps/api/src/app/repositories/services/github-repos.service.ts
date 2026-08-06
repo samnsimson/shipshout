@@ -119,7 +119,7 @@ export class GithubReposService {
         const selected = session.repos.filter((r) => repoIds.includes(r.id));
         if (selected.length === 0) throw new BadRequestException('Selected repositories are not available');
         const accessToken = await this.connectToken(session);
-        return this.importRepos(workspaceId, selected, accessToken);
+        return this.importRepos(workspaceId, selected, accessToken, !!session.installationId, session.installationId);
     }
 
     private async connectToken(session: PendingGithubConnect) {
@@ -132,25 +132,44 @@ export class GithubReposService {
     }
 
     private async filterNewRepos(workspaceId: string, githubRepos: GithubRepoSummary[]) {
-        const connected = new Set(await this.repos.listGithubExternalIds(workspaceId));
+        const connected = new Set(await this.repos.listActiveGithubExternalIds(workspaceId));
         return githubRepos.filter((r) => !connected.has(String(r.id)));
     }
 
-    private async importRepos(workspaceId: string, githubRepos: { id: number; full_name: string }[], accessToken: string) {
+    private async importRepos(
+        workspaceId: string,
+        githubRepos: { id: number; full_name: string }[],
+        accessToken: string,
+        viaApp: boolean,
+        installationId?: string,
+    ) {
         let imported = 0;
         let skipped = 0;
         let failed = 0;
         for (const repo of githubRepos) {
             try {
-                const { repository, webhookSecret, created } = await this.repos.createFromGithub(workspaceId, repo);
+                const opts = viaApp
+                    ? { webhookStatus: WebhookStatus.Active, githubInstallationId: installationId }
+                    : undefined;
+                const { repository, webhookSecret, created } = await this.repos.createFromGithub(workspaceId, repo, opts);
                 if (!created) {
-                    skipped++;
-                    continue;
-                }
-                imported++;
-                if (!webhookSecret) continue;
+                    if (viaApp && installationId) {
+                        await this.repos.setGithubConnection(repository.id, installationId, WebhookStatus.Active);
+                        if (repository.webhookStatus === WebhookStatus.Active) skipped++;
+                        else imported++;
+                        continue;
+                    }
+                    if (repository.webhookStatus === WebhookStatus.Active) {
+                        skipped++;
+                        continue;
+                    }
+                } else imported++;
+
+                if (viaApp) continue;
+
+                const secret = webhookSecret ?? this.repos.decryptSecret(repository.webhookSecret);
                 try {
-                    await registerGithubWebhook(repo.full_name, accessToken, this.webhookUrl(), webhookSecret);
+                    await registerGithubWebhook(repo.full_name, accessToken, this.webhookUrl(), secret);
                     await this.repos.setWebhookStatus(repository.id, WebhookStatus.Active);
                 } catch (err) {
                     await this.repos.setWebhookStatus(repository.id, WebhookStatus.Failed);

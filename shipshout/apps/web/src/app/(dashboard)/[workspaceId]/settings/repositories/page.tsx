@@ -14,7 +14,7 @@ type Repo = {
     provider: string;
     name: string;
     enabled: boolean;
-    webhookStatus: 'pending' | 'active' | 'failed';
+    webhookStatus: 'pending' | 'active' | 'failed' | 'disconnected';
     lastReleaseAt: string | null;
     lastReleaseStatus: 'received' | 'generating' | 'drafted' | 'failed' | null;
 };

@@ -12,7 +12,7 @@ it('handleLinear ingests a completed issue', async () => {
         decryptSecret: () => secret,
     };
     const ingest = jest.fn(async () => ({ accepted: true }));
-    const svc = new WebhooksService(repos as any, {} as any, {} as any, {} as any);
+    const svc = new WebhooksService(repos as any, {} as any, {} as any, {} as any, {} as any);
     (svc as any).ingestNormalized = ingest;
     const sig = createHmac('sha256', secret).update(body).digest('hex');
     await svc.handleLinear(body, { 'linear-signature': sig });

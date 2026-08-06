@@ -9,13 +9,17 @@ type Repo = {
     provider: string;
     name: string;
     enabled: boolean;
-    webhookStatus: 'pending' | 'active' | 'failed';
+    webhookStatus: 'pending' | 'active' | 'failed' | 'disconnected';
     lastReleaseAt: string | null;
     lastReleaseStatus: 'received' | 'generating' | 'drafted' | 'failed' | null;
 };
 
 function formatReleaseTime(iso: string) {
     return new Date(iso).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+function needsReconnect(repo: Repo) {
+    return repo.webhookStatus === 'failed' || repo.webhookStatus === 'disconnected';
 }
 
 function isWebhookHealthy(repo: Repo) {
@@ -32,13 +36,20 @@ export function RepositoryRow({ workspaceId, repo }: { workspaceId: string; repo
                             <Card.Title>{repo.name}</Card.Title>
                             <Card.Description>{repo.provider}</Card.Description>
                         </Stack>
-                        {repo.webhookStatus === 'failed' && (
+                        {needsReconnect(repo) && (
                             <Button asChild size="sm" variant="outline" colorPalette="brand">
                                 <a href={connectGithubUrl(workspaceId)}>Reconnect</a>
                             </Button>
                         )}
                     </Flex>
-                    {repo.webhookStatus === 'failed' ? (
+                    {repo.webhookStatus === 'disconnected' ? (
+                        <Stack gap="1">
+                            <StatusBadge status="disconnected" label="Disconnected" />
+                            <Text fontSize="sm" color="fg.muted">
+                                This repository was removed from the GitHub App installation. Reconnect to resume release drafts.
+                            </Text>
+                        </Stack>
+                    ) : repo.webhookStatus === 'failed' ? (
                         <Stack gap="1">
                             <StatusBadge status="setup_failed" label="Setup failed" />
                             <Text fontSize="sm" color="fg.muted">

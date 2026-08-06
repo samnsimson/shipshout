@@ -4,13 +4,16 @@ import { ColorModeButton } from '@/components/ui/color-mode';
 import { GridShape } from '@/components/grid-shape';
 import { LoginForm } from '@/components/auth/login-form';
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-    const { error } = await searchParams;
-    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/auth/github`;
+export default async function LoginPage({
+    searchParams,
+}: {
+    searchParams: Promise<{ error?: string; verified?: string; reset?: string }>;
+}) {
+    const { error, verified, reset } = await searchParams;
     return (
         <Flex minH="100vh" bg="bg">
             <Flex flex="1" align="center" justify="center">
-                <LoginForm authUrl={url} error={error} />
+                <LoginForm error={error} verified={verified === '1'} reset={reset === '1'} />
             </Flex>
             <Box display={{ base: 'none', lg: 'flex' }} flex="1" bg="brand.950" alignItems="center" justifyContent="center" position="relative" overflow="hidden">
                 <GridShape />

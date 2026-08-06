@@ -3,7 +3,7 @@ import { WebhooksService } from '../../services/webhooks.service';
 
 process.env.APP_ENCRYPTION_KEY = Buffer.alloc(32, 1).toString('base64');
 
-function make() {
+function make(installationSync = { handleInstallation: jest.fn(), handleInstallationRepositories: jest.fn() }) {
     const secret = 's3cret';
     const body = Buffer.from(JSON.stringify({ repository: { id: 42 }, release: { id: 999, name: 'v1', body: 'fix' } }));
     const repos = {
@@ -17,9 +17,9 @@ function make() {
     };
     const queue = { add: jest.fn(async () => ({})) };
     const tiers = { tryConsumeRelease: jest.fn(async () => true), sourceIntegrationsAllowed: jest.fn(async () => true) };
-    const svc = new WebhooksService(repos as any, events as any, tiers as any, queue as any);
+    const svc = new WebhooksService(repos as any, events as any, tiers as any, installationSync as any, queue as any);
     const sig = 'sha256=' + createHmac('sha256', secret).update(body).digest('hex');
-    return { svc, body, sig, events, queue };
+    return { svc, body, sig, events, queue, installationSync };
 }
 
 describe('WebhooksService.handleGithub', () => {
@@ -62,7 +62,7 @@ describe('WebhooksService.handleGithub', () => {
         };
         const queue = { add: jest.fn(async () => ({})) };
         const tiers = { tryConsumeRelease: jest.fn(async () => true), sourceIntegrationsAllowed: jest.fn(async () => true) };
-        const svc = new WebhooksService(repos as any, events as any, tiers as any, queue as any);
+        const svc = new WebhooksService(repos as any, events as any, tiers as any, { handleInstallation: jest.fn(), handleInstallationRepositories: jest.fn() } as any, queue as any);
         const sig = 'sha256=' + createHmac('sha256', appSecret).update(body).digest('hex');
         const res = await svc.handleGithub(body, {
             'x-hub-signature-256': sig,
@@ -70,6 +70,25 @@ describe('WebhooksService.handleGithub', () => {
             'x-github-event': 'release',
         });
         expect(res.accepted).toBe(true);
+        delete process.env.GITHUB_APP_WEBHOOK_SECRET;
+    });
+
+    it('delegates installation webhooks to sync service when App secret verifies', async () => {
+        const appSecret = 'app-webhook-secret';
+        process.env.GITHUB_APP_WEBHOOK_SECRET = appSecret;
+        const body = Buffer.from(JSON.stringify({ action: 'deleted', installation: { id: 99 } }));
+        const installationSync = {
+            handleInstallation: jest.fn(async () => ({ accepted: true })),
+            handleInstallationRepositories: jest.fn(),
+        };
+        const { svc, installationSync: sync } = make(installationSync);
+        const sig = 'sha256=' + createHmac('sha256', appSecret).update(body).digest('hex');
+        const res = await svc.handleGithub(body, {
+            'x-hub-signature-256': sig,
+            'x-github-event': 'installation',
+        });
+        expect(res.accepted).toBe(true);
+        expect(sync.handleInstallation).toHaveBeenCalled();
         delete process.env.GITHUB_APP_WEBHOOK_SECRET;
     });
 });

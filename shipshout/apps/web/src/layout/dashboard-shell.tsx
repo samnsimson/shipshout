@@ -8,7 +8,7 @@ import { AppSidebar } from './app-sidebar';
 import { Backdrop } from './backdrop';
 
 type Workspace = { id: string; name: string };
-type SessionUser = { name?: string; githubId?: string };
+type SessionUser = { name?: string; email?: string };
 
 type DashboardShellProps = {
     workspaces: Workspace[];

@@ -39,6 +39,26 @@ export async function fetchGithubRepos(accessToken: string): Promise<GithubRepoS
     return repos.filter((r) => r.permissions?.admin || r.permissions?.push);
 }
 
+export async function fetchAppInstallations(appJwt: string): Promise<{ id: number }[]> {
+    const installations: { id: number }[] = [];
+    let page = 1;
+    for (;;) {
+        const res = await fetch(`https://api.github.com/app/installations?per_page=100&page=${page}`, {
+            headers: {
+                Authorization: `Bearer ${appJwt}`,
+                Accept: 'application/vnd.github+json',
+                'X-GitHub-Api-Version': '2022-11-28',
+            },
+        });
+        if (!res.ok) throw new Error(`GitHub app installations fetch failed: ${res.status}`);
+        const batch = (await res.json()) as { id: number }[];
+        installations.push(...batch);
+        if (batch.length < 100) break;
+        page++;
+    }
+    return installations;
+}
+
 export async function fetchInstallationAccessToken(installationId: string, appJwt: string): Promise<string> {
     const tokenRes = await fetch(`https://api.github.com/app/installations/${installationId}/access_tokens`, {
         method: 'POST',

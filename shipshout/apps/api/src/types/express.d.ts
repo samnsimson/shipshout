@@ -4,6 +4,8 @@ import { User } from '@shipshout/database';
 declare module 'express-session' {
     interface SessionData {
         userId?: string;
+        oauthLink?: { userId: string; returnTo: string };
+        oauthLinkReturnTo?: string;
         githubRepoConnect?: {
             workspaceId: string;
             accessToken: string;

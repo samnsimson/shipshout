@@ -12,9 +12,13 @@ import { ChannelConnection } from '../entities/channel-connection.entity.js';
 import { PublishRecord } from '../entities/publish-record.entity.js';
 import { Subscription } from '../entities/subscription.entity.js';
 import { UsageCounter } from '../entities/usage-counter.entity.js';
+import { UserIdentity } from '../entities/user-identity.entity.js';
+import { AuthToken } from '../entities/auth-token.entity.js';
 
 const entities: Function[] = [
     User,
+    UserIdentity,
+    AuthToken,
     Workspace,
     Membership,
     Repository,

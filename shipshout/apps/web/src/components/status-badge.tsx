@@ -17,6 +17,7 @@ const TONE_BY_STATUS: Record<string, Tone> = {
     failed: 'neutral',
     webhook_active: 'positive',
     setup_failed: 'neutral',
+    disconnected: 'neutral',
 };
 
 export function StatusBadge({ status, label }: { status: string; label?: string }) {

@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Show, Text, VStack } from '@chakra-ui/react';
-import { LuCreditCard, LuFileText, LuFolderGit2, LuPalette, LuPlug } from 'react-icons/lu';
+import { LuCreditCard, LuFileText, LuFolderGit2, LuPalette, LuPlug, LuUser } from 'react-icons/lu';
 import { Logo } from '@/components/logo';
 import { NavItem } from '@/components/nav-item';
 import { useSidebar } from '@/context/sidebar-context';
@@ -76,6 +76,9 @@ export function AppSidebar({ activeWs }: { activeWs?: string }) {
                                 </NavItem>
                                 <NavItem href={`/${ws}/settings/billing`} icon={<LuCreditCard size={20} />} showLabel={showLabels}>
                                     Billing
+                                </NavItem>
+                                <NavItem href={`/${ws}/settings/account`} icon={<LuUser size={20} />} showLabel={showLabels}>
+                                    Account
                                 </NavItem>
                             </VStack>
                         </Box>

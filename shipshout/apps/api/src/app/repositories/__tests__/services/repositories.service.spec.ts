@@ -13,7 +13,8 @@ describe('RepositoriesService.list', () => {
                 new Map([['r1', { createdAt: new Date('2026-08-01T12:00:00.000Z'), status: ReleaseEventStatus.Drafted }]]),
             ),
         };
-        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any);
+        const installationSync = { reconcileWorkspace: jest.fn(async () => undefined) };
+        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any, installationSync as any);
         const res = await svc.list('w1');
         expect(res[0].lastReleaseAt).toBe('2026-08-01T12:00:00.000Z');
         expect(res[0].lastReleaseStatus).toBe('drafted');
@@ -27,7 +28,8 @@ describe('RepositoriesService.list', () => {
             ]),
         };
         const events = { findLatestByRepositoryIds: jest.fn(async () => new Map()) };
-        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any);
+        const installationSync = { reconcileWorkspace: jest.fn(async () => undefined) };
+        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, events as any, installationSync as any);
         const res = await svc.list('w1');
         expect(res[0].lastReleaseAt).toBeNull();
         expect(res[0].lastReleaseStatus).toBeNull();
@@ -42,7 +44,7 @@ describe('RepositoriesService.createFromGithub', () => {
             create: jest.fn((d) => d),
             save: jest.fn(async (d) => ({ id: 'r1', ...d })),
         };
-        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, {} as any);
+        const svc = new RepositoriesService(repos as any, { assertCanAddRepo: jest.fn() } as any, {} as any, { reconcileWorkspace: jest.fn() } as any);
         await svc.createFromGithub('w1', { id: 1, full_name: 'o/r' }, { webhookStatus: WebhookStatus.Active });
         expect(repos.save).toHaveBeenCalledWith(expect.objectContaining({ webhookStatus: WebhookStatus.Active }));
     });

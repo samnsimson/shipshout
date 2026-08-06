@@ -10,7 +10,8 @@ function make(tierAllows: boolean, dup = false) {
     };
     const queue = { add: jest.fn(async () => ({})) };
     const tiers = { tryConsumeRelease: jest.fn(async () => true), sourceIntegrationsAllowed: jest.fn(async () => tierAllows) };
-    const svc = new WebhooksService(repos as any, events as any, tiers as any, queue as any);
+    const installationSync = { handleInstallation: jest.fn(), handleInstallationRepositories: jest.fn() };
+    const svc = new WebhooksService(repos as any, events as any, tiers as any, installationSync as any, queue as any);
     return { svc, events, queue };
 }
 

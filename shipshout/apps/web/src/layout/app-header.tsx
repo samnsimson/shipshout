@@ -9,7 +9,7 @@ import { WorkspaceSwitcher } from '@/components/workspace-switcher';
 import { useSidebar } from '@/context/sidebar-context';
 
 type Workspace = { id: string; name: string };
-type SessionUser = { name?: string; githubId?: string };
+type SessionUser = { name?: string; email?: string };
 
 function UserMenu({ user }: { user: SessionUser }) {
     const router = useRouter();
@@ -23,10 +23,10 @@ function UserMenu({ user }: { user: SessionUser }) {
             <Menu.Trigger asChild>
                 <HStack as="button" px="2" py="2" borderRadius="lg" _hover={{ bg: 'bg.muted' }} cursor="pointer">
                     <Avatar.Root size="xs">
-                        <Avatar.Fallback name={user.name ?? user.githubId ?? 'User'} />
+                        <Avatar.Fallback name={user.name ?? user.email ?? 'User'} />
                     </Avatar.Root>
                     <Text fontSize="sm" truncate display={{ base: 'none', sm: 'block' }}>
-                        {user.name ?? user.githubId}
+                        {user.name ?? user.email}
                     </Text>
                 </HStack>
             </Menu.Trigger>

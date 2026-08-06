@@ -20,6 +20,8 @@ import {
     PublishStatus,
     ReleaseEvent,
     User,
+    UserIdentity,
+    IdentityProvider,
     Workspace,
 } from '@shipshout/database';
 import { QUEUES, DispatchJob, GenerateJob } from '@shipshout/queue';
@@ -76,7 +78,16 @@ const hasTestDb = !!process.env.TEST_DATABASE_URL;
         pendingGenerate = undefined;
         pendingDispatch = undefined;
 
-        const user = await ds.getRepository(User).save({ githubId: `e2e-${Date.now()}`, name: 'E2E', email: 'e2e@test.com' });
+        const user = await ds.getRepository(User).save({
+            name: 'E2E',
+            email: `e2e-${Date.now()}@test.com`,
+            emailVerifiedAt: new Date(),
+        });
+        await ds.getRepository(UserIdentity).save({
+            userId: user.id,
+            provider: IdentityProvider.Github,
+            providerUserId: `e2e-${Date.now()}`,
+        });
         userId = user.id;
         process.env.E2E_TEST_USER = userId;
         const ws = await ds.getRepository(Workspace).save({ name: 'E2E WS', slug: `e2e-${Date.now()}`, plan: 'starter' });
