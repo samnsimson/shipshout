@@ -30,7 +30,7 @@ export function CreateWorkspaceForm() {
                 <Field label="Workspace name">
                     <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Acme Inc." required />
                 </Field>
-                <Button type="submit" colorPalette="signal" loading={submitting} loadingText="Creating…" disabled={!name.trim()}>
+                <Button type="submit" colorPalette="brand" loading={submitting} loadingText="Creating…" disabled={!name.trim()}>
                     Create workspace
                 </Button>
             </Stack>

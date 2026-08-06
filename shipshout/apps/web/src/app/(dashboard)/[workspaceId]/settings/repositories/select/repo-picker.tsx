@@ -155,7 +155,7 @@ export function RepoPicker({ workspaceId }: { workspaceId: string }) {
                                       : `${selected.size} selected`}
                             </Text>
                             <Button
-                                colorPalette="signal"
+                                colorPalette="brand"
                                 loading={submitting}
                                 disabled={selected.size === 0}
                                 onClick={connectSelected}

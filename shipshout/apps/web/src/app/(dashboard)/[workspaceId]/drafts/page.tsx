@@ -23,7 +23,7 @@ export default async function DraftsPage({ params }: { params: Promise<{ workspa
                 }
             >
                 <EmptyState title="No drafts yet" description="Connect a repo and push a release to get started." icon={<LuMegaphone />}>
-                    <Button asChild colorPalette="signal" mt="2">
+                    <Button asChild colorPalette="brand" mt="2">
                         <a href={connectGithubUrl(workspaceId)}>
                             <LuGithub /> Connect with GitHub
                         </a>

@@ -15,10 +15,10 @@ export default async function BillingPage({ params }: { params: Promise<{ worksp
             <PageHeader title="Billing" description="Pick the plan that matches your release volume." />
             <SimpleGrid columns={{ base: 1, md: 3 }} gap="4">
                 {TIERS.map((t) => (
-                    <Card.Root key={t.id} borderWidth={t.highlighted ? '2px' : '1px'} borderColor={t.highlighted ? 'signal.solid' : 'border'}>
+                    <Card.Root key={t.id} borderWidth={t.highlighted ? '2px' : '1px'} borderColor={t.highlighted ? 'brand.solid' : 'border'}>
                         <Card.Header>
                             <Show when={t.highlighted}>
-                                <Badge colorPalette="signal" variant="solid" mb="2" alignSelf="flex-start">
+                                <Badge colorPalette="brand" variant="solid" mb="2" alignSelf="flex-start">
                                     Most popular
                                 </Badge>
                             </Show>

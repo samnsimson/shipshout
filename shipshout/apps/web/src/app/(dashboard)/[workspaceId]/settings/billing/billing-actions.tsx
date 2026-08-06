@@ -25,7 +25,7 @@ export function BillingActions({ workspaceId, tier }: { workspaceId: string; tie
 
     return (
         <ButtonGroup w="full">
-            <Button flex="1" colorPalette="signal" loading={loading === 'subscribe'} onClick={() => run('subscribe')}>
+            <Button flex="1" colorPalette="brand" loading={loading === 'subscribe'} onClick={() => run('subscribe')}>
                 Subscribe
             </Button>
             <Button flex="1" variant="outline" loading={loading === 'manage'} onClick={() => run('manage')}>

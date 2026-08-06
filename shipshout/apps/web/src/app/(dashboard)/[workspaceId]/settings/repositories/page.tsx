@@ -1,3 +1,4 @@
+import { ComponentCard } from '@/components/component-card';
 import { Show, Stack } from '@chakra-ui/react';
 import { Suspense } from 'react';
 import { LuGitBranch } from 'react-icons/lu';
@@ -19,21 +20,23 @@ export default async function RepositoriesPage({ params }: { params: Promise<{ w
                 <ConnectGithubToast />
             </Suspense>
             <PageHeader title="Repositories" description="Connect a repo to trigger releases." />
-            <Stack gap="6" maxW="2xl">
-                <Show
-                    when={repos.length === 0}
-                    fallback={
-                        <Stack gap="3">
-                            {repos.map((r) => (
-                                <RepositoryRow key={r.id} workspaceId={workspaceId} repo={r} />
-                            ))}
-                        </Stack>
-                    }
-                >
-                    <EmptyState title="No repositories yet" description="Connect GitHub to import your repositories." icon={<LuGitBranch />} />
-                </Show>
-                <ConnectGithub workspaceId={workspaceId} />
-            </Stack>
+            <ComponentCard title="Connected repositories" desc="Manage which repos trigger release posts.">
+                <Stack gap="6">
+                    <Show
+                        when={repos.length === 0}
+                        fallback={
+                            <Stack gap="3">
+                                {repos.map((r) => (
+                                    <RepositoryRow key={r.id} workspaceId={workspaceId} repo={r} />
+                                ))}
+                            </Stack>
+                        }
+                    >
+                        <EmptyState title="No repositories yet" description="Connect GitHub to import your repositories." icon={<LuGitBranch />} />
+                    </Show>
+                    <ConnectGithub workspaceId={workspaceId} />
+                </Stack>
+            </ComponentCard>
         </>
     );
 }

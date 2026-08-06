@@ -12,7 +12,7 @@ export function ConnectGithub({ workspaceId }: { workspaceId: string }) {
                 <Text color="fg.muted" mb="4">
                     Authorize ShipShout on GitHub, then choose which repositories to connect on the next screen.
                 </Text>
-                <Button asChild colorPalette="signal">
+                <Button asChild colorPalette="brand">
                     <a href={connectGithubUrl(workspaceId)}>
                         <LuGithub /> Connect with GitHub
                     </a>

@@ -47,7 +47,7 @@ export function RepositoryRow({ workspaceId, repo }: { workspaceId: string; repo
                             <Button
                                 alignSelf="flex-start"
                                 size="sm"
-                                colorPalette="signal"
+                                colorPalette="brand"
                                 loading={sending}
                                 onClick={async () => {
                                     setSending(true);

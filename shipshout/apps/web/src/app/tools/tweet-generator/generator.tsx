@@ -38,7 +38,7 @@ export function Generator() {
     return (
         <Container maxW="2xl">
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={8} placeholder="Paste your GitHub release notes or commit log..." bg="bg.panel" />
-            <Button mt="4" size="lg" colorPalette="signal" onClick={run} loading={loading} loadingText="Generating…" disabled={!notes}>
+            <Button mt="4" size="lg" colorPalette="brand" onClick={run} loading={loading} loadingText="Generating…" disabled={!notes}>
                 Generate tweet
             </Button>
             <Show when={err}>

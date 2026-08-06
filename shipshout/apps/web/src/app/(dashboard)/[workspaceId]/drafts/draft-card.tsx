@@ -19,7 +19,7 @@ export function DraftCard({ workspaceId, draft }: { workspaceId: string; draft: 
     const [publishing, setPublishing] = useState(false);
 
     return (
-        <Card.Root>
+        <Card.Root borderRadius="2xl" borderWidth="1px" borderColor="border" shadow="theme-sm">
             <Card.Header>
                 <Flex justify="space-between" align="center">
                     <Card.Title textTransform="capitalize">{draft.channel}</Card.Title>
@@ -66,7 +66,7 @@ export function DraftCard({ workspaceId, draft }: { workspaceId: string; draft: 
                         Approve
                     </Button>
                     <Button
-                        colorPalette="signal"
+                        colorPalette="brand"
                         variant="solid"
                         loading={publishing}
                         disabled={status !== 'approved'}
