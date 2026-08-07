@@ -1,13 +1,16 @@
 {
-  "extends": "./tsconfig.base.json",
-  "compileOnSave": false,
-  "files": [],
-  "references": [
-    {
-      "path": "./apps/shipshout-svc-e2e"
-    },
-    {
-      "path": "./apps/shipshout-svc"
-    }
-  ]
+    "extends": "./tsconfig.base.json",
+    "compileOnSave": false,
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/shipshout-svc-e2e"
+        },
+        {
+            "path": "./apps/shipshout-svc"
+        },
+        {
+            "path": "./libs/database"
+        }
+    ]
 }
