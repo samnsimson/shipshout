@@ -1,4 +1,4 @@
-import type { DatabaseConnectionOptions } from './database-module.options';
+import { DatabaseConnectionOptions } from './database-module.options';
 import { ENTITIES } from './entities';
 import { MIGRATIONS } from './migrations';
 

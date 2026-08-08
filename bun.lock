@@ -57,8 +57,8 @@
         "webpack-dev-server": "^5.2.1",
       },
     },
-    "apps/shipshout-svc": {
-      "name": "@shipshout/shipshout-svc",
+    "apps/shipshout-api-svc": {
+      "name": "@shipshout/shipshout-api-svc",
       "version": "0.0.1",
       "dependencies": {
         "@nestjs/common": "^11.0.0",
@@ -72,12 +72,22 @@
         "@nestjs/testing": "^11.0.0",
       },
     },
-    "apps/shipshout-svc-e2e": {
-      "name": "@shipshout/shipshout-svc-e2e",
+    "apps/shipshout-api-svc-e2e": {
+      "name": "@shipshout/shipshout-api-svc-e2e",
       "version": "0.0.1",
     },
     "libs/database": {
       "name": "@shipshout/database",
+      "version": "0.0.1",
+      "dependencies": {
+        "@nestjs/common": "^11.0.0",
+        "@nestjs/typeorm": "^11.0.3",
+        "tslib": "^2.3.0",
+        "typeorm": "^1.1.0",
+      },
+    },
+    "libs/swagger": {
+      "name": "@shipshout/swagger",
       "version": "0.0.1",
       "dependencies": {
         "tslib": "^2.3.0",
@@ -573,9 +583,11 @@
 
     "@shipshout/database": ["@shipshout/database@workspace:libs/database"],
 
-    "@shipshout/shipshout-svc": ["@shipshout/shipshout-svc@workspace:apps/shipshout-svc"],
+    "@shipshout/shipshout-api-svc": ["@shipshout/shipshout-api-svc@workspace:apps/shipshout-api-svc"],
 
-    "@shipshout/shipshout-svc-e2e": ["@shipshout/shipshout-svc-e2e@workspace:apps/shipshout-svc-e2e"],
+    "@shipshout/shipshout-api-svc-e2e": ["@shipshout/shipshout-api-svc-e2e@workspace:apps/shipshout-api-svc-e2e"],
+
+    "@shipshout/swagger": ["@shipshout/swagger@workspace:libs/swagger"],
 
     "@sinclair/typebox": ["@sinclair/typebox@0.34.52", "", {}, "sha512-XiMQh7qqVlxZzcVD+kkGMNGMzcTrDMLWI7S4x7z1MkCkbDPrekpZXEUK0eZqZFMuHQg2a2DZOcDIh9o5v3Gonw=="],
 

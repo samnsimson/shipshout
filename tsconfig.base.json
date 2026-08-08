@@ -5,6 +5,9 @@
         "emitDeclarationOnly": true,
         "importHelpers": true,
         "isolatedModules": true,
+        // Keep false so type-only symbols can use normal `import { Foo }` (tsc elides them).
+        // Enabling verbatimModuleSyntax would require `import type` / `import { type Foo }`.
+        "verbatimModuleSyntax": false,
         "lib": ["es2022"],
         "module": "nodenext",
         "moduleResolution": "nodenext",

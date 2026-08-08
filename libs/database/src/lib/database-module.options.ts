@@ -1,5 +1,5 @@
-import type { FactoryProvider, ModuleMetadata } from '@nestjs/common';
-import type { TlsOptions } from 'tls';
+import { FactoryProvider, ModuleMetadata } from '@nestjs/common';
+import { TlsOptions } from 'tls';
 
 export type DatabaseConnectionOptions = {
     url?: string;

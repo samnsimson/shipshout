@@ -1,4 +1,4 @@
-import type { EntitySchema } from 'typeorm';
+import { EntitySchema } from 'typeorm';
 
 export type DatabaseEntity = (new () => object) | EntitySchema;
 

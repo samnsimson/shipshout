@@ -1,10 +1,10 @@
 {
-    "name": "@shipshout/shipshout-svc-e2e",
+    "name": "@shipshout/shipshout-api-svc-e2e",
     "version": "0.0.1",
     "private": true,
     "nx": {
         "implicitDependencies": [
-            "@shipshout/shipshout-svc"
+            "@shipshout/shipshout-api-svc"
         ],
         "targets": {
             "e2e": {
@@ -13,14 +13,15 @@
                     "{projectRoot}/test-output/jest/coverage"
                 ],
                 "dependsOn": [
-                    "@shipshout/shipshout-svc:build",
-                    "@shipshout/shipshout-svc:serve"
+                    "@shipshout/shipshout-api-svc:build",
+                    "@shipshout/shipshout-api-svc:serve"
                 ],
                 "options": {
-                    "jestConfig": "apps/shipshout-svc-e2e/jest.config.cts",
+                    "jestConfig": "apps/shipshout-api-svc-e2e/jest.config.cts",
                     "passWithNoTests": true
                 }
             }
-        }
+        },
+        "name": "@shipshout/shipshout-api-svc-e2e"
     }
 }

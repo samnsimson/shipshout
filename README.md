@@ -11,19 +11,19 @@
 To run the dev server for your app, use:
 
 ```sh
-npx nx serve shipshout-svc
+npx nx serve shipshout-api-svc
 ```
 
 To create a production bundle:
 
 ```sh
-npx nx build shipshout-svc
+npx nx build shipshout-api-svc
 ```
 
 To see all available targets to run for a project, run:
 
 ```sh
-npx nx show project shipshout-svc
+npx nx show project shipshout-api-svc
 ```
 
 These targets are either [inferred automatically](https://nx.dev/concepts/inferred-tasks?utm_source=nx_project&utm_medium=readme&utm_campaign=nx_projects) or defined in the `project.json` or `package.json` files.

@@ -1,0 +1,24 @@
+---
+description: NestJS conventions for Shipshout apps and libs — follow docs/nestjs-guidelines.md
+globs: apps/**/*.ts,libs/**/*.ts,docs/nestjs-guidelines.md
+alwaysApply: false
+---
+
+# NestJS work
+
+When creating or changing NestJS apps or libraries in this repo, **read and follow** [`docs/nestjs-guidelines.md`](docs/nestjs-guidelines.md). Do not improvise conflicting patterns.
+
+## Hard constraints (summary)
+
+- **bun** + Nx: `bun nx …` / `bunx nx …`; packages named `@shipshout/*`.
+- New Nest libs **only** via: `bun nx generate @nx/nest:library --directory=libs/<name> --buildable=true --unitTestRunner=jest --global=true --importPath=@shipshout/<name> --name=<name> --useProjectJson=true --no-interactive` (see guidelines §1).
+- **Apps** wire modules and may use `ConfigService`; **libs** must not read `process.env`.
+- Database only via `@shipshout/database`: `DatabaseModule.forRootAsync` (connection-only), entities in `ENTITIES`, repos extend `BaseRepository`, migrations in `MIGRATIONS` + CLI scripts — never `synchronize: true` / `migrationsRun` unless explicitly decided.
+- Dynamic modules use `forRoot` / `forRootAsync` with a sibling `*-module.options.ts`.
+- Export **services**, not modules; fix DI via `providers` / `exports`.
+- Specs under `__tests__/`; validate typecheck → unit → e2e.
+- Folder grouping by role: `controllers/`, `services/`, `dto/`, `repositories/`, `entities/`, `guards/`, `factories/`, etc. (feature → role folders); see §4 in the guidelines.
+- All HTTP endpoints are OpenAPI-ready: `@nestjs/swagger` on controllers + DTOs (`@ApiTags`, `@ApiOperation`, `@ApiResponse` / typed responses, `@ApiProperty`); wire `DocumentBuilder` / `SwaggerModule` in API `main.ts`.
+- Prettier 4-space / single quotes / printWidth 160; single-statement `if` without braces; no forced `import type`.
+
+If the guidelines and an old example conflict, prefer `docs/nestjs-guidelines.md` and current `libs/database` / `apps/shipshout-api-svc` code.

@@ -1,5 +1,5 @@
 {
-    "name": "@shipshout/shipshout-svc",
+    "name": "@shipshout/shipshout-api-svc",
     "version": "0.0.1",
     "private": true,
     "nx": {
@@ -11,7 +11,7 @@
                     "env": {
                         "NODE_ENV": "production"
                     },
-                    "cwd": "apps/shipshout-svc"
+                    "cwd": "apps/shipshout-api-svc"
                 },
                 "configurations": {
                     "development": {
@@ -28,8 +28,8 @@
                 "cache": true,
                 "executor": "@nx/js:prune-lockfile",
                 "outputs": [
-                    "{workspaceRoot}/apps/shipshout-svc/dist/package.json",
-                    "{workspaceRoot}/apps/shipshout-svc/dist/bun.lock"
+                    "{workspaceRoot}/apps/shipshout-api-svc/dist/package.json",
+                    "{workspaceRoot}/apps/shipshout-api-svc/dist/bun.lock"
                 ],
                 "options": {
                     "buildTarget": "build"
@@ -41,7 +41,7 @@
                 ],
                 "cache": true,
                 "outputs": [
-                    "{workspaceRoot}/apps/shipshout-svc/dist/workspace_modules"
+                    "{workspaceRoot}/apps/shipshout-api-svc/dist/workspace_modules"
                 ],
                 "executor": "@nx/js:copy-workspace-modules",
                 "options": {
@@ -63,15 +63,15 @@
                     "build"
                 ],
                 "options": {
-                    "buildTarget": "@shipshout/shipshout-svc:build",
+                    "buildTarget": "@shipshout/shipshout-api-svc:build",
                     "runBuildTargetDependencies": false
                 },
                 "configurations": {
                     "development": {
-                        "buildTarget": "@shipshout/shipshout-svc:build:development"
+                        "buildTarget": "@shipshout/shipshout-api-svc:build:development"
                     },
                     "production": {
-                        "buildTarget": "@shipshout/shipshout-svc:build:production"
+                        "buildTarget": "@shipshout/shipshout-api-svc:build:production"
                     }
                 }
             },
@@ -86,7 +86,8 @@
                     "prune"
                 ]
             }
-        }
+        },
+        "name": "@shipshout/shipshout-api-svc"
     },
     "dependencies": {
         "@nestjs/common": "^11.0.0",
