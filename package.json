@@ -3,7 +3,10 @@
     "version": "0.0.0",
     "license": "MIT",
     "scripts": {
-        "format": "prettier --write '**/*.{ts,js,json,md}'"
+        "format": "prettier --write '**/*.{ts,js,json,md}'",
+        "migration:generate": "bunx --bun typeorm migration:generate ./libs/database/src/lib/migrations/Migration -d ./typeorm.config.ts",
+        "migration:run": "bunx --bun typeorm migration:run -d ./typeorm.config.ts",
+        "migration:revert": "bunx --bun typeorm migration:revert -d ./typeorm.config.ts"
     },
     "private": true,
     "dependencies": {
