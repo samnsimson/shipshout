@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { buildTypeOrmOptions } from './build-typeorm-options';
 import { DatabaseModuleAsyncOptions } from './database-module.options';
-import { ENTITIES } from './entities';
 
 @Module({})
 export class DatabaseModule {
@@ -15,12 +15,7 @@ export class DatabaseModule {
                     inject: options.inject,
                     useFactory: async (...args: unknown[]) => {
                         const connection = await options.useFactory(...args);
-                        return {
-                            ...connection,
-                            type: 'postgres' as const,
-                            entities: ENTITIES,
-                            synchronize: false,
-                        };
+                        return buildTypeOrmOptions(connection);
                     },
                 }),
             ],
