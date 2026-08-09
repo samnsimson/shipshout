@@ -1,0 +1,14 @@
+{
+    "extends": "../tsconfig.base.json",
+    "compilerOptions": {
+        "types": ["bun"],
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "noEmit": true,
+        "composite": false,
+        "declaration": false,
+        "declarationMap": false,
+        "emitDeclarationOnly": false
+    },
+    "include": ["./**/*.ts"]
+}

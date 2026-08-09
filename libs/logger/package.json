@@ -1,5 +1,5 @@
 {
-    "name": "@shipshout/swagger",
+    "name": "@shipshout/logger",
     "version": "0.0.1",
     "private": true,
     "main": "./dist/index.js",
@@ -16,7 +16,8 @@
     },
     "dependencies": {
         "@nestjs/common": "^11.0.0",
-        "@nestjs/swagger": "^11.4.6",
-        "tslib": "^2.3.0"
+        "nest-winston": "^1.10.2",
+        "tslib": "^2.3.0",
+        "winston": "^3.19.0"
     }
 }

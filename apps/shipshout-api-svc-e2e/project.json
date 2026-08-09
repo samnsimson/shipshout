@@ -1,0 +1,19 @@
+{
+    "name": "@shipshout/shipshout-api-svc-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/shipshout-api-svc-e2e/src",
+    "projectType": "application",
+    "tags": ["type:e2e"],
+    "implicitDependencies": ["@shipshout/shipshout-api-svc"],
+    "targets": {
+        "e2e": {
+            "executor": "@nx/jest:jest",
+            "outputs": ["{projectRoot}/test-output/jest/coverage"],
+            "dependsOn": ["@shipshout/shipshout-api-svc:build", "@shipshout/shipshout-api-svc:serve"],
+            "options": {
+                "jestConfig": "apps/shipshout-api-svc-e2e/jest.config.cts",
+                "passWithNoTests": true
+            }
+        }
+    }
+}
