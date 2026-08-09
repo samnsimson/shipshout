@@ -1,8 +1,3 @@
-/**
- * This is not a production server yet!
- * This is only a minimal backend to get started.
- */
-
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Swagger } from '@shipshout/swagger';
@@ -12,22 +7,24 @@ import { LoggerModule } from '@shipshout/logger';
 async function bootstrap() {
     const app = await NestFactory.create(AppModule, {
         logger: LoggerModule.getLogger('shipshout-api-svc'),
+        bodyParser: false,
     });
+
     const globalPrefix = 'api';
     app.setGlobalPrefix(globalPrefix);
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
-    Swagger.setup(app, {
-        title: 'Shipshout API',
-        description: 'Shipshout HTTP API',
-        version: '0.0.1',
-        path: 'docs',
-    });
+    const swaggerTitle = process.env.SWAGGER_TITLE || 'Shipshout API';
+    const swaggerDescription = process.env.SWAGGER_DESCRIPTION || 'Shipshout HTTP API';
+    const swaggerVersion = process.env.SWAGGER_VERSION || '0.0.1';
+    const swaggerPath = process.env.SWAGGER_PATH || 'docs';
+    Swagger.setup(app, { title: swaggerTitle, description: swaggerDescription, version: swaggerVersion, path: swaggerPath });
 
     const port = process.env.PORT || 3000;
-    await app.listen(port);
-    Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
-    Logger.log(`Swagger docs: http://localhost:${port}/${globalPrefix}/docs`);
+    await app.listen(port, () => {
+        Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
+        Logger.log(`Swagger docs: http://localhost:${port}/${globalPrefix}/docs`);
+    });
 }
 
 bootstrap();
