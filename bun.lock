@@ -112,6 +112,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@nestjs/common": "^11.0.0",
+        "@shipshout/core": "workspace:*",
         "nest-winston": "^1.10.2",
         "tslib": "^2.3.0",
         "winston": "^3.19.0",
