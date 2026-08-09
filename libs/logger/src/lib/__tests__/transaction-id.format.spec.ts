@@ -14,15 +14,15 @@ describe('transactionIdFormat', () => {
         expect(info.transactionId).toBeUndefined();
     });
 
-    it('adds metadata and message prefix inside ALS', () => {
+    it('adds message prefix inside ALS without metadata field', () => {
         RequestContext.run({ transactionId: 'abc-123' }, () => {
             const info = format.transform({ level: 'info', message: 'hello' }, {}) as {
                 message: string;
                 transactionId?: string;
             };
 
-            expect(info.transactionId).toBe('abc-123');
             expect(info.message).toBe('[abc-123] hello');
+            expect(info.transactionId).toBeUndefined();
         });
     });
 
@@ -30,10 +30,8 @@ describe('transactionIdFormat', () => {
         RequestContext.run({ transactionId: 'abc-123' }, () => {
             const info = format.transform({ level: 'info', message: '[abc-123] hello' }, {}) as {
                 message: string;
-                transactionId?: string;
             };
 
-            expect(info.transactionId).toBe('abc-123');
             expect(info.message).toBe('[abc-123] hello');
         });
     });
