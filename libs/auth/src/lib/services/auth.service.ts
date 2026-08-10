@@ -4,7 +4,7 @@ import { fromNodeHeaders } from 'better-auth/node';
 import { isEmail } from 'class-validator';
 import { IncomingHttpHeaders } from 'node:http';
 import { auth } from '../auth.config';
-import { AuthApiPayload, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
+import { AuthApiPayload, AuthLogoutResult, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
@@ -47,6 +47,31 @@ export class AuthService {
             const payload = { email: body.login, password: body.password };
             const result = await this.betterAuth.api.signInEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
+    async getSession(requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResponseDto | null> {
+        try {
+            const session = await this.betterAuth.api.getSession({ headers: fromNodeHeaders(requestHeaders) });
+            if (!session?.user) return null;
+            return {
+                user: session.user as AuthSessionResponseDto['user'],
+                session: (session.session as AuthSessionResponseDto['session']) ?? {},
+            };
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
+    async logout(requestHeaders: IncomingHttpHeaders): Promise<AuthLogoutResult> {
+        try {
+            const result = await this.betterAuth.api.signOut({
+                headers: fromNodeHeaders(requestHeaders),
+                returnHeaders: true,
+            });
+            return { headers: result.headers ?? new Headers(), body: { ok: true } };
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }

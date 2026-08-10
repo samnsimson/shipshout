@@ -42,6 +42,23 @@ export class AuthController {
         return result.body;
     }
 
+    @Get('session')
+    @ApiOperation({ summary: 'Current session' })
+    @ApiResponse({ status: 200, type: AuthSessionResponseDto })
+    @ApiResponse({ status: 200, description: 'Null when unauthenticated' })
+    async session(@Req() req: ExpressRequest): Promise<AuthSessionResponseDto | null> {
+        return this.authService.getSession(req.headers);
+    }
+
+    @Post('logout')
+    @ApiOperation({ summary: 'Sign out' })
+    @ApiResponse({ status: 200, type: OkResponseDto })
+    async logout(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<OkResponseDto> {
+        const result = await this.authService.logout(req.headers);
+        AuthUtils.applyAuthCookies(res, result.headers);
+        return result.body;
+    }
+
     @Post('username/available')
     @ApiOperation({ summary: 'Check whether a username is available' })
     @ApiBody({ type: UsernameAvailableDto })

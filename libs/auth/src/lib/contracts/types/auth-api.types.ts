@@ -13,6 +13,11 @@ export type AuthSessionResult = {
     headers: Headers;
 };
 
+export type AuthLogoutResult = {
+    body: { ok: true };
+    headers: Headers;
+};
+
 export type SocialRedirectResult = {
     url: string;
     headers: Headers;

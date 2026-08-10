@@ -19,6 +19,8 @@ describe('AuthController', () => {
     const authService = {
         register: jest.fn(),
         login: jest.fn(),
+        getSession: jest.fn(),
+        logout: jest.fn(),
         isUsernameAvailable: jest.fn(),
         forgotPassword: jest.fn(),
         resetPassword: jest.fn(),
@@ -46,6 +48,18 @@ describe('AuthController', () => {
         expect(authService.register).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password1', name: 'Ada', username: 'ada' }, req.headers);
         expect(body).toEqual({ user: { id: '1', email: 'a@b.com', name: 'Ada' }, session: { token: 'tok' } });
         expect(appended).toEqual(['session=abc; Path=/']);
+    });
+
+    it('logout applies cookies and returns ok', async () => {
+        const headers = new Headers();
+        headers.append('set-cookie', 'better-auth.session_token=; Max-Age=0');
+        authService.logout.mockResolvedValue({ headers, body: { ok: true } });
+        const appended: string[] = [];
+        const res = { append: (_n: string, v: string) => appended.push(v) } as never;
+
+        await expect(controller.logout(req, res)).resolves.toEqual({ ok: true });
+        expect(authService.logout).toHaveBeenCalledWith(req.headers);
+        expect(appended).toEqual(['better-auth.session_token=; Max-Age=0']);
     });
 
     it('forgotPassword delegates to service', async () => {

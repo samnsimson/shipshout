@@ -18,6 +18,8 @@ describe('AuthService', () => {
         signUpEmail: jest.fn(),
         signInEmail: jest.fn(),
         signInUsername: jest.fn(),
+        getSession: jest.fn(),
+        signOut: jest.fn(),
         isUsernameAvailable: jest.fn(),
         requestPasswordReset: jest.fn(),
         resetPassword: jest.fn(),
@@ -78,6 +80,29 @@ describe('AuthService', () => {
             expect.objectContaining({ body: { email: 'a@b.com', password: 'password1' } }),
         );
         expect(api.signInUsername).not.toHaveBeenCalled();
+    });
+
+    it('getSession returns null when unauthenticated', async () => {
+        api.getSession.mockResolvedValue(null);
+        await expect(service.getSession({})).resolves.toBeNull();
+    });
+
+    it('getSession maps user and session', async () => {
+        api.getSession.mockResolvedValue({
+            user: { id: '1', email: 'a@b.com', name: 'Ada' },
+            session: { id: 's1', token: 'tok' },
+        });
+        await expect(service.getSession({})).resolves.toEqual({
+            user: { id: '1', email: 'a@b.com', name: 'Ada' },
+            session: { id: 's1', token: 'tok' },
+        });
+    });
+
+    it('logout returns ok and headers', async () => {
+        const headers = new Headers();
+        headers.append('set-cookie', 'better-auth.session_token=; Max-Age=0');
+        api.signOut.mockResolvedValue({ headers, response: { success: true } });
+        await expect(service.logout({})).resolves.toEqual({ headers, body: { ok: true } });
     });
 
     it('forgotPassword always returns ok', async () => {
