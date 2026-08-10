@@ -13,6 +13,12 @@ export type AuthSessionResult = {
     headers: Headers;
 };
 
+export type AuthEmailVerificationRedirect = {
+    redirectUrl: string;
+};
+
+export type AuthLoginResult = AuthSessionResult | AuthEmailVerificationRedirect;
+
 export type AuthLogoutResult = {
     body: { ok: true };
     headers: Headers;

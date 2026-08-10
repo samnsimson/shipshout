@@ -64,6 +64,15 @@ describe('AuthController', () => {
         expect(appended).toEqual(['better-auth.session_token=; Max-Age=0']);
     });
 
+    it('login redirects when email verification is required', async () => {
+        authService.login.mockResolvedValue({ redirectUrl: 'http://localhost:3000/verify-email?email=a%40b.com' });
+        const res = { redirect: jest.fn(), append: jest.fn() };
+
+        await expect(controller.login({ login: 'a@b.com', password: 'password1' }, req, res as never)).resolves.toBeUndefined();
+        expect(res.redirect).toHaveBeenCalledWith('http://localhost:3000/verify-email?email=a%40b.com');
+        expect(res.append).not.toHaveBeenCalled();
+    });
+
     it('forgotPassword delegates to service', async () => {
         authService.forgotPassword.mockResolvedValue({ ok: true });
         await expect(controller.forgotPassword({ email: 'a@b.com' }, req)).resolves.toEqual({ ok: true });

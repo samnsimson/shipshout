@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { applySetCookies, authFetch, readErrorMessage } from './api';
+import { applySetCookies, authFetch, getApiBaseUrl, readErrorMessage } from './api';
 import type { AuthActionResult } from './cookies';
 
 function field(formData: FormData, key: string): string {
@@ -17,7 +17,15 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
     const response = await authFetch('/auth/login', {
         method: 'POST',
         body: JSON.stringify({ login, password }),
+        redirect: 'manual',
     });
+    if (response.status >= 300 && response.status < 400) {
+        const location = response.headers.get('location');
+        if (location) {
+            const url = new URL(location, getApiBaseUrl());
+            redirect(`${url.pathname}${url.search}`);
+        }
+    }
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
     await applySetCookies(response);
     redirect('/dashboard');

@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, HttpException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import type { Response } from 'express';
 import { APIError } from 'better-auth/api';
 import { EmailAdapter } from '../email/email-adapter';
@@ -33,8 +33,16 @@ export class AuthUtils {
         });
     }
 
+    static isEmailNotVerifiedError(error: unknown): boolean {
+        const code = this.authErrorCode(error);
+        const message = this.authErrorMessage(error).toUpperCase();
+        return code.includes('EMAIL_NOT_VERIFIED') || message.includes('EMAIL NOT VERIFIED');
+    }
+
     static mapAuthError(error: unknown): never {
         if (error instanceof HttpException) throw error;
+
+        if (this.isEmailNotVerifiedError(error)) throw new ForbiddenException('Email not verified');
 
         if (error instanceof APIError) {
             const status = typeof error.statusCode === 'number' ? error.statusCode : Number(error.status) || 500;
@@ -61,5 +69,19 @@ export class AuthUtils {
 
         const message = error instanceof Error ? error.message : 'Authentication failed';
         throw new InternalServerErrorException(message);
+    }
+
+    private static authErrorCode(error: unknown): string {
+        if (!error || typeof error !== 'object') return '';
+        const body = (error as { body?: { code?: string } }).body;
+        if (body?.code) return String(body.code).toUpperCase();
+        if ('code' in error && (error as { code?: unknown }).code) return String((error as { code: unknown }).code).toUpperCase();
+        return '';
+    }
+
+    private static authErrorMessage(error: unknown): string {
+        if (error instanceof Error) return error.message;
+        if (error && typeof error === 'object' && 'message' in error) return String((error as { message?: unknown }).message ?? '');
+        return '';
     }
 }

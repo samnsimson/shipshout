@@ -37,11 +37,16 @@ export class AuthController {
     @ApiOperation({ summary: 'Login with email or username and password' })
     @ApiBody({ type: LoginDto })
     @ApiResponse({ status: 200, type: AuthSessionResponseDto })
+    @ApiResponse({ status: 302, description: 'Email not verified — redirect to verify-email' })
     @ApiResponse({ status: 401, description: 'Invalid credentials' })
-    async login(@Body() body: LoginDto, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<AuthSessionResponseDto> {
+    async login(@Body() body: LoginDto, @Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.login(body, req.headers);
+        if ('redirectUrl' in result) {
+            res.redirect(result.redirectUrl);
+            return;
+        }
         AuthUtils.applyAuthCookies(res, result.headers);
-        return result.body;
+        res.status(200).json(result.body);
     }
 
     @Get('session')

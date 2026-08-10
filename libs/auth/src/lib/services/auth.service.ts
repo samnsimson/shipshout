@@ -1,10 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import { isEmail } from 'class-validator';
 import { IncomingHttpHeaders } from 'node:http';
+import { AUTH_OPTIONS } from '../auth-options.token';
 import { auth } from '../auth.config';
-import { AuthApiPayload, AuthLogoutResult, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
+import { AuthApiPayload, AuthLoginResult, AuthLogoutResult, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
+import type { AuthOptions } from '../contracts/types/auth.types';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
@@ -19,7 +21,10 @@ import { AuthUtils } from '../utils/auth-http';
 
 @Injectable()
 export class AuthService {
-    constructor(private readonly betterAuth: BetterAuthService<typeof auth>) {}
+    constructor(
+        private readonly betterAuth: BetterAuthService<typeof auth>,
+        @Inject(AUTH_OPTIONS) private readonly authOptions: AuthOptions,
+    ) {}
 
     async register(body: RegisterDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
@@ -37,26 +42,28 @@ export class AuthService {
         }
     }
 
-    async login(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
+    async login(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthLoginResult> {
         return isEmail(body.login) ? this.signInWithEmail(body, requestHeaders) : this.signInWithUsername(body, requestHeaders);
     }
 
-    private async signInWithUsername(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
+    private async signInWithUsername(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthLoginResult> {
         try {
             const payload = { username: body.login, password: body.password };
             const result = await this.betterAuth.api.signInUsername({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
+            if (AuthUtils.isEmailNotVerifiedError(error)) return { redirectUrl: this.verifyEmailRedirectUrl() };
             AuthUtils.mapAuthError(error);
         }
     }
 
-    private async signInWithEmail(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
+    private async signInWithEmail(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthLoginResult> {
         try {
             const payload = { email: body.login, password: body.password };
             const result = await this.betterAuth.api.signInEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
+            if (AuthUtils.isEmailNotVerifiedError(error)) return { redirectUrl: this.verifyEmailRedirectUrl(body.login) };
             AuthUtils.mapAuthError(error);
         }
     }
@@ -149,6 +156,12 @@ export class AuthService {
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
+    }
+
+    private verifyEmailRedirectUrl(email?: string): string {
+        const base = this.authOptions.clientAppUrl.replace(/\/$/, '');
+        if (email) return `${base}/verify-email?email=${encodeURIComponent(email)}`;
+        return `${base}/verify-email`;
     }
 
     private toSessionResponse(payload: AuthApiPayload): AuthSessionResponseDto {

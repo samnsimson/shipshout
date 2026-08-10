@@ -22,6 +22,7 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
 }));
 
 import { AuthModule } from '../auth.module';
+import { AUTH_OPTIONS } from '../auth-options.token';
 import { AuthController } from '../controllers/auth.controller';
 import { EMAIL_ADAPTER, EmailAdapter } from '../email/email-adapter';
 
@@ -43,6 +44,9 @@ describe('AuthModule', () => {
                 expect.objectContaining({
                     provide: EMAIL_ADAPTER,
                     useClass: EmailAdapter,
+                }),
+                expect.objectContaining({
+                    provide: AUTH_OPTIONS,
                 }),
             ]),
         );

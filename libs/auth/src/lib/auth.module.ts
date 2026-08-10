@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DynamicModule, Module } from '@nestjs/common';
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
+import { AUTH_OPTIONS } from './auth-options.token';
 import { AuthModuleAsyncOptions } from './auth.options';
 import { authOptionsSchema } from './contracts/schema/auth.schema';
 import { AuthOptions } from './contracts/types/auth.types';
@@ -22,8 +23,16 @@ export class AuthModule {
             global: true,
             module: AuthModule,
             controllers: [AuthController],
-            providers: [{ provide: EMAIL_ADAPTER, useClass: EmailAdapter }, AuthService],
-            exports: [EMAIL_ADAPTER, AuthService],
+            providers: [
+                { provide: EMAIL_ADAPTER, useClass: EmailAdapter },
+                {
+                    provide: AUTH_OPTIONS,
+                    inject: options.inject ?? [],
+                    useFactory: async (...args: any[]) => this.validateOptions(await options.useFactory(...args)),
+                },
+                AuthService,
+            ],
+            exports: [EMAIL_ADAPTER, AuthService, AUTH_OPTIONS],
             imports: [
                 BetterAuthModule.forRootAsync({
                     imports: options.imports,

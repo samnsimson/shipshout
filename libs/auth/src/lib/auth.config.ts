@@ -17,12 +17,13 @@ export function createAuth(opts: AuthOptions) {
             sendResetPassword: async ({ user, url }) => AuthUtils.sendResetPasswordEmail(user, url),
         },
         emailVerification: {
+            sendOnSignIn: true,
+            autoSignInAfterVerification: false,
             sendVerificationEmail: async ({ user, token }) => {
                 const base = opts.clientAppUrl.replace(/\/$/, '');
                 const url = `${base}/verify-email?token=${encodeURIComponent(token)}`;
                 await AuthUtils.sendVerificationEmail(user, url);
             },
-            autoSignInAfterVerification: false,
         },
         socialProviders: {
             google: { clientId: opts.googleClientId ?? '', clientSecret: opts.googleClientSecret ?? '' },

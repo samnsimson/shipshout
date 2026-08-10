@@ -28,7 +28,8 @@ describe('AuthService', () => {
         sendVerificationEmail: jest.fn(),
     };
     const betterAuth = { api } as never;
-    const service = new AuthService(betterAuth);
+    const authOptions = { databaseUrl: 'postgres://localhost/db', clientAppUrl: 'http://localhost:3000' };
+    const service = new AuthService(betterAuth, authOptions);
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -82,6 +83,18 @@ describe('AuthService', () => {
             expect.objectContaining({ body: { email: 'a@b.com', password: 'password1' } }),
         );
         expect(api.signInUsername).not.toHaveBeenCalled();
+    });
+
+    it('login returns verify-email redirect when email is not verified', async () => {
+        const error = Object.assign(new Error('Email not verified'), {
+            statusCode: 403,
+            body: { code: 'EMAIL_NOT_VERIFIED', message: 'Email not verified' },
+        });
+        api.signInEmail.mockRejectedValue(error);
+
+        await expect(service.login({ login: 'a@b.com', password: 'password1' }, {})).resolves.toEqual({
+            redirectUrl: 'http://localhost:3000/verify-email?email=a%40b.com',
+        });
     });
 
     it('getSession returns null when unauthenticated', async () => {
