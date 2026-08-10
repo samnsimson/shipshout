@@ -1,5 +1,6 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { GlobalExceptionFilter } from '@shipshout/core';
 import { Swagger } from '@shipshout/swagger';
 import { AppModule } from './app/app.module';
 import { LoggerModule } from '@shipshout/logger';
@@ -10,6 +11,7 @@ async function bootstrap() {
         bodyParser: false,
     });
 
+    app.useGlobalFilters(new GlobalExceptionFilter());
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
     const swaggerTitle = process.env.SWAGGER_TITLE || 'Shipshout API';
