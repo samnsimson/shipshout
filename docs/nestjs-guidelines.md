@@ -57,7 +57,7 @@ bun nx generate @nx/nest:library \
 - Own bootstrap (`main.ts`), `AppModule`, HTTP concerns, and **wiring** of library dynamic modules.
 - May read env via `ConfigModule` / `ConfigService` (or equivalent) and pass values into libraries.
 - Keep feature code in feature modules as the app grows; do not dump everything into `AppModule` forever.
-- Global HTTP prefix for the API is `api` (see `main.ts`). Preserve unless intentionally changing the public API.
+- Do not add a global HTTP prefix unless intentionally changing the public API (see `main.ts`).
 
 ### Libraries (`libs/*`)
 

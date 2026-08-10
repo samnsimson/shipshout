@@ -16,7 +16,7 @@ import { AuthModule } from '@shipshout/auth';
             useFactory: (configService: ConfigService) => ({
                 databaseUrl: configService.getOrThrow<string>('DATABASE_URL'),
                 secret: configService.getOrThrow<string>('BETTER_AUTH_SECRET'),
-                baseUrl: configService.get<string>('AUTH_BASE_URL'),
+                baseUrl: configService.getOrThrow<string>('BETTER_AUTH_BASE_URL'),
                 googleClientId: configService.get<string>('GOOGLE_CLIENT_ID'),
                 googleClientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
                 githubClientId: configService.get<string>('GITHUB_CLIENT_ID'),

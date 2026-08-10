@@ -10,8 +10,6 @@ async function bootstrap() {
         bodyParser: false,
     });
 
-    const globalPrefix = 'api';
-    app.setGlobalPrefix(globalPrefix);
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
     const swaggerTitle = process.env.SWAGGER_TITLE || 'Shipshout API';
@@ -22,8 +20,8 @@ async function bootstrap() {
 
     const port = process.env.PORT || 3000;
     await app.listen(port, () => {
-        Logger.log(`🚀 Application is running on: http://localhost:${port}/${globalPrefix}`);
-        Logger.log(`Swagger docs: http://localhost:${port}/${globalPrefix}/docs`);
+        Logger.log(`🚀 Application is running on: http://localhost:${port}`);
+        Logger.log(`Swagger docs: http://localhost:${port}/docs`);
     });
 }
 

@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
-import { LoggingEmailAdapter } from '../email/logging-email.adapter';
+import { EmailAdapter } from '../email/email-adapter';
 
-describe('LoggingEmailAdapter', () => {
+describe('EmailAdapter', () => {
     it('logs the outbound email payload', async () => {
-        const adapter = new LoggingEmailAdapter();
+        const adapter = new EmailAdapter();
         const logSpy = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
 
         await adapter.send({

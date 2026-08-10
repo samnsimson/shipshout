@@ -9,8 +9,8 @@ function mockReq(headers: Record<string, string | undefined> = {}): Request {
         header: (name: string) => headers[name.toLowerCase()] ?? headers[name],
         headers: { ...headers },
         method: 'GET',
-        originalUrl: '/api/health',
-        url: '/api/health',
+        originalUrl: '/health',
+        url: '/health',
     } as unknown as Request;
 }
 
