@@ -8,6 +8,8 @@ import { LoginDto } from '../dto/login.dto';
 import { OkResponseDto } from '../dto/ok-response.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { UsernameAvailableDto } from '../dto/username-available.dto';
+import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
 import { AuthService } from '../services/auth.service';
 import { AuthUtils } from '../utils/auth-http';
 
@@ -18,11 +20,11 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('register')
-    @ApiOperation({ summary: 'Register with email and password' })
+    @ApiOperation({ summary: 'Register with email, username, and password' })
     @ApiBody({ type: RegisterDto })
     @ApiResponse({ status: 201, type: AuthSessionResponseDto })
     @ApiResponse({ status: 400, description: 'Validation or auth error' })
-    @ApiResponse({ status: 409, description: 'Email already exists' })
+    @ApiResponse({ status: 409, description: 'Email or username already exists' })
     async register(@Body() body: RegisterDto, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<AuthSessionResponseDto> {
         const result = await this.authService.register(body, req.headers);
         AuthUtils.applyAuthCookies(res, result.headers);
@@ -30,7 +32,7 @@ export class AuthController {
     }
 
     @Post('login')
-    @ApiOperation({ summary: 'Login with email and password' })
+    @ApiOperation({ summary: 'Login with email or username and password' })
     @ApiBody({ type: LoginDto })
     @ApiResponse({ status: 200, type: AuthSessionResponseDto })
     @ApiResponse({ status: 401, description: 'Invalid credentials' })
@@ -38,6 +40,14 @@ export class AuthController {
         const result = await this.authService.login(body, req.headers);
         AuthUtils.applyAuthCookies(res, result.headers);
         return result.body;
+    }
+
+    @Post('username/available')
+    @ApiOperation({ summary: 'Check whether a username is available' })
+    @ApiBody({ type: UsernameAvailableDto })
+    @ApiResponse({ status: 200, type: UsernameAvailableResponseDto })
+    async isUsernameAvailable(@Body() body: UsernameAvailableDto, @Req() req: ExpressRequest): Promise<UsernameAvailableResponseDto> {
+        return this.authService.isUsernameAvailable(body, req.headers);
     }
 
     @Post('forgot-password')

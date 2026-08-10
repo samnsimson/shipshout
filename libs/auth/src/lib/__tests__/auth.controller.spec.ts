@@ -1,4 +1,5 @@
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ api: {} })) }));
+jest.mock('better-auth/plugins', () => ({ username: jest.fn(() => ({})) }));
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/api', () => ({
     APIError: class APIError extends Error {},
@@ -18,6 +19,7 @@ describe('AuthController', () => {
     const authService = {
         register: jest.fn(),
         login: jest.fn(),
+        isUsernameAvailable: jest.fn(),
         forgotPassword: jest.fn(),
         resetPassword: jest.fn(),
         startSocial: jest.fn(),
@@ -39,9 +41,9 @@ describe('AuthController', () => {
         const appended: string[] = [];
         const res = { append: (_n: string, v: string) => appended.push(v) } as never;
 
-        const body = await controller.register({ email: 'a@b.com', password: 'password1', name: 'Ada' }, req, res);
+        const body = await controller.register({ email: 'a@b.com', password: 'password1', name: 'Ada', username: 'ada' }, req, res);
 
-        expect(authService.register).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password1', name: 'Ada' }, req.headers);
+        expect(authService.register).toHaveBeenCalledWith({ email: 'a@b.com', password: 'password1', name: 'Ada', username: 'ada' }, req.headers);
         expect(body).toEqual({ user: { id: '1', email: 'a@b.com', name: 'Ada' }, session: { token: 'tok' } });
         expect(appended).toEqual(['session=abc; Path=/']);
     });

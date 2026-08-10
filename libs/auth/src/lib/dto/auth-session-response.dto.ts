@@ -11,6 +11,12 @@ export class AuthUserDto {
     name!: string;
 
     @ApiPropertyOptional()
+    username?: string | null;
+
+    @ApiPropertyOptional()
+    displayUsername?: string | null;
+
+    @ApiPropertyOptional()
     image?: string | null;
 
     @ApiPropertyOptional()

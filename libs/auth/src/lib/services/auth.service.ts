@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import type { IncomingHttpHeaders } from 'node:http';
@@ -10,6 +11,8 @@ import { LoginDto } from '../dto/login.dto';
 import { OkResponseDto } from '../dto/ok-response.dto';
 import { RegisterDto } from '../dto/register.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
+import { UsernameAvailableDto } from '../dto/username-available.dto';
+import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
 import { AuthUtils } from '../utils/auth-http';
 
 @Injectable()
@@ -19,7 +22,13 @@ export class AuthService {
     async register(body: RegisterDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
             const result = await this.betterAuth.api.signUpEmail({
-                body: { email: body.email, password: body.password, name: body.name },
+                body: {
+                    email: body.email,
+                    password: body.password,
+                    name: body.name,
+                    username: body.username,
+                    displayUsername: body.displayUsername,
+                },
                 headers: fromNodeHeaders(requestHeaders),
                 returnHeaders: true,
             });
@@ -34,17 +43,30 @@ export class AuthService {
     }
 
     async login(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
+        if (!body.username && !body.email) throw new BadRequestException('email or username is required');
+
         try {
-            const result = await this.betterAuth.api.signInEmail({
-                body: { email: body.email, password: body.password },
-                headers: fromNodeHeaders(requestHeaders),
-                returnHeaders: true,
-            });
+            const headers = fromNodeHeaders(requestHeaders);
+            const result = body.username
+                ? await this.betterAuth.api.signInUsername({ body: { username: body.username, password: body.password }, headers, returnHeaders: true })
+                : await this.betterAuth.api.signInEmail({ body: { email: body.email!, password: body.password }, headers, returnHeaders: true });
 
             return {
                 headers: result.headers,
                 body: this.toSessionResponse(result.response as AuthApiPayload),
             };
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
+    async isUsernameAvailable(body: UsernameAvailableDto, requestHeaders: IncomingHttpHeaders): Promise<UsernameAvailableResponseDto> {
+        try {
+            const result = await this.betterAuth.api.isUsernameAvailable({
+                body: { username: body.username },
+                headers: fromNodeHeaders(requestHeaders),
+            });
+            return { available: Boolean(result?.available) };
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
@@ -92,7 +114,7 @@ export class AuthService {
     }
 
     private toSessionResponse(payload: AuthApiPayload): AuthSessionResponseDto {
-        if (!payload.user) throw new Error('Missing user in auth response');
+        if (!payload.user) throw new BadRequestException('Missing user in auth response');
         return {
             user: payload.user,
             session: payload.session ?? { token: payload.token },

@@ -1,4 +1,5 @@
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ api: {} })) }));
+jest.mock('better-auth/plugins', () => ({ username: jest.fn(() => ({})) }));
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/api', () => ({
     APIError: class APIError extends Error {},
@@ -16,6 +17,8 @@ describe('AuthService', () => {
     const api = {
         signUpEmail: jest.fn(),
         signInEmail: jest.fn(),
+        signInUsername: jest.fn(),
+        isUsernameAvailable: jest.fn(),
         requestPasswordReset: jest.fn(),
         resetPassword: jest.fn(),
         signInSocial: jest.fn(),
@@ -32,13 +35,33 @@ describe('AuthService', () => {
         headers.append('set-cookie', 'session=abc; Path=/');
         api.signUpEmail.mockResolvedValue({
             headers,
-            response: { user: { id: '1', email: 'a@b.com', name: 'Ada' }, token: 'tok' },
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
         });
 
-        const result = await service.register({ email: 'a@b.com', password: 'password1', name: 'Ada' }, {});
+        const result = await service.register({ email: 'a@b.com', password: 'password1', name: 'Ada', username: 'ada' }, {});
 
-        expect(result.body).toEqual({ user: { id: '1', email: 'a@b.com', name: 'Ada' }, session: { token: 'tok' } });
+        expect(api.signUpEmail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                body: expect.objectContaining({ username: 'ada', email: 'a@b.com' }),
+            }),
+        );
+        expect(result.body).toEqual({
+            user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' },
+            session: { token: 'tok' },
+        });
         expect(result.headers).toBe(headers);
+    });
+
+    it('login with username uses signInUsername', async () => {
+        api.signInUsername.mockResolvedValue({
+            headers: new Headers(),
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
+        });
+
+        await service.login({ username: 'ada', password: 'password1' }, {});
+
+        expect(api.signInUsername).toHaveBeenCalled();
+        expect(api.signInEmail).not.toHaveBeenCalled();
     });
 
     it('forgotPassword always returns ok', async () => {
