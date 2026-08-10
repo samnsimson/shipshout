@@ -36,8 +36,13 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
         body: JSON.stringify({ name, username, email, password, displayUsername }),
     });
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
-    await applySetCookies(response);
-    redirect('/dashboard');
+
+    const payload = (await response.json()) as { session?: { token?: string | null } };
+    if (payload.session?.token) {
+        await applySetCookies(response);
+        redirect('/dashboard');
+    }
+    redirect(`/verify-email?email=${encodeURIComponent(email)}`);
 }
 
 export async function forgotPasswordAction(formData: FormData): Promise<AuthActionResult> {
@@ -45,6 +50,18 @@ export async function forgotPasswordAction(formData: FormData): Promise<AuthActi
     if (!email) return { ok: false, error: 'Email is required' };
 
     const response = await authFetch('/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email }),
+    });
+    if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
+    return { ok: true };
+}
+
+export async function resendVerificationAction(formData: FormData): Promise<AuthActionResult> {
+    const email = field(formData, 'email');
+    if (!email) return { ok: false, error: 'Email is required' };
+
+    const response = await authFetch('/auth/resend-verification', {
         method: 'POST',
         body: JSON.stringify({ email }),
     });
