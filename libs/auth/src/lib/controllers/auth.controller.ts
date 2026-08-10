@@ -7,9 +7,11 @@ import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
 import { OkResponseDto } from '../dto/ok-response.dto';
 import { RegisterDto } from '../dto/register.dto';
+import { ResendVerificationDto } from '../dto/resend-verification.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { UsernameAvailableDto } from '../dto/username-available.dto';
 import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { AuthService } from '../services/auth.service';
 import { AuthUtils } from '../utils/auth-http';
 
@@ -82,6 +84,23 @@ export class AuthController {
     @ApiResponse({ status: 400, description: 'Invalid or expired token' })
     async resetPassword(@Body() body: ResetPasswordDto, @Req() req: ExpressRequest): Promise<OkResponseDto> {
         return this.authService.resetPassword(body, req.headers);
+    }
+
+    @Post('verify-email')
+    @ApiOperation({ summary: 'Verify email with token' })
+    @ApiBody({ type: VerifyEmailDto })
+    @ApiResponse({ status: 200, type: OkResponseDto })
+    @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+    async verifyEmail(@Body() body: VerifyEmailDto, @Req() req: ExpressRequest): Promise<OkResponseDto> {
+        return this.authService.verifyEmail(body, req.headers);
+    }
+
+    @Post('resend-verification')
+    @ApiOperation({ summary: 'Resend verification email' })
+    @ApiBody({ type: ResendVerificationDto })
+    @ApiResponse({ status: 200, type: OkResponseDto })
+    async resendVerification(@Body() body: ResendVerificationDto, @Req() req: ExpressRequest): Promise<OkResponseDto> {
+        return this.authService.resendVerification(body, req.headers);
     }
 
     @Get('google')

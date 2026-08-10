@@ -10,9 +10,11 @@ import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
 import { OkResponseDto } from '../dto/ok-response.dto';
 import { RegisterDto } from '../dto/register.dto';
+import { ResendVerificationDto } from '../dto/resend-verification.dto';
 import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { UsernameAvailableDto } from '../dto/username-available.dto';
 import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
+import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { AuthUtils } from '../utils/auth-http';
 
 @Injectable()
@@ -21,7 +23,14 @@ export class AuthService {
 
     async register(body: RegisterDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
-            const result = await this.betterAuth.api.signUpEmail({ body, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
+            const payload = {
+                email: body.email,
+                password: body.password,
+                name: body.name,
+                username: body.username,
+                displayUsername: body.displayUsername,
+            };
+            const result = await this.betterAuth.api.signUpEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -104,6 +113,30 @@ export class AuthService {
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
+    }
+
+    async verifyEmail(body: VerifyEmailDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
+        try {
+            await this.betterAuth.api.verifyEmail({
+                query: { token: body.token },
+                headers: fromNodeHeaders(requestHeaders),
+            });
+            return { ok: true };
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
+    async resendVerification(body: ResendVerificationDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
+        try {
+            await this.betterAuth.api.sendVerificationEmail({
+                body: { email: body.email },
+                headers: fromNodeHeaders(requestHeaders),
+            });
+        } catch {
+            // Intentionally swallow — do not reveal account existence / state
+        }
+        return { ok: true };
     }
 
     async startSocial(provider: 'google' | 'github', requestHeaders: IncomingHttpHeaders): Promise<SocialRedirectResult> {

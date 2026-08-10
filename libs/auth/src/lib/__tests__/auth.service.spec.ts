@@ -24,6 +24,8 @@ describe('AuthService', () => {
         requestPasswordReset: jest.fn(),
         resetPassword: jest.fn(),
         signInSocial: jest.fn(),
+        verifyEmail: jest.fn(),
+        sendVerificationEmail: jest.fn(),
     };
     const betterAuth = { api } as never;
     const service = new AuthService(betterAuth);
@@ -108,6 +110,27 @@ describe('AuthService', () => {
     it('forgotPassword always returns ok', async () => {
         api.requestPasswordReset.mockResolvedValue({ status: true });
         await expect(service.forgotPassword({ email: 'a@b.com' }, {})).resolves.toEqual({ ok: true });
+    });
+
+    it('verifyEmail calls BA with query token and returns ok', async () => {
+        api.verifyEmail.mockResolvedValue({ status: true, user: { id: '1' } });
+        await expect(service.verifyEmail({ token: 'tok' }, {})).resolves.toEqual({ ok: true });
+        expect(api.verifyEmail).toHaveBeenCalledWith(expect.objectContaining({ query: { token: 'tok' } }));
+    });
+
+    it('resendVerification returns ok even when BA throws', async () => {
+        api.sendVerificationEmail.mockRejectedValue(new Error('nope'));
+        await expect(service.resendVerification({ email: 'a@b.com' }, {})).resolves.toEqual({ ok: true });
+    });
+
+    it('resendVerification calls BA with plain email payload', async () => {
+        api.sendVerificationEmail.mockResolvedValue({ status: true });
+        await service.resendVerification({ email: 'a@b.com' }, {});
+        expect(api.sendVerificationEmail).toHaveBeenCalledWith(
+            expect.objectContaining({
+                body: expect.objectContaining({ email: 'a@b.com' }),
+            }),
+        );
     });
 
     it('startSocial returns redirect url', async () => {

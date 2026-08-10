@@ -24,6 +24,8 @@ describe('AuthController', () => {
         isUsernameAvailable: jest.fn(),
         forgotPassword: jest.fn(),
         resetPassword: jest.fn(),
+        verifyEmail: jest.fn(),
+        resendVerification: jest.fn(),
         startSocial: jest.fn(),
     };
     const controller = new AuthController(authService as unknown as AuthService);
@@ -66,6 +68,18 @@ describe('AuthController', () => {
         authService.forgotPassword.mockResolvedValue({ ok: true });
         await expect(controller.forgotPassword({ email: 'a@b.com' }, req)).resolves.toEqual({ ok: true });
         expect(authService.forgotPassword).toHaveBeenCalledWith({ email: 'a@b.com' }, req.headers);
+    });
+
+    it('verifyEmail delegates to service', async () => {
+        authService.verifyEmail.mockResolvedValue({ ok: true });
+        await expect(controller.verifyEmail({ token: 'tok' }, req)).resolves.toEqual({ ok: true });
+        expect(authService.verifyEmail).toHaveBeenCalledWith({ token: 'tok' }, req.headers);
+    });
+
+    it('resendVerification delegates to service', async () => {
+        authService.resendVerification.mockResolvedValue({ ok: true });
+        await expect(controller.resendVerification({ email: 'a@b.com' }, req)).resolves.toEqual({ ok: true });
+        expect(authService.resendVerification).toHaveBeenCalledWith({ email: 'a@b.com' }, req.headers);
     });
 
     it('google redirects using service result', async () => {
