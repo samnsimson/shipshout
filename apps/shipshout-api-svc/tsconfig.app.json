@@ -23,6 +23,9 @@
     ],
     "references": [
         {
+            "path": "../../libs/auth/tsconfig.lib.json"
+        },
+        {
             "path": "../../libs/swagger/tsconfig.lib.json"
         },
         {

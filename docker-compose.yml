@@ -1,0 +1,40 @@
+name: shipshout
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: shipshout-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: shipshout
+      POSTGRES_PASSWORD: shipshout
+      POSTGRES_DB: shipshout
+    ports:
+      # Host 5432 is often taken by other local stacks; use 5434 for Shipshout.
+      - '5434:5432'
+    volumes:
+      - shipshout-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U shipshout -d shipshout']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    container_name: shipshout-redis
+    restart: unless-stopped
+    ports:
+      # Host 6379 is often taken by other local stacks; use 6380 for Shipshout.
+      - '6380:6379'
+    volumes:
+      - shipshout-redisdata:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  shipshout-pgdata:
+  shipshout-redisdata:

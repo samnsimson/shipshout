@@ -5,10 +5,28 @@ import { AppService } from './app.service';
 import { HealthController } from './health/health.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from '@shipshout/auth';
 
 @Module({
-    imports: [ConfigModule.forRoot({ isGlobal: true }), CoreModule, TerminusModule, HttpModule],
+    imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        AuthModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                databaseUrl: configService.getOrThrow<string>('DATABASE_URL'),
+                secret: configService.getOrThrow<string>('BETTER_AUTH_SECRET'),
+                baseUrl: configService.get<string>('AUTH_BASE_URL'),
+                googleClientId: configService.get<string>('GOOGLE_CLIENT_ID'),
+                googleClientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
+                githubClientId: configService.get<string>('GITHUB_CLIENT_ID'),
+                githubClientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
+            }),
+        }),
+        CoreModule,
+        TerminusModule,
+        HttpModule,
+    ],
     controllers: [AppController, HealthController],
     providers: [AppService],
 })

@@ -16,6 +16,10 @@
     },
     "dependencies": {
         "@nestjs/common": "^11.0.0",
-        "tslib": "^2.3.0"
+        "@thallesp/nestjs-better-auth": "^2.7.0",
+        "better-auth": "^1.6.26",
+        "pg": "^8.22.0",
+        "tslib": "^2.3.0",
+        "zod": "^4.4.3"
     }
 }

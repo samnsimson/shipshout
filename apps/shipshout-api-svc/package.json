@@ -11,6 +11,7 @@
         "@shipshout/core": "workspace:*",
         "@shipshout/logger": "workspace:*",
         "@shipshout/swagger": "workspace:*",
+        "@shipshout/auth": "workspace:*",
         "reflect-metadata": "^0.2.0",
         "rxjs": "^7.8.0",
         "tslib": "^2.3.0"
