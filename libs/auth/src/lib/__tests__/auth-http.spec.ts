@@ -72,4 +72,21 @@ describe('AuthUtils', () => {
             send.mockRestore();
         });
     });
+
+    describe('sendVerificationEmail', () => {
+        it('sends verification email via the adapter', async () => {
+            const send = jest.spyOn(EmailAdapter.prototype, 'send').mockResolvedValue(undefined);
+
+            await AuthUtils.sendVerificationEmail({ email: 'ada@example.com' }, 'http://localhost:3000/verify-email?token=abc');
+
+            expect(send).toHaveBeenCalledWith({
+                to: 'ada@example.com',
+                subject: 'Verify your email',
+                text: 'http://localhost:3000/verify-email?token=abc',
+                html: '<p>Verify your email:</p><p><a href="http://localhost:3000/verify-email?token=abc">http://localhost:3000/verify-email?token=abc</a></p>',
+            });
+
+            send.mockRestore();
+        });
+    });
 });

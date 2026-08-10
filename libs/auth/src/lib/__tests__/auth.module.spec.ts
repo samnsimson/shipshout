@@ -28,7 +28,10 @@ import { EMAIL_ADAPTER, EmailAdapter } from '../email/email-adapter';
 describe('AuthModule', () => {
     it('forRootAsync returns a global DynamicModule with email adapter', () => {
         const dynamicModule = AuthModule.forRootAsync({
-            useFactory: () => ({ databaseUrl: 'postgres://localhost:5432/shipshout' }),
+            useFactory: () => ({
+                databaseUrl: 'postgres://localhost:5432/shipshout',
+                clientAppUrl: 'http://localhost:3000',
+            }),
         });
 
         expect(dynamicModule.global).toBe(true);

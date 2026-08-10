@@ -24,7 +24,18 @@ export class AuthUtils {
         });
     }
 
+    static async sendVerificationEmail(user: { email: string }, url: string): Promise<void> {
+        await this.emailAdapter.send({
+            to: user.email,
+            subject: 'Verify your email',
+            text: url,
+            html: `<p>Verify your email:</p><p><a href="${url}">${url}</a></p>`,
+        });
+    }
+
     static mapAuthError(error: unknown): never {
+        if (error instanceof HttpException) throw error;
+
         if (error instanceof APIError) {
             const status = typeof error.statusCode === 'number' ? error.statusCode : Number(error.status) || 500;
             const message = error.message || 'Authentication error';
@@ -37,6 +48,18 @@ export class AuthUtils {
             if (isBadRequest) throw new BadRequestException(message);
             throw new HttpException(message, status);
         }
-        throw new InternalServerErrorException('Authentication failed');
+
+        // Better Auth may throw APIError from a duplicate package copy — detect by shape.
+        if (error && typeof error === 'object' && 'statusCode' in error && 'message' in error) {
+            const status = Number((error as { statusCode?: number; status?: string | number }).statusCode ?? (error as { status?: string | number }).status) || 500;
+            const message = String((error as { message?: string }).message || 'Authentication error');
+            if (status === 401) throw new UnauthorizedException(message);
+            if (status === 409) throw new ConflictException(message);
+            if (status >= 400 && status < 500) throw new BadRequestException(message);
+            throw new HttpException(message, status);
+        }
+
+        const message = error instanceof Error ? error.message : 'Authentication failed';
+        throw new InternalServerErrorException(message);
     }
 }

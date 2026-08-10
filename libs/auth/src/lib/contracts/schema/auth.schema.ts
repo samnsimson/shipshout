@@ -4,6 +4,7 @@ export const authOptionsSchema = z.object({
     baseUrl: z.string().optional(),
     secret: z.string().optional(),
     databaseUrl: z.string(),
+    clientAppUrl: z.string().url(),
     googleClientId: z.string().optional(),
     googleClientSecret: z.string().optional(),
     githubClientId: z.string().optional(),
