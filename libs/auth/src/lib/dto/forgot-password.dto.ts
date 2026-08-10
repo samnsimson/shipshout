@@ -6,7 +6,7 @@ export class ForgotPasswordDto {
     @IsEmail()
     email!: string;
 
-    @ApiProperty({ required: false, example: 'http://localhost:4200/reset-password' })
+    @ApiProperty({ required: false, example: 'http://localhost:3000/reset-password' })
     @IsOptional()
     @IsString()
     @IsUrl({ require_tld: false })

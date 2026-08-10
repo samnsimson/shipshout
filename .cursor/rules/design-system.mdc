@@ -1,0 +1,15 @@
+---
+description: Reference DESIGN.md before writing or changing any UI
+alwaysApply: true
+---
+
+# UI design system
+
+Before writing, generating, or changing **any UI** (pages, layouts, components, styles, design tokens, or visual copy layout), **read and follow** [`DESIGN.md`](DESIGN.md) at the repo root. Do not invent a conflicting visual language.
+
+## Hard constraints
+
+- Treat `DESIGN.md` as the source of truth for colors, typography, spacing, radii, elevation, motion, and component feel.
+- Match existing tokens and patterns from `DESIGN.md` instead of defaulting to generic AI UI (e.g. purple gradients, unrelated font stacks, ad-hoc spacing).
+- If a UI request conflicts with `DESIGN.md`, prefer `DESIGN.md` unless the user explicitly overrides it for that change.
+- When implementing UI in Next/React apps under `apps/`, re-read relevant sections of `DESIGN.md` in the same turn before editing files.

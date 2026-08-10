@@ -33,6 +33,15 @@ const config = defineConfig({
                 heading: { value: 'var(--font-inter), Inter, system-ui, sans-serif' },
                 body: { value: 'var(--font-inter), Inter, system-ui, sans-serif' },
             },
+            spacing: {
+                xxs: { value: '4px' },
+                xs: { value: '8px' },
+                sm: { value: '12px' },
+                md: { value: '16px' },
+                lg: { value: '24px' },
+                xl: { value: '28px' },
+                xxl: { value: '32px' },
+            },
             radii: {
                 xs: { value: '4px' },
                 sm: { value: '5px' },

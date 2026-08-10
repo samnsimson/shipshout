@@ -1,9 +1,10 @@
 'use client';
 
-import { Alert, Button, Field, Input, Stack, Text } from '@chakra-ui/react';
+import { Alert, Button, Field, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { resetPasswordAction } from '../../lib/auth/actions';
+import { AuthInput } from './auth-input';
 
 export function ResetPasswordForm({ token }: { token: string }) {
     const [error, setError] = useState<string | null>(null);
@@ -26,7 +27,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                     <Alert.Indicator />
                     <Alert.Title>Password updated. You can log in now.</Alert.Title>
                 </Alert.Root>
-                <Text textAlign="center" fontSize="sm">
+                <Text textAlign="center" fontSize="sm" pt="xs">
                     <Link href="/login">Log in</Link>
                 </Text>
             </Stack>
@@ -45,7 +46,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
                 })
             }
         >
-            <Stack gap="md">
+            <Stack gap="lg">
                 {error ? (
                     <Alert.Root status="error" borderRadius="md">
                         <Alert.Indicator />
@@ -53,15 +54,30 @@ export function ResetPasswordForm({ token }: { token: string }) {
                     </Alert.Root>
                 ) : null}
                 <input type="hidden" name="token" value={token} />
-                <Field.Root required>
-                    <Field.Label fontSize="sm">New password</Field.Label>
-                    <Input name="newPassword" type="password" autoComplete="new-password" borderRadius="xs" minLength={8} />
-                </Field.Root>
-                <Field.Root required>
-                    <Field.Label fontSize="sm">Confirm password</Field.Label>
-                    <Input name="confirmPassword" type="password" autoComplete="new-password" borderRadius="xs" minLength={8} />
-                </Field.Root>
-                <Button type="submit" loading={pending} bg="brand.solid" color="white" borderRadius="full" _hover={{ bg: 'brand.600' }}>
+                <Stack gap="md">
+                    <Field.Root required gap="xs">
+                        <Field.Label fontSize="sm" fontWeight="500">
+                            New password
+                        </Field.Label>
+                        <AuthInput name="newPassword" type="password" autoComplete="new-password" minLength={8} />
+                    </Field.Root>
+                    <Field.Root required gap="xs">
+                        <Field.Label fontSize="sm" fontWeight="500">
+                            Confirm password
+                        </Field.Label>
+                        <AuthInput name="confirmPassword" type="password" autoComplete="new-password" minLength={8} />
+                    </Field.Root>
+                </Stack>
+                <Button
+                    type="submit"
+                    loading={pending}
+                    bg="brand.solid"
+                    color="white"
+                    borderRadius="full"
+                    h="44px"
+                    fontWeight="500"
+                    _hover={{ bg: 'brand.600' }}
+                >
                     Reset password
                 </Button>
             </Stack>

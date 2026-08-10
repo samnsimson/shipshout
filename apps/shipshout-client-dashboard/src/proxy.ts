@@ -6,7 +6,7 @@ function hasSession(request: NextRequest): boolean {
     return SESSION_COOKIE_NAMES.some((name) => request.cookies.has(name));
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const session = hasSession(request);
     const isAuthPage = ['/login', '/register', '/forgot-password'].includes(pathname);

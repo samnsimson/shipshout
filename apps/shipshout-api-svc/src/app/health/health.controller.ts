@@ -13,7 +13,7 @@ export class HealthController {
     @Get()
     @HealthCheck()
     check() {
-        const port = this.configService.get('PORT', 3000);
+        const port = this.configService.get('PORT', 8000);
         return this.health.check([() => this.http.pingCheck('shipshout-api', `http://127.0.0.1:${port}/`)]);
     }
 }

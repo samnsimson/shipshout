@@ -1,9 +1,10 @@
 'use client';
 
-import { Alert, Button, Field, Input, Stack, Text } from '@chakra-ui/react';
+import { Alert, Button, Field, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { loginAction } from '../../lib/auth/actions';
+import { AuthInput } from './auth-input';
 import { SocialButtons } from './social-buttons';
 
 export function LoginForm() {
@@ -20,7 +21,7 @@ export function LoginForm() {
                 })
             }
         >
-            <Stack gap="md">
+            <Stack gap="lg">
                 <SocialButtons />
                 {error ? (
                     <Alert.Root status="error" borderRadius="md">
@@ -28,18 +29,33 @@ export function LoginForm() {
                         <Alert.Title>{error}</Alert.Title>
                     </Alert.Root>
                 ) : null}
-                <Field.Root required>
-                    <Field.Label fontSize="sm">Email or username</Field.Label>
-                    <Input name="login" autoComplete="username" borderRadius="xs" bg="bg.surface" />
-                </Field.Root>
-                <Field.Root required>
-                    <Field.Label fontSize="sm">Password</Field.Label>
-                    <Input name="password" type="password" autoComplete="current-password" borderRadius="xs" bg="bg.surface" />
-                </Field.Root>
-                <Button type="submit" loading={pending} bg="brand.solid" color="white" borderRadius="full" _hover={{ bg: 'brand.600' }}>
+                <Stack gap="md">
+                    <Field.Root required gap="xs">
+                        <Field.Label fontSize="sm" fontWeight="500">
+                            Email or username
+                        </Field.Label>
+                        <AuthInput name="login" autoComplete="username" />
+                    </Field.Root>
+                    <Field.Root required gap="xs">
+                        <Field.Label fontSize="sm" fontWeight="500">
+                            Password
+                        </Field.Label>
+                        <AuthInput name="password" type="password" autoComplete="current-password" />
+                    </Field.Root>
+                </Stack>
+                <Button
+                    type="submit"
+                    loading={pending}
+                    bg="brand.solid"
+                    color="white"
+                    borderRadius="full"
+                    h="44px"
+                    fontWeight="500"
+                    _hover={{ bg: 'brand.600' }}
+                >
                     Log in
                 </Button>
-                <Stack gap="xs" textAlign="center" fontSize="sm">
+                <Stack gap="xs" textAlign="center" fontSize="sm" pt="xs">
                     <Text color="fg.muted">
                         <Link href="/forgot-password">Forgot password?</Link>
                     </Text>

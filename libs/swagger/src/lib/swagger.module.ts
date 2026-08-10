@@ -10,7 +10,7 @@ export class Swagger {
         const config = this.buildConfig(options);
         const document = SwaggerModule.createDocument(app, config);
         SwaggerModule.setup(options.path, app, document);
-        this.logger.log(`Swagger is available at http://localhost:3000/${options.path}`);
+        this.logger.log(`Swagger is available at http://localhost:${process.env.PORT || 8000}/${options.path}`);
     }
 
     private static buildConfig(options: SwaggerOptions) {
