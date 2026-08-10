@@ -23,6 +23,12 @@
         },
         {
             "path": "./libs/auth"
+        },
+        {
+            "path": "./apps/shipshout-client-dashboard-e2e"
+        },
+        {
+            "path": "./apps/shipshout-client-dashboard"
         }
     ]
 }

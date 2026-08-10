@@ -1,0 +1,9 @@
+{
+    "name": "shipshout-client-dashboard",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/shipshout-client-dashboard",
+    "projectType": "application",
+    "tags": [],
+    "// targets": "to see all targets run: nx show project shipshout-client-dashboard --web",
+    "targets": {}
+}

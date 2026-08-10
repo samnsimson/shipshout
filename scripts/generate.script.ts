@@ -2,12 +2,45 @@
 import inquirer from 'inquirer';
 
 type ResourceKind = 'app' | 'library';
+type AppKind = 'Next.js' | 'Nest.js';
 type LibraryKind = 'Nest.js' | 'JavaScript';
 
 async function runCommand(args: string[]) {
     const proc = Bun.spawn(args, { stdout: 'inherit', stderr: 'inherit', stdin: 'inherit' });
     const exitCode = await proc.exited;
     if (exitCode !== 0) process.exit(exitCode);
+}
+
+async function generateNextApp(name: string) {
+    await runCommand([
+        'bun',
+        'nx',
+        'generate',
+        '@nx/next:application',
+        `--directory=apps/${name}`,
+        '--linter=eslint',
+        `--name=${name}`,
+        '--unitTestRunner=jest',
+        '--useProjectJson=true',
+        '--no-interactive',
+    ]);
+}
+
+async function generateNestApp(name: string) {
+    await runCommand([
+        'bun',
+        'nx',
+        'generate',
+        '@nx/nest:application',
+        `--directory=apps/${name}`,
+        '--linter=eslint',
+        `--name=${name}`,
+        '--unitTestRunner=jest',
+        '--e2eTestRunner=jest',
+        '--tags=type:app',
+        '--useProjectJson=true',
+        '--no-interactive',
+    ]);
 }
 
 async function generateNestLibrary(name: string) {
@@ -52,6 +85,15 @@ async function promptResourceKind(): Promise<ResourceKind> {
     return resource;
 }
 
+async function promptAppKind(): Promise<AppKind> {
+    const type = 'select';
+    const name = 'type';
+    const choices = ['Next.js', 'Nest.js'];
+    const message = 'Next.js or Nest.js?';
+    const { type: appType } = await inquirer.prompt<{ type: AppKind }>({ type, name, choices, message });
+    return appType;
+}
+
 async function promptLibraryKind(): Promise<LibraryKind> {
     const type = 'select';
     const name = 'type';
@@ -70,13 +112,29 @@ async function promptLibraryName(): Promise<string> {
     return libraryName.trim();
 }
 
-async function handleApp() {
+async function promptAppName(): Promise<string> {
     const type = 'input';
     const name = 'name';
     const message = 'App name?';
     const validate = (value: string) => (value.trim() ? true : 'Name is required');
     const { name: appName } = await inquirer.prompt<{ name: string }>({ type, name, message, validate });
     return appName.trim();
+}
+
+async function handleNextApp() {
+    const appName = await promptAppName();
+    await generateNextApp(appName);
+}
+
+async function handleNestApp() {
+    const appName = await promptAppName();
+    await generateNestApp(appName);
+}
+
+async function handleApp() {
+    const kind = await promptAppKind();
+    if (kind === 'Next.js') return handleNextApp();
+    return handleNestApp();
 }
 
 async function handleNestLibrary() {
