@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { fromNodeHeaders } from 'better-auth/node';
-import type { IncomingHttpHeaders } from 'node:http';
+import { isEmail } from 'class-validator';
+import { IncomingHttpHeaders } from 'node:http';
 import { auth } from '../auth.config';
 import { AuthApiPayload, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
@@ -21,40 +21,32 @@ export class AuthService {
 
     async register(body: RegisterDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
-            const result = await this.betterAuth.api.signUpEmail({
-                body: {
-                    email: body.email,
-                    password: body.password,
-                    name: body.name,
-                    username: body.username,
-                    displayUsername: body.displayUsername,
-                },
-                headers: fromNodeHeaders(requestHeaders),
-                returnHeaders: true,
-            });
-
-            return {
-                headers: result.headers,
-                body: this.toSessionResponse(result.response as AuthApiPayload),
-            };
+            const result = await this.betterAuth.api.signUpEmail({ body, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
+            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
     }
 
     async login(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
-        if (!body.username && !body.email) throw new BadRequestException('email or username is required');
+        return isEmail(body.login) ? this.signInWithEmail(body, requestHeaders) : this.signInWithUsername(body, requestHeaders);
+    }
 
+    private async signInWithUsername(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
-            const headers = fromNodeHeaders(requestHeaders);
-            const result = body.username
-                ? await this.betterAuth.api.signInUsername({ body: { username: body.username, password: body.password }, headers, returnHeaders: true })
-                : await this.betterAuth.api.signInEmail({ body: { email: body.email!, password: body.password }, headers, returnHeaders: true });
+            const payload = { username: body.login, password: body.password };
+            const result = await this.betterAuth.api.signInUsername({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
+            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
 
-            return {
-                headers: result.headers,
-                body: this.toSessionResponse(result.response as AuthApiPayload),
-            };
+    private async signInWithEmail(body: LoginDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
+        try {
+            const payload = { email: body.login, password: body.password };
+            const result = await this.betterAuth.api.signInEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
+            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
@@ -62,10 +54,7 @@ export class AuthService {
 
     async isUsernameAvailable(body: UsernameAvailableDto, requestHeaders: IncomingHttpHeaders): Promise<UsernameAvailableResponseDto> {
         try {
-            const result = await this.betterAuth.api.isUsernameAvailable({
-                body: { username: body.username },
-                headers: fromNodeHeaders(requestHeaders),
-            });
+            const result = await this.betterAuth.api.isUsernameAvailable({ body: { username: body.username }, headers: fromNodeHeaders(requestHeaders) });
             return { available: Boolean(result?.available) };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -74,10 +63,8 @@ export class AuthService {
 
     async forgotPassword(body: ForgotPasswordDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
         try {
-            await this.betterAuth.api.requestPasswordReset({
-                body: { email: body.email, redirectTo: body.redirectTo },
-                headers: fromNodeHeaders(requestHeaders),
-            });
+            const payload = { email: body.email, redirectTo: body.redirectTo };
+            await this.betterAuth.api.requestPasswordReset({ body: payload, headers: fromNodeHeaders(requestHeaders) });
             return { ok: true };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -86,10 +73,8 @@ export class AuthService {
 
     async resetPassword(body: ResetPasswordDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
         try {
-            await this.betterAuth.api.resetPassword({
-                body: { token: body.token, newPassword: body.newPassword },
-                headers: fromNodeHeaders(requestHeaders),
-            });
+            const payload = { token: body.token, newPassword: body.newPassword };
+            await this.betterAuth.api.resetPassword({ body: payload, headers: fromNodeHeaders(requestHeaders) });
             return { ok: true };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -98,15 +83,10 @@ export class AuthService {
 
     async startSocial(provider: 'google' | 'github', requestHeaders: IncomingHttpHeaders): Promise<SocialRedirectResult> {
         try {
-            const result = await this.betterAuth.api.signInSocial({
-                body: { provider, disableRedirect: true },
-                headers: fromNodeHeaders(requestHeaders),
-                returnHeaders: true,
-            });
-
+            const payload = { provider, disableRedirect: true };
+            const result = await this.betterAuth.api.signInSocial({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             const url = (result.response as AuthApiPayload).url;
             if (!url) throw new Error('Missing OAuth redirect URL');
-
             return { headers: result.headers, url };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -115,9 +95,6 @@ export class AuthService {
 
     private toSessionResponse(payload: AuthApiPayload): AuthSessionResponseDto {
         if (!payload.user) throw new BadRequestException('Missing user in auth response');
-        return {
-            user: payload.user,
-            session: payload.session ?? { token: payload.token },
-        };
+        return { user: payload.user, session: payload.session ?? { token: payload.token } };
     }
 }

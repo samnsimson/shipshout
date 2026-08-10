@@ -58,10 +58,26 @@ describe('AuthService', () => {
             response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
         });
 
-        await service.login({ username: 'ada', password: 'password1' }, {});
+        await service.login({ login: 'ada', password: 'password1' }, {});
 
-        expect(api.signInUsername).toHaveBeenCalled();
+        expect(api.signInUsername).toHaveBeenCalledWith(
+            expect.objectContaining({ body: { username: 'ada', password: 'password1' } }),
+        );
         expect(api.signInEmail).not.toHaveBeenCalled();
+    });
+
+    it('login with email uses signInEmail', async () => {
+        api.signInEmail.mockResolvedValue({
+            headers: new Headers(),
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
+        });
+
+        await service.login({ login: 'a@b.com', password: 'password1' }, {});
+
+        expect(api.signInEmail).toHaveBeenCalledWith(
+            expect.objectContaining({ body: { email: 'a@b.com', password: 'password1' } }),
+        );
+        expect(api.signInUsername).not.toHaveBeenCalled();
     });
 
     it('forgotPassword always returns ok', async () => {
