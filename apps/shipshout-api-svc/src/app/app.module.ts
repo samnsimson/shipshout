@@ -1,5 +1,6 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { CoreModule, LoggerMiddleware } from '@shipshout/core';
+import { DatabaseModule } from '@shipshout/database';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthController } from './health/health.controller';
@@ -7,10 +8,17 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@shipshout/auth';
+import { RepositoryModule } from './repository/repository.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        DatabaseModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (configService: ConfigService) => ({
+                url: configService.getOrThrow<string>('DATABASE_URL'),
+            }),
+        }),
         AuthModule.forRootAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
@@ -28,6 +36,7 @@ import { AuthModule } from '@shipshout/auth';
         CoreModule,
         TerminusModule,
         HttpModule,
+        RepositoryModule,
     ],
     controllers: [AppController, HealthController],
     providers: [AppService],

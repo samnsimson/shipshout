@@ -18,7 +18,8 @@ describe('DatabaseModule', () => {
 
         expect(options.type).toBe('postgres');
         expect(options.synchronize).toBe(false);
+        expect(options.namingStrategy).toBeDefined();
         expect(options.migrations).toBe(MIGRATIONS);
-        expect(options.migrations).toEqual([]);
+        expect(options.migrations.length).toBeGreaterThan(0);
     });
 });
