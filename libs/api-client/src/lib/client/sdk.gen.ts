@@ -2,64 +2,9 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type {
-    AuthControllerForgotPasswordData,
-    AuthControllerForgotPasswordResponses,
-    AuthControllerGithubData,
-    AuthControllerGoogleData,
-    AuthControllerIsUsernameAvailableData,
-    AuthControllerIsUsernameAvailableResponses,
-    AuthControllerLoginData,
-    AuthControllerLoginErrors,
-    AuthControllerLoginResponses,
-    AuthControllerLogoutData,
-    AuthControllerLogoutResponses,
-    AuthControllerOauthBridgeData,
-    AuthControllerRegisterData,
-    AuthControllerRegisterErrors,
-    AuthControllerRegisterResponses,
-    AuthControllerResendVerificationData,
-    AuthControllerResendVerificationResponses,
-    AuthControllerResetPasswordData,
-    AuthControllerResetPasswordErrors,
-    AuthControllerResetPasswordResponses,
-    AuthControllerSessionData,
-    AuthControllerSessionResponses,
-    AuthControllerVerifyEmailData,
-    AuthControllerVerifyEmailErrors,
-    AuthControllerVerifyEmailResponses,
-    AuthControllerVerifyOneTimeTokenData,
-    AuthControllerVerifyOneTimeTokenErrors,
-    AuthControllerVerifyOneTimeTokenResponses,
-    ConnectGithubData,
-    DisconnectGithubData,
-    DisconnectGithubResponses,
-    GetGithubConnectionData,
-    GetGithubConnectionResponses,
-    GetHelloData,
-    GetHelloResponses,
-    GithubCallbackData,
-    HealthControllerCheckData,
-    HealthControllerCheckErrors,
-    HealthControllerCheckResponses,
-    LinkRepositoriesData,
-    LinkRepositoriesErrors,
-    LinkRepositoriesResponses,
-    ListAvailableReposData,
-    ListAvailableReposErrors,
-    ListAvailableReposResponses,
-    ListLinkedReposData,
-    ListLinkedReposResponses,
-    UnlinkRepositoryData,
-    UnlinkRepositoryErrors,
-    UnlinkRepositoryResponses,
-} from './types.gen.js';
+import type { AuthControllerForgotPasswordData, AuthControllerForgotPasswordResponses, AuthControllerGithubData, AuthControllerGoogleData, AuthControllerIsUsernameAvailableData, AuthControllerIsUsernameAvailableResponses, AuthControllerLoginData, AuthControllerLoginErrors, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerOauthBridgeData, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerResendVerificationData, AuthControllerResendVerificationResponses, AuthControllerResetPasswordData, AuthControllerResetPasswordErrors, AuthControllerResetPasswordResponses, AuthControllerSessionData, AuthControllerSessionResponses, AuthControllerVerifyEmailData, AuthControllerVerifyEmailErrors, AuthControllerVerifyEmailResponses, AuthControllerVerifyOneTimeTokenData, AuthControllerVerifyOneTimeTokenErrors, AuthControllerVerifyOneTimeTokenResponses, ConnectGithubData, DisconnectGithubData, DisconnectGithubResponses, GetGithubConnectionData, GetGithubConnectionResponses, GetHelloData, GetHelloResponses, GetMySubscriptionData, GetMySubscriptionResponses, GithubCallbackData, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, LinkRepositoriesData, LinkRepositoriesErrors, LinkRepositoriesResponses, ListAvailableReposData, ListAvailableReposErrors, ListAvailableReposResponses, ListLinkedReposData, ListLinkedReposResponses, ListMyPaymentsData, ListMyPaymentsResponses, ListSubscriptionPlansData, ListSubscriptionPlansResponses, UnlinkRepositoryData, UnlinkRepositoryErrors, UnlinkRepositoryResponses } from './types.gen.js';
 
-export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<
-    TData,
-    ThrowOnError,
-    TResponse
-> & {
+export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
      * You can provide a client instance returned by `createClient()` instead of
      * individual options. This might be also useful if you want to implement a
@@ -75,17 +20,19 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 
 class HeyApiClient {
     protected client: Client;
-
-    constructor(args?: { client?: Client }) {
+    
+    constructor(args?: {
+        client?: Client;
+    }) {
         this.client = args?.client ?? client;
     }
 }
 
 class HeyApiRegistry<T> {
     private readonly defaultKey = 'default';
-
+    
     private readonly instances: Map<string, T> = new Map();
-
+    
     get(key?: string): T {
         const instance = this.instances.get(key ?? this.defaultKey);
         if (!instance) {
@@ -93,7 +40,7 @@ class HeyApiRegistry<T> {
         }
         return instance;
     }
-
+    
     set(value: T, key?: string): void {
         this.instances.set(key ?? this.defaultKey, value);
     }
@@ -101,306 +48,278 @@ class HeyApiRegistry<T> {
 
 export class ApiClient extends HeyApiClient {
     public static readonly __registry: HeyApiRegistry<ApiClient> = new HeyApiRegistry<ApiClient>();
-
-    constructor(args?: { client?: Client; key?: string }) {
+    
+    constructor(args?: {
+        client?: Client;
+        key?: string;
+    }) {
         super(args);
         ApiClient.__registry.set(this, args?.key);
     }
-
+    
     /**
      * Get Hello
      *
      * Get Hello
      */
-    public getHello<ThrowOnError extends boolean = false>(
-        options?: Options<GetHelloData, ThrowOnError>,
-    ): RequestResult<GetHelloResponses, unknown, ThrowOnError> {
+    public getHello<ThrowOnError extends boolean = false>(options?: Options<GetHelloData, ThrowOnError>): RequestResult<GetHelloResponses, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<GetHelloResponses, unknown, ThrowOnError>({ url: '/', ...options });
     }
-
-    public healthControllerCheck<ThrowOnError extends boolean = false>(
-        options?: Options<HealthControllerCheckData, ThrowOnError>,
-    ): RequestResult<HealthControllerCheckResponses, HealthControllerCheckErrors, ThrowOnError> {
+    
+    public healthControllerCheck<ThrowOnError extends boolean = false>(options?: Options<HealthControllerCheckData, ThrowOnError>): RequestResult<HealthControllerCheckResponses, HealthControllerCheckErrors, ThrowOnError> {
         return (options?.client ?? this.client).get<HealthControllerCheckResponses, HealthControllerCheckErrors, ThrowOnError>({ url: '/health', ...options });
     }
-
+    
     /**
      * Register with email, username, and password
      */
-    public authControllerRegister<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerRegisterData, ThrowOnError>,
-    ): RequestResult<AuthControllerRegisterResponses, AuthControllerRegisterErrors, ThrowOnError> {
+    public authControllerRegister<ThrowOnError extends boolean = false>(options: Options<AuthControllerRegisterData, ThrowOnError>): RequestResult<AuthControllerRegisterResponses, AuthControllerRegisterErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerRegisterResponses, AuthControllerRegisterErrors, ThrowOnError>({
             url: '/auth/register',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Login with email or username and password
      */
-    public authControllerLogin<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerLoginData, ThrowOnError>,
-    ): RequestResult<AuthControllerLoginResponses, AuthControllerLoginErrors, ThrowOnError> {
+    public authControllerLogin<ThrowOnError extends boolean = false>(options: Options<AuthControllerLoginData, ThrowOnError>): RequestResult<AuthControllerLoginResponses, AuthControllerLoginErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerLoginResponses, AuthControllerLoginErrors, ThrowOnError>({
             url: '/auth/login',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Current session
      */
-    public authControllerSession<ThrowOnError extends boolean = false>(
-        options?: Options<AuthControllerSessionData, ThrowOnError>,
-    ): RequestResult<AuthControllerSessionResponses, unknown, ThrowOnError> {
+    public authControllerSession<ThrowOnError extends boolean = false>(options?: Options<AuthControllerSessionData, ThrowOnError>): RequestResult<AuthControllerSessionResponses, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<AuthControllerSessionResponses, unknown, ThrowOnError>({ url: '/auth/session', ...options });
     }
-
+    
     /**
      * Sign out
      */
-    public authControllerLogout<ThrowOnError extends boolean = false>(
-        options?: Options<AuthControllerLogoutData, ThrowOnError>,
-    ): RequestResult<AuthControllerLogoutResponses, unknown, ThrowOnError> {
+    public authControllerLogout<ThrowOnError extends boolean = false>(options?: Options<AuthControllerLogoutData, ThrowOnError>): RequestResult<AuthControllerLogoutResponses, unknown, ThrowOnError> {
         return (options?.client ?? this.client).post<AuthControllerLogoutResponses, unknown, ThrowOnError>({ url: '/auth/logout', ...options });
     }
-
+    
     /**
      * Check whether a username is available
      */
-    public authControllerIsUsernameAvailable<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerIsUsernameAvailableData, ThrowOnError>,
-    ): RequestResult<AuthControllerIsUsernameAvailableResponses, unknown, ThrowOnError> {
+    public authControllerIsUsernameAvailable<ThrowOnError extends boolean = false>(options: Options<AuthControllerIsUsernameAvailableData, ThrowOnError>): RequestResult<AuthControllerIsUsernameAvailableResponses, unknown, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerIsUsernameAvailableResponses, unknown, ThrowOnError>({
             url: '/auth/username/available',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Request a password reset email
      */
-    public authControllerForgotPassword<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerForgotPasswordData, ThrowOnError>,
-    ): RequestResult<AuthControllerForgotPasswordResponses, unknown, ThrowOnError> {
+    public authControllerForgotPassword<ThrowOnError extends boolean = false>(options: Options<AuthControllerForgotPasswordData, ThrowOnError>): RequestResult<AuthControllerForgotPasswordResponses, unknown, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerForgotPasswordResponses, unknown, ThrowOnError>({
             url: '/auth/forgot-password',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Reset password with token
      */
-    public authControllerResetPassword<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerResetPasswordData, ThrowOnError>,
-    ): RequestResult<AuthControllerResetPasswordResponses, AuthControllerResetPasswordErrors, ThrowOnError> {
+    public authControllerResetPassword<ThrowOnError extends boolean = false>(options: Options<AuthControllerResetPasswordData, ThrowOnError>): RequestResult<AuthControllerResetPasswordResponses, AuthControllerResetPasswordErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerResetPasswordResponses, AuthControllerResetPasswordErrors, ThrowOnError>({
             url: '/auth/reset-password',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Verify email with token
      */
-    public authControllerVerifyEmail<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerVerifyEmailData, ThrowOnError>,
-    ): RequestResult<AuthControllerVerifyEmailResponses, AuthControllerVerifyEmailErrors, ThrowOnError> {
+    public authControllerVerifyEmail<ThrowOnError extends boolean = false>(options: Options<AuthControllerVerifyEmailData, ThrowOnError>): RequestResult<AuthControllerVerifyEmailResponses, AuthControllerVerifyEmailErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerVerifyEmailResponses, AuthControllerVerifyEmailErrors, ThrowOnError>({
             url: '/auth/verify-email',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Resend verification email
      */
-    public authControllerResendVerification<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerResendVerificationData, ThrowOnError>,
-    ): RequestResult<AuthControllerResendVerificationResponses, unknown, ThrowOnError> {
+    public authControllerResendVerification<ThrowOnError extends boolean = false>(options: Options<AuthControllerResendVerificationData, ThrowOnError>): RequestResult<AuthControllerResendVerificationResponses, unknown, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerResendVerificationResponses, unknown, ThrowOnError>({
             url: '/auth/resend-verification',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Bridge OAuth session to the client app via one-time token
      */
-    public authControllerOauthBridge<ThrowOnError extends boolean = false>(
-        options?: Options<AuthControllerOauthBridgeData, ThrowOnError>,
-    ): RequestResult<unknown, unknown, ThrowOnError> {
+    public authControllerOauthBridge<ThrowOnError extends boolean = false>(options?: Options<AuthControllerOauthBridgeData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/auth/oauth/bridge', ...options });
     }
-
+    
     /**
      * Exchange a one-time token for a session cookie
      */
-    public authControllerVerifyOneTimeToken<ThrowOnError extends boolean = false>(
-        options: Options<AuthControllerVerifyOneTimeTokenData, ThrowOnError>,
-    ): RequestResult<AuthControllerVerifyOneTimeTokenResponses, AuthControllerVerifyOneTimeTokenErrors, ThrowOnError> {
+    public authControllerVerifyOneTimeToken<ThrowOnError extends boolean = false>(options: Options<AuthControllerVerifyOneTimeTokenData, ThrowOnError>): RequestResult<AuthControllerVerifyOneTimeTokenResponses, AuthControllerVerifyOneTimeTokenErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerVerifyOneTimeTokenResponses, AuthControllerVerifyOneTimeTokenErrors, ThrowOnError>({
             url: '/auth/one-time-token/verify',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Start Google OAuth
      */
-    public authControllerGoogle<ThrowOnError extends boolean = false>(
-        options?: Options<AuthControllerGoogleData, ThrowOnError>,
-    ): RequestResult<unknown, unknown, ThrowOnError> {
+    public authControllerGoogle<ThrowOnError extends boolean = false>(options?: Options<AuthControllerGoogleData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/auth/google', ...options });
     }
-
+    
     /**
      * Start GitHub OAuth
      */
-    public authControllerGithub<ThrowOnError extends boolean = false>(
-        options?: Options<AuthControllerGithubData, ThrowOnError>,
-    ): RequestResult<unknown, unknown, ThrowOnError> {
+    public authControllerGithub<ThrowOnError extends boolean = false>(options?: Options<AuthControllerGithubData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/auth/github', ...options });
     }
-
+    
     /**
      * Disconnect Github
      *
      * Disconnect Github
      */
-    public disconnectGithub<ThrowOnError extends boolean = false>(
-        options?: Options<DisconnectGithubData, ThrowOnError>,
-    ): RequestResult<DisconnectGithubResponses, unknown, ThrowOnError> {
-        return (options?.client ?? this.client).delete<DisconnectGithubResponses, unknown, ThrowOnError>({
-            url: '/repositories/github/connection',
-            ...options,
-        });
+    public disconnectGithub<ThrowOnError extends boolean = false>(options?: Options<DisconnectGithubData, ThrowOnError>): RequestResult<DisconnectGithubResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).delete<DisconnectGithubResponses, unknown, ThrowOnError>({ url: '/repositories/github/connection', ...options });
     }
-
+    
     /**
      * Get Github Connection
      *
      * Get Github Connection
      */
-    public getGithubConnection<ThrowOnError extends boolean = false>(
-        options?: Options<GetGithubConnectionData, ThrowOnError>,
-    ): RequestResult<GetGithubConnectionResponses, unknown, ThrowOnError> {
-        return (options?.client ?? this.client).get<GetGithubConnectionResponses, unknown, ThrowOnError>({
-            url: '/repositories/github/connection',
-            ...options,
-        });
+    public getGithubConnection<ThrowOnError extends boolean = false>(options?: Options<GetGithubConnectionData, ThrowOnError>): RequestResult<GetGithubConnectionResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).get<GetGithubConnectionResponses, unknown, ThrowOnError>({ url: '/repositories/github/connection', ...options });
     }
-
+    
     /**
      * Connect Github
      *
      * Connect Github
      */
-    public connectGithub<ThrowOnError extends boolean = false>(
-        options?: Options<ConnectGithubData, ThrowOnError>,
-    ): RequestResult<unknown, unknown, ThrowOnError> {
+    public connectGithub<ThrowOnError extends boolean = false>(options?: Options<ConnectGithubData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/repositories/github/connect', ...options });
     }
-
+    
     /**
      * Github Callback
      *
      * Github Callback
      */
-    public githubCallback<ThrowOnError extends boolean = false>(
-        options?: Options<GithubCallbackData, ThrowOnError>,
-    ): RequestResult<unknown, unknown, ThrowOnError> {
+    public githubCallback<ThrowOnError extends boolean = false>(options?: Options<GithubCallbackData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/repositories/github/callback', ...options });
     }
-
+    
     /**
      * List Available Repos
      *
      * List Available Repos
      */
-    public listAvailableRepos<ThrowOnError extends boolean = false>(
-        options?: Options<ListAvailableReposData, ThrowOnError>,
-    ): RequestResult<ListAvailableReposResponses, ListAvailableReposErrors, ThrowOnError> {
-        return (options?.client ?? this.client).get<ListAvailableReposResponses, ListAvailableReposErrors, ThrowOnError>({
-            url: '/repositories/github/available',
-            ...options,
-        });
+    public listAvailableRepos<ThrowOnError extends boolean = false>(options?: Options<ListAvailableReposData, ThrowOnError>): RequestResult<ListAvailableReposResponses, ListAvailableReposErrors, ThrowOnError> {
+        return (options?.client ?? this.client).get<ListAvailableReposResponses, ListAvailableReposErrors, ThrowOnError>({ url: '/repositories/github/available', ...options });
     }
-
+    
     /**
      * List Linked Repos
      *
      * List Linked Repos
      */
-    public listLinkedRepos<ThrowOnError extends boolean = false>(
-        options?: Options<ListLinkedReposData, ThrowOnError>,
-    ): RequestResult<ListLinkedReposResponses, unknown, ThrowOnError> {
+    public listLinkedRepos<ThrowOnError extends boolean = false>(options?: Options<ListLinkedReposData, ThrowOnError>): RequestResult<ListLinkedReposResponses, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<ListLinkedReposResponses, unknown, ThrowOnError>({ url: '/repositories', ...options });
     }
-
+    
     /**
      * Link Repositories
      *
      * Link Repositories
      */
-    public linkRepositories<ThrowOnError extends boolean = false>(
-        options: Options<LinkRepositoriesData, ThrowOnError>,
-    ): RequestResult<LinkRepositoriesResponses, LinkRepositoriesErrors, ThrowOnError> {
+    public linkRepositories<ThrowOnError extends boolean = false>(options: Options<LinkRepositoriesData, ThrowOnError>): RequestResult<LinkRepositoriesResponses, LinkRepositoriesErrors, ThrowOnError> {
         return (options.client ?? this.client).post<LinkRepositoriesResponses, LinkRepositoriesErrors, ThrowOnError>({
             url: '/repositories',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
-                ...options.headers,
-            },
+                ...options.headers
+            }
         });
     }
-
+    
     /**
      * Unlink Repository
      *
      * Unlink Repository
      */
-    public unlinkRepository<ThrowOnError extends boolean = false>(
-        options: Options<UnlinkRepositoryData, ThrowOnError>,
-    ): RequestResult<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError> {
-        return (options.client ?? this.client).delete<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError>({
-            url: '/repositories/{id}',
-            ...options,
-        });
+    public unlinkRepository<ThrowOnError extends boolean = false>(options: Options<UnlinkRepositoryData, ThrowOnError>): RequestResult<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError> {
+        return (options.client ?? this.client).delete<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError>({ url: '/repositories/{id}', ...options });
+    }
+    
+    /**
+     * List Subscription Plans
+     *
+     * List Subscription Plans
+     */
+    public listSubscriptionPlans<ThrowOnError extends boolean = false>(options?: Options<ListSubscriptionPlansData, ThrowOnError>): RequestResult<ListSubscriptionPlansResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).get<ListSubscriptionPlansResponses, unknown, ThrowOnError>({ url: '/subscriptions/plans', ...options });
+    }
+    
+    /**
+     * Get My Subscription
+     *
+     * Get My Subscription
+     */
+    public getMySubscription<ThrowOnError extends boolean = false>(options?: Options<GetMySubscriptionData, ThrowOnError>): RequestResult<GetMySubscriptionResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).get<GetMySubscriptionResponses, unknown, ThrowOnError>({ url: '/subscriptions/me', ...options });
+    }
+    
+    /**
+     * List My Payments
+     *
+     * List My Payments
+     */
+    public listMyPayments<ThrowOnError extends boolean = false>(options?: Options<ListMyPaymentsData, ThrowOnError>): RequestResult<ListMyPaymentsResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).get<ListMyPaymentsResponses, unknown, ThrowOnError>({ url: '/payments/me', ...options });
     }
 }

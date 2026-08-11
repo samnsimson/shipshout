@@ -155,6 +155,61 @@ export type LinkRepositoriesResponseDto = {
     linked: Array<LinkedRepositoryResponseDto>;
 };
 
+export type SubscriptionPlanLimitsDto = {
+    repos: number;
+    /**
+     * null means unlimited
+     */
+    releasesPerMonth?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type SubscriptionPlanResponseDto = {
+    name: string;
+    displayName: string;
+    trialDays?: {
+        [key: string]: unknown;
+    } | null;
+    limits: SubscriptionPlanLimitsDto;
+    isBillable: boolean;
+};
+
+export type SubscriptionPlansListResponseDto = {
+    plans: Array<SubscriptionPlanResponseDto>;
+};
+
+export type SubscriptionMeResponseDto = {
+    plan: string;
+    status?: {
+        [key: string]: unknown;
+    } | null;
+    periodEnd?: {
+        [key: string]: unknown;
+    } | null;
+    stripeSubscriptionId?: {
+        [key: string]: unknown;
+    } | null;
+    limits: SubscriptionPlanLimitsDto;
+};
+
+export type PaymentInvoiceDto = {
+    id: string;
+    amountDue: number;
+    currency: string;
+    status?: {
+        [key: string]: unknown;
+    } | null;
+    createdAt: string;
+    hostedInvoiceUrl?: {
+        [key: string]: unknown;
+    } | null;
+};
+
+export type PaymentsListResponseDto = {
+    invoices: Array<PaymentInvoiceDto>;
+};
+
 export type GetHelloData = {
     body?: never;
     path?: never;
@@ -568,3 +623,51 @@ export type UnlinkRepositoryResponses = {
 };
 
 export type UnlinkRepositoryResponse = UnlinkRepositoryResponses[keyof UnlinkRepositoryResponses];
+
+export type ListSubscriptionPlansData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/subscriptions/plans';
+};
+
+export type ListSubscriptionPlansResponses = {
+    /**
+     * List Subscription Plans
+     */
+    200: SubscriptionPlansListResponseDto;
+};
+
+export type ListSubscriptionPlansResponse = ListSubscriptionPlansResponses[keyof ListSubscriptionPlansResponses];
+
+export type GetMySubscriptionData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/subscriptions/me';
+};
+
+export type GetMySubscriptionResponses = {
+    /**
+     * Get My Subscription
+     */
+    200: SubscriptionMeResponseDto;
+};
+
+export type GetMySubscriptionResponse = GetMySubscriptionResponses[keyof GetMySubscriptionResponses];
+
+export type ListMyPaymentsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/payments/me';
+};
+
+export type ListMyPaymentsResponses = {
+    /**
+     * List My Payments
+     */
+    200: PaymentsListResponseDto;
+};
+
+export type ListMyPaymentsResponse = ListMyPaymentsResponses[keyof ListMyPaymentsResponses];
