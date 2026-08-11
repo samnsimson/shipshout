@@ -193,8 +193,8 @@ Follow the library’s design; do not bypass it.
 | Concern           | Rule                                                                                                                                                                       |
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Connection        | Apps call `DatabaseModule.forRootAsync({ imports, inject, useFactory })` with **connection-only** options (`url` or host/port/user/password/database/ssl/applicationName). |
-| Driver / entities | Library fixes `type: 'postgres'`, discovers entities via glob, sets `synchronize: false`. Callers must not pass `type` or `entities`.                                       |
-| Entity ownership  | New entities live under `libs/database/src/lib/entities/` as `*.entity.ts` (picked up by the glob).                                                                         |
+| Driver / entities | Library fixes `type: 'postgres'`, registers `ENTITIES` (class refs for Nest/webpack), sets `synchronize: false`. Callers must not pass `type` or `entities`.                |
+| Entity ownership  | New entities live under `libs/database/src/lib/entities/` as `*.entity.ts` and are added to `ENTITIES`. CLI `typeorm.config.ts` still discovers via dist glob.               |
 | Repositories      | Extend `BaseRepository<Entity>` as `@Injectable()`; inject `DataSource` via `@InjectDataSource()` and call `super(dataSource, Entity)`. List the class in `providers` — no `forFeature` / factory helpers. |
 | Migrations (Nest) | Discovered via `path.join(__dirname, 'migrations/**/*.{ts,js}')` in `buildTypeOrmOptions`.                                                                                 |
 | Migrations (CLI)  | Repo-root `typeorm.config.ts` + bun scripts `migration:generate` / `migration:run` / `migration:revert`. Requires `DATABASE_URL`.                                          |
@@ -203,8 +203,8 @@ Follow the library’s design; do not bypass it.
 
 Wire `DatabaseModule` into `AppModule` only when intentionally connecting the API to Postgres (pass config from `ConfigService`).
 
-New migration files must live under `libs/database/src/lib/migrations/` so the shared glob picks them up — no manual class registry.
-New entity files must be named `*.entity.ts` under `libs/database/src/lib/entities/` for the same reason.
+New migration files must live under `libs/database/src/lib/migrations/` so the CLI/Nest migration globs pick them up.
+New entity files must be named `*.entity.ts` under `libs/database/src/lib/entities/` and registered in `ENTITIES` for Nest.
 
 ---
 

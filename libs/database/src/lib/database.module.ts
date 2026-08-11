@@ -14,7 +14,6 @@ export class DatabaseModule {
                 TypeOrmModule.forRootAsync({
                     imports: options.imports,
                     inject: options.inject,
-
                     useFactory: async (...args: unknown[]) => {
                         const connection = await options.useFactory(...args);
                         return { ...buildTypeOrmOptions(connection), autoLoadEntities: true };
