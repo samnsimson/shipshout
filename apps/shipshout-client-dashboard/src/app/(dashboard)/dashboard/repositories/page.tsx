@@ -1,8 +1,10 @@
-import { Box, Stack, Text } from '@chakra-ui/react';
+import { Box, Stack } from '@chakra-ui/react';
+import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
 import type { SearchParams } from 'next/dist/server/request/search-params';
-import { getRepositoriesApi } from '../../../../lib/repositories/api';
+import { PageHeader } from '../../../../components/dashboard/page-header';
 import { RepositoriesClient } from '../../../../components/repositories/repositories-client';
+import { getRepositoriesApi } from '../../../../lib/repositories/api';
 
 function normalizeBaseUrl(baseUrl: string): string {
     return baseUrl.replace(/\/$/, '');
@@ -36,9 +38,12 @@ export default async function RepositoriesPage({ searchParams }: { searchParams:
     return (
         <Box>
             <Stack maxW="1080px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-                <Text fontSize="xs" fontWeight="600" color="brand.fg" letterSpacing="0.125px" textTransform="uppercase">
-                    Repositories
-                </Text>
+                <PageHeader
+                    icon={FolderGit2}
+                    eyebrow="Repositories"
+                    title="Repositories"
+                    description="Connect GitHub and link the repos you want to shout about."
+                />
                 <RepositoriesClient
                     connection={connection}
                     available={available}
@@ -51,4 +56,3 @@ export default async function RepositoriesPage({ searchParams }: { searchParams:
         </Box>
     );
 }
-

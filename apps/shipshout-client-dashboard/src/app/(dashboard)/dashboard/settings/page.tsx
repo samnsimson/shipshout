@@ -1,4 +1,6 @@
-import { Box, Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Box, Flex, Stack, Text } from '@chakra-ui/react';
+import { Settings, User } from 'lucide-react';
+import { PageHeader } from '../../../../components/dashboard/page-header';
 import { getSessionAction } from '../../../../lib/auth/actions';
 
 export default async function SettingsPage() {
@@ -9,23 +11,16 @@ export default async function SettingsPage() {
 
     return (
         <Stack maxW="720px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-            <Stack gap="xs">
-                <Text fontSize="xs" fontWeight="600" color="brand.fg" letterSpacing="0.125px" textTransform="uppercase">
-                    Settings
-                </Text>
-                <Heading as="h1" fontSize="2xl" letterSpacing="-0.625px" fontWeight="700">
-                    Account
-                </Heading>
-                <Text color="fg.muted" fontSize="sm">
-                    Manage your profile details.
-                </Text>
-            </Stack>
+            <PageHeader icon={Settings} eyebrow="Settings" title="Account" description="Manage your profile details." />
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">
-                    <Text fontSize="sm" fontWeight="600">
-                        Account
-                    </Text>
+                    <Flex align="center" gap="xs">
+                        <User size={16} strokeWidth={2} aria-hidden />
+                        <Text fontSize="sm" fontWeight="600">
+                            Account
+                        </Text>
+                    </Flex>
                     <Stack gap="xs" fontSize="sm">
                         <Flex justify="space-between" gap="md">
                             <Text color="fg.muted">Name</Text>
@@ -47,4 +42,3 @@ export default async function SettingsPage() {
         </Stack>
     );
 }
-

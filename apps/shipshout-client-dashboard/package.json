@@ -3,9 +3,10 @@
     "version": "0.0.1",
     "private": true,
     "dependencies": {
-        "@shipshout/api-client": "workspace:*",
         "@chakra-ui/react": "^3.36.1",
         "@emotion/react": "^11.14.0",
+        "@shipshout/api-client": "workspace:*",
+        "lucide-react": "^1.31.0",
         "next": "~16.1.6",
         "next-themes": "^0.4.6",
         "react": "^19.0.0",

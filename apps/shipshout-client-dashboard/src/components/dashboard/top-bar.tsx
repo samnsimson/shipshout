@@ -1,7 +1,7 @@
 'use client';
 
 import { Box, Button, Flex, Text } from '@chakra-ui/react';
-import { LuMenu } from 'react-icons/lu';
+import { Menu, ShipWheel } from 'lucide-react';
 import { LogoutButton } from '../auth/logout-button';
 
 export function TopBar(props: {
@@ -29,11 +29,14 @@ export function TopBar(props: {
                     px="0"
                     borderRadius="md"
                 >
-                    <LuMenu />
+                    <Menu size={18} strokeWidth={2} aria-hidden />
                 </Button>
-                <Text fontSize="sm" fontWeight="600" letterSpacing="-0.125px">
-                    Shipshout
-                </Text>
+                <Flex align="center" gap="xs">
+                    <ShipWheel size={16} strokeWidth={2} aria-hidden />
+                    <Text fontSize="sm" fontWeight="600" letterSpacing="-0.125px">
+                        Shipshout
+                    </Text>
+                </Flex>
             </Flex>
 
             <Box>
@@ -42,4 +45,3 @@ export function TopBar(props: {
         </Flex>
     );
 }
-

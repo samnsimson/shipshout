@@ -9,6 +9,8 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@shipshout/auth';
 import { RepositoryModule } from './repository/repository.module';
+import { SubscriptionModule } from './subscription/subscription.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
     imports: [
@@ -37,6 +39,8 @@ import { RepositoryModule } from './repository/repository.module';
         TerminusModule,
         HttpModule,
         RepositoryModule,
+        SubscriptionModule,
+        PaymentsModule,
     ],
     controllers: [AppController, HealthController],
     providers: [AppService],

@@ -2,14 +2,20 @@
 
 import NextLink from 'next/link';
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
+import { FolderGit2, Home, Megaphone, Settings, Users, type LucideIcon } from 'lucide-react';
 
-const NAV = [
-    { href: '/dashboard', label: 'Home' },
-    { href: '/dashboard/repositories', label: 'Repositories' },
-    { href: '/dashboard/shoutouts', label: 'Shoutouts' },
-    { href: '/dashboard/team', label: 'Team' },
-    { href: '/dashboard/settings', label: 'Settings' },
-] as const;
+const NAV: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
+    { href: '/dashboard', label: 'Home', icon: Home },
+    { href: '/dashboard/repositories', label: 'Repositories', icon: FolderGit2 },
+    { href: '/dashboard/shoutouts', label: 'Shoutouts', icon: Megaphone },
+    { href: '/dashboard/team', label: 'Team', icon: Users },
+    { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+];
+
+function isActivePath(pathname: string, href: string): boolean {
+    if (href === '/dashboard') return pathname === '/dashboard';
+    return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function SidebarNav(props: {
     user: { email: string; name: string; username?: string | null; image?: string | null };
@@ -20,7 +26,8 @@ export function SidebarNav(props: {
     const content = (
         <Flex direction="column" gap="xs" px="md" py="lg">
             {NAV.map((item) => {
-                const active = props.pathname === item.href || props.pathname.startsWith(`${item.href}/`);
+                const active = isActivePath(props.pathname, item.href);
+                const Icon = item.icon;
                 return (
                     <ChakraLink
                         key={item.href}
@@ -40,7 +47,7 @@ export function SidebarNav(props: {
                         letterSpacing="-0.125px"
                         onClick={() => props.onMobileClose()}
                     >
-                        <Box w="2px" h="16px" bg={active ? 'brand.solid' : 'transparent'} borderRadius="full" />
+                        <Icon size={16} strokeWidth={active ? 2.25 : 2} aria-hidden />
                         <Text fontSize="sm">{item.label}</Text>
                     </ChakraLink>
                 );
@@ -85,4 +92,3 @@ export function SidebarNav(props: {
         </>
     );
 }
-
