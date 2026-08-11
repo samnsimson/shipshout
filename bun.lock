@@ -136,6 +136,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@nestjs/common": "^11.0.0",
+        "@nestjs/config": "^4.0.4",
         "@nestjs/swagger": "^11.4.6",
         "@shipshout/swagger": "workspace:*",
         "@thallesp/nestjs-better-auth": "^2.7.0",

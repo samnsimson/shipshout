@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { DynamicModule, Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
 import { AUTH_OPTIONS } from './auth-options.token';
 import { AuthModuleAsyncOptions } from './auth.options';
@@ -7,6 +8,7 @@ import { authOptionsSchema } from './contracts/schema/auth.schema';
 import { AuthOptions } from './contracts/types/auth.types';
 import { createAuth } from './auth.config';
 import { AuthController } from './controllers/auth.controller';
+import { AuthEmailBootstrap } from './email/auth-email.bootstrap';
 import { EMAIL_ADAPTER, EmailAdapter } from './email/email-adapter';
 import { AuthService } from './services/auth.service';
 
@@ -24,7 +26,9 @@ export class AuthModule {
             module: AuthModule,
             controllers: [AuthController],
             providers: [
-                { provide: EMAIL_ADAPTER, useClass: EmailAdapter },
+                EmailAdapter,
+                { provide: EMAIL_ADAPTER, useExisting: EmailAdapter },
+                AuthEmailBootstrap,
                 {
                     provide: AUTH_OPTIONS,
                     inject: options.inject ?? [],
@@ -32,8 +36,10 @@ export class AuthModule {
                 },
                 AuthService,
             ],
-            exports: [EMAIL_ADAPTER, AuthService, AUTH_OPTIONS],
+            exports: [EMAIL_ADAPTER, EmailAdapter, AuthService, AUTH_OPTIONS],
             imports: [
+                ConfigModule,
+                ...(options.imports ?? []),
                 BetterAuthModule.forRootAsync({
                     imports: options.imports,
                     inject: options.inject,

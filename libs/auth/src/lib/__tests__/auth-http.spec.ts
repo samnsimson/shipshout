@@ -17,7 +17,6 @@ jest.mock('better-auth/api', () => {
 
 import { BadRequestException, ConflictException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { APIError } from 'better-auth/api';
-import { EmailAdapter } from '../email/email-adapter';
 import { AuthUtils } from '../utils/auth-http';
 
 describe('AuthUtils', () => {
@@ -63,35 +62,33 @@ describe('AuthUtils', () => {
 
     describe('sendResetPasswordEmail', () => {
         it('sends reset email via the adapter', async () => {
-            const send = jest.spyOn(EmailAdapter.prototype, 'send').mockResolvedValue(undefined);
+            const adapter = { send: jest.fn().mockResolvedValue(undefined) };
+            AuthUtils.configureEmailAdapter(adapter as never);
 
             await AuthUtils.sendResetPasswordEmail({ email: 'ada@example.com' }, 'https://example.com/reset?token=abc');
 
-            expect(send).toHaveBeenCalledWith({
+            expect(adapter.send).toHaveBeenCalledWith({
                 to: 'ada@example.com',
                 subject: 'Reset your password',
                 text: 'https://example.com/reset?token=abc',
                 html: '<p>Reset your password:</p><p><a href="https://example.com/reset?token=abc">https://example.com/reset?token=abc</a></p>',
             });
-
-            send.mockRestore();
         });
     });
 
     describe('sendVerificationEmail', () => {
         it('sends verification email via the adapter', async () => {
-            const send = jest.spyOn(EmailAdapter.prototype, 'send').mockResolvedValue(undefined);
+            const adapter = { send: jest.fn().mockResolvedValue(undefined) };
+            AuthUtils.configureEmailAdapter(adapter as never);
 
             await AuthUtils.sendVerificationEmail({ email: 'ada@example.com' }, 'http://localhost:3000/verify-email?token=abc');
 
-            expect(send).toHaveBeenCalledWith({
+            expect(adapter.send).toHaveBeenCalledWith({
                 to: 'ada@example.com',
                 subject: 'Verify your email',
                 text: 'http://localhost:3000/verify-email?token=abc',
                 html: '<p>Verify your email:</p><p><a href="http://localhost:3000/verify-email?token=abc">http://localhost:3000/verify-email?token=abc</a></p>',
             });
-
-            send.mockRestore();
         });
     });
 });

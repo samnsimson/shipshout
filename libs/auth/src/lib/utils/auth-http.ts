@@ -4,7 +4,11 @@ import { APIError } from 'better-auth/api';
 import { EmailAdapter } from '../email/email-adapter';
 
 export class AuthUtils {
-    private static readonly emailAdapter = new EmailAdapter();
+    private static emailAdapter: EmailAdapter | null = null;
+
+    static configureEmailAdapter(adapter: EmailAdapter): void {
+        this.emailAdapter = adapter;
+    }
 
     static applyAuthCookies(res: Response, headers: Headers): void {
         const cookies = headers.getSetCookie?.() ?? [];
@@ -16,7 +20,7 @@ export class AuthUtils {
     }
 
     static async sendResetPasswordEmail(user: { email: string }, url: string): Promise<void> {
-        await this.emailAdapter.send({
+        await this.getEmailAdapter().send({
             to: user.email,
             subject: 'Reset your password',
             text: url,
@@ -25,7 +29,7 @@ export class AuthUtils {
     }
 
     static async sendVerificationEmail(user: { email: string }, url: string): Promise<void> {
-        await this.emailAdapter.send({
+        await this.getEmailAdapter().send({
             to: user.email,
             subject: 'Verify your email',
             text: url,
@@ -83,5 +87,10 @@ export class AuthUtils {
         if (error instanceof Error) return error.message;
         if (error && typeof error === 'object' && 'message' in error) return String((error as { message?: unknown }).message ?? '');
         return '';
+    }
+
+    private static getEmailAdapter(): EmailAdapter {
+        if (!this.emailAdapter) throw new Error('EmailAdapter is not configured');
+        return this.emailAdapter;
     }
 }

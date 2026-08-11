@@ -45,9 +45,10 @@ describe('AuthModule', () => {
         expect(dynamicModule.controllers).toEqual([AuthController]);
         expect(dynamicModule.providers).toEqual(
             expect.arrayContaining([
+                EmailAdapter,
                 expect.objectContaining({
                     provide: EMAIL_ADAPTER,
-                    useClass: EmailAdapter,
+                    useExisting: EmailAdapter,
                 }),
                 expect.objectContaining({
                     provide: AUTH_OPTIONS,
