@@ -1,26 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { BadGatewayException, Inject, Injectable } from '@nestjs/common';
+import Stripe from 'stripe';
+import { PaymentsListResponseDto } from './dto/payments-response.dto';
+import { STRIPE_CLIENT } from './stripe.constants';
+
+type BillingUser = { id: string; stripeCustomerId?: string | null };
 
 @Injectable()
 export class PaymentsService {
-    create(createPaymentDto: CreatePaymentDto) {
-        return 'This action adds a new payment';
-    }
+    constructor(@Inject(STRIPE_CLIENT) private readonly stripe: Stripe) {}
 
-    findAll() {
-        return `This action returns all payments`;
-    }
-
-    findOne(id: number) {
-        return `This action returns a #${id} payment`;
-    }
-
-    update(id: number, updatePaymentDto: UpdatePaymentDto) {
-        return `This action updates a #${id} payment`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} payment`;
+    async listMine(user: BillingUser): Promise<PaymentsListResponseDto> {
+        if (!user.stripeCustomerId) return { invoices: [] };
+        try {
+            const list = await this.stripe.invoices.list({ customer: user.stripeCustomerId, limit: 12 });
+            return {
+                invoices: list.data.map((inv) => ({
+                    id: inv.id,
+                    amountDue: inv.amount_due,
+                    currency: inv.currency,
+                    status: inv.status,
+                    createdAt: new Date(inv.created * 1000).toISOString(),
+                    hostedInvoiceUrl: inv.hosted_invoice_url,
+                })),
+            };
+        } catch {
+            throw new BadGatewayException('Unable to load invoices');
+        }
     }
 }

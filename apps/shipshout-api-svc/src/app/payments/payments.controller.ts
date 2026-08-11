@@ -1,34 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiResource } from '@shipshout/swagger';
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import { PaymentsListResponseDto } from './dto/payments-response.dto';
 import { PaymentsService } from './payments.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
 
+type SessionUserWithStripe = UserSession['user'] & { stripeCustomerId?: string | null };
+
+@ApiTags('payments')
 @Controller('payments')
 export class PaymentsController {
     constructor(private readonly paymentsService: PaymentsService) {}
 
-    @Post()
-    create(@Body() createPaymentDto: CreatePaymentDto) {
-        return this.paymentsService.create(createPaymentDto);
-    }
-
-    @Get()
-    findAll() {
-        return this.paymentsService.findAll();
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.paymentsService.findOne(+id);
-    }
-
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updatePaymentDto: UpdatePaymentDto) {
-        return this.paymentsService.update(+id, updatePaymentDto);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.paymentsService.remove(+id);
+    @Get('me')
+    @ApiResource({ operationId: 'listMyPayments', status: 200, response: PaymentsListResponseDto })
+    listMine(@Session() session: UserSession): Promise<PaymentsListResponseDto> {
+        return this.paymentsService.listMine(session.user as SessionUserWithStripe);
     }
 }
