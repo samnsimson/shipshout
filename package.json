@@ -10,7 +10,8 @@
         "migration:revert": "bunx --bun typeorm migration:revert -d ./typeorm.config.ts",
         "dev": "nx run-many --target=serve --projects=tag:type:app --output-style=stream",
         "auth:generate": "bun x auth@latest generate --config ./libs/auth/src/lib/auth.config.ts",
-        "auth:migrate": "bun ./scripts/ensure-auth-schema.ts && bun x auth@latest migrate --config ./libs/auth/src/lib/auth.config.ts"
+        "auth:migrate": "bun ./scripts/ensure-auth-schema.ts && bun x auth@latest migrate --config ./libs/auth/src/lib/auth.config.ts",
+        "openapi:generate": "openapi-ts"
     },
     "private": true,
     "dependencies": {
@@ -44,6 +45,7 @@
     },
     "devDependencies": {
         "@eslint/js": "^9.8.0",
+        "@hey-api/openapi-ts": "^0.99.0",
         "@nestjs/schematics": "^11.0.0",
         "@nestjs/testing": "^11.0.0",
         "@next/eslint-plugin-next": "^16.1.6",

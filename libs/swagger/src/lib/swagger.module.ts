@@ -9,8 +9,11 @@ export class Swagger {
         this.logger.log(`Setting up Swagger for ${options.title} at ${options.path}`);
         const config = this.buildConfig(options);
         const document = SwaggerModule.createDocument(app, config);
-        SwaggerModule.setup(options.path, app, document);
-        this.logger.log(`Swagger is available at http://localhost:${process.env.PORT || 8000}/${options.path}`);
+        const jsonDocumentUrl = `${options.path}/openapi.json`;
+        SwaggerModule.setup(options.path, app, document, { jsonDocumentUrl });
+        const port = process.env.PORT || 8000;
+        this.logger.log(`Swagger UI: http://localhost:${port}/${options.path}`);
+        this.logger.log(`OpenAPI JSON: http://localhost:${port}/${jsonDocumentUrl}`);
     }
 
     private static buildConfig(options: SwaggerOptions) {

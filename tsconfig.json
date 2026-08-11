@@ -29,6 +29,9 @@
         },
         {
             "path": "./apps/shipshout-client-dashboard"
+        },
+        {
+            "path": "./libs/api-client"
         }
     ]
 }

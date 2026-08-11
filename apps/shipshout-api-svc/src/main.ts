@@ -23,7 +23,8 @@ async function bootstrap() {
     const port = process.env.PORT || 8000;
     await app.listen(port, () => {
         Logger.log(`🚀 Application is running on: http://localhost:${port}`);
-        Logger.log(`Swagger docs: http://localhost:${port}/docs`);
+        Logger.log(`Swagger UI: http://localhost:${port}/${swaggerPath}`);
+        Logger.log(`OpenAPI JSON: http://localhost:${port}/${swaggerPath}/openapi.json`);
     });
 }
 
