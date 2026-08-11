@@ -1,5 +1,9 @@
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ api: {} })) }));
-jest.mock('better-auth/plugins', () => ({ username: jest.fn(() => ({})) }));
+jest.mock('better-auth/plugins', () => ({
+    username: jest.fn(() => ({})),
+    oneTimeToken: jest.fn(() => ({})),
+}));
+
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/api', () => ({
     APIError: class APIError extends Error {},
@@ -26,9 +30,15 @@ describe('AuthService', () => {
         signInSocial: jest.fn(),
         verifyEmail: jest.fn(),
         sendVerificationEmail: jest.fn(),
+        generateOneTimeToken: jest.fn(),
+        verifyOneTimeToken: jest.fn(),
     };
     const betterAuth = { api } as never;
-    const authOptions = { databaseUrl: 'postgres://localhost/db', clientAppUrl: 'http://localhost:3000' };
+    const authOptions = {
+        databaseUrl: 'postgres://localhost/db',
+        clientAppUrl: 'http://localhost:3000',
+        baseUrl: 'http://localhost:8000',
+    };
     const service = new AuthService(betterAuth, authOptions);
 
     beforeEach(() => {
@@ -159,10 +169,39 @@ describe('AuthService', () => {
                 body: expect.objectContaining({
                     provider: 'google',
                     disableRedirect: true,
-                    callbackURL: 'http://localhost:3000/dashboard',
+                    callbackURL: 'http://localhost:8000/auth/oauth/bridge',
                 }),
             }),
         );
         expect(result.url).toBe('https://accounts.google.com/o/oauth2');
+    });
+
+    it('oauthBridge redirects to client callback with one-time token', async () => {
+        api.getSession.mockResolvedValue({
+            user: { id: '1', email: 'a@b.com', name: 'Ada' },
+            session: { id: 's1', token: 'sess' },
+        });
+        api.generateOneTimeToken.mockResolvedValue({ token: 'ott-123' });
+
+        await expect(service.oauthBridge({})).resolves.toEqual({
+            redirectUrl: 'http://localhost:3000/auth/callback?token=ott-123',
+        });
+    });
+
+    it('verifyOneTimeToken returns session and headers', async () => {
+        const headers = new Headers();
+        headers.append('set-cookie', 'better-auth.session_token=abc; Path=/');
+        api.verifyOneTimeToken.mockResolvedValue({
+            headers,
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada' }, session: { token: 'tok' } },
+        });
+
+        const result = await service.verifyOneTimeToken({ token: 'ott-123' }, {});
+
+        expect(api.verifyOneTimeToken).toHaveBeenCalledWith(
+            expect.objectContaining({ body: { token: 'ott-123' } }),
+        );
+        expect(result.body.user.email).toBe('a@b.com');
+        expect(result.headers).toBe(headers);
     });
 });

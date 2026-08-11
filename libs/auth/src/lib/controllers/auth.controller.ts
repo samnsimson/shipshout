@@ -12,6 +12,7 @@ import { ResetPasswordDto } from '../dto/reset-password.dto';
 import { UsernameAvailableDto } from '../dto/username-available.dto';
 import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
+import { VerifyOneTimeTokenDto } from '../dto/verify-one-time-token.dto';
 import { AuthService } from '../services/auth.service';
 import { AuthUtils } from '../utils/auth-http';
 
@@ -106,6 +107,29 @@ export class AuthController {
     @ApiResponse({ status: 200, type: OkResponseDto })
     async resendVerification(@Body() body: ResendVerificationDto, @Req() req: ExpressRequest): Promise<OkResponseDto> {
         return this.authService.resendVerification(body, req.headers);
+    }
+
+    @Get('oauth/bridge')
+    @ApiOperation({ summary: 'Bridge OAuth session to the client app via one-time token' })
+    @ApiResponse({ status: 302, description: 'Redirect to client /auth/callback with token' })
+    async oauthBridge(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
+        const result = await this.authService.oauthBridge(req.headers);
+        res.redirect(result.redirectUrl);
+    }
+
+    @Post('one-time-token/verify')
+    @ApiOperation({ summary: 'Exchange a one-time token for a session cookie' })
+    @ApiBody({ type: VerifyOneTimeTokenDto })
+    @ApiResponse({ status: 200, type: AuthSessionResponseDto })
+    @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+    async verifyOneTimeToken(
+        @Body() body: VerifyOneTimeTokenDto,
+        @Req() req: ExpressRequest,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<AuthSessionResponseDto> {
+        const result = await this.authService.verifyOneTimeToken(body, req.headers);
+        AuthUtils.applyAuthCookies(res, result.headers);
+        return result.body;
     }
 
     @Get('google')

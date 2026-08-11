@@ -28,3 +28,8 @@ export type SocialRedirectResult = {
     url: string;
     headers: Headers;
 };
+
+export type AuthRedirectResult = {
+    redirectUrl: string;
+};
+

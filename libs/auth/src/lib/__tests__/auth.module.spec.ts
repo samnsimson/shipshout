@@ -1,5 +1,9 @@
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({})) }));
-jest.mock('better-auth/plugins', () => ({ username: jest.fn(() => ({})) }));
+jest.mock('better-auth/plugins', () => ({
+    username: jest.fn(() => ({})),
+    oneTimeToken: jest.fn(() => ({})),
+}));
+
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/node', () => ({
     fromNodeHeaders: jest.fn(() => new Headers()),

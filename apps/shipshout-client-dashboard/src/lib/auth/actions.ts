@@ -106,6 +106,20 @@ export async function checkUsernameAction(username: string): Promise<{ available
     return { available: Boolean(body.available) };
 }
 
+export async function getSessionAction(): Promise<{
+    user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
+    session: Record<string, unknown>;
+} | null> {
+    const response = await authFetch('/auth/session', { method: 'GET' });
+    if (!response.ok) return null;
+    const body = (await response.json()) as {
+        user?: { id: string; email: string; name: string; username?: string | null; image?: string | null };
+        session?: Record<string, unknown>;
+    } | null;
+    if (!body?.user) return null;
+    return { user: body.user, session: body.session ?? {} };
+}
+
 export async function logoutAction(): Promise<void> {
     const response = await authFetch('/auth/logout', { method: 'POST', body: '{}' });
     if (response.ok) await applySetCookies(response);

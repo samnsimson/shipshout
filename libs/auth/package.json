@@ -23,6 +23,7 @@
         "class-transformer": "^0.5.1",
         "class-validator": "^0.15.1",
         "pg": "^8.22.0",
+        "resend": "^6.19.0",
         "tslib": "^2.3.0",
         "zod": "^4.4.3"
     }

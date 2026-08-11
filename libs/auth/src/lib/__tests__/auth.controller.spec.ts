@@ -1,5 +1,9 @@
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ api: {} })) }));
-jest.mock('better-auth/plugins', () => ({ username: jest.fn(() => ({})) }));
+jest.mock('better-auth/plugins', () => ({
+    username: jest.fn(() => ({})),
+    oneTimeToken: jest.fn(() => ({})),
+}));
+
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/api', () => ({
     APIError: class APIError extends Error {},
