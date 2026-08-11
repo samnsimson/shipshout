@@ -1,6 +1,3 @@
-import { ENTITIES } from '../entities';
-import { MIGRATIONS } from '../migrations';
-
 describe('typeorm.config', () => {
     const previousUrl = process.env.DATABASE_URL;
 
@@ -12,16 +9,18 @@ describe('typeorm.config', () => {
         jest.resetModules();
     });
 
-    it('exports a postgres DataSource using compiled ENTITIES and migrations glob', async () => {
+    it('exports a postgres DataSource using path.join entity and migration globs', async () => {
         process.env.DATABASE_URL = 'postgres://localhost:5432/shipshout';
 
         const { default: dataSource } = await import('../../../../../typeorm.config');
 
         expect(dataSource.options.type).toBe('postgres');
         expect(dataSource.options.synchronize).toBe(false);
-        expect((dataSource.options.entities as Function[]).map((entity) => entity.name)).toEqual(ENTITIES.map((entity) => (entity as Function).name));
-        expect(dataSource.options.migrations).toBe(MIGRATIONS);
-        expect(String((dataSource.options.migrations as string[])[0])).toContain('libs/database/src/lib/migrations');
+
+        const entities = dataSource.options.entities as string[];
+        const migrations = dataSource.options.migrations as string[];
+        expect(entities[0]).toContain('libs/database/dist/lib/entities/**/*.entity.');
+        expect(migrations[0]).toContain('libs/database/src/lib/migrations/**/*.');
     });
 
     it('throws when DATABASE_URL is missing', async () => {

@@ -5,9 +5,9 @@
     "scripts": {
         "format": "prettier --write '**/*.{ts,js,json,md}'",
         "generate": "bun ./scripts/generate.script.ts",
-        "migration:generate": "bunx --bun typeorm migration:generate ./libs/database/src/lib/migrations/Migration -d ./typeorm.config.ts",
-        "migration:run": "bunx --bun typeorm migration:run -d ./typeorm.config.ts",
-        "migration:revert": "bunx --bun typeorm migration:revert -d ./typeorm.config.ts",
+        "migration:generate": "bun nx run database:build && bunx --bun typeorm migration:generate ./libs/database/src/lib/migrations/Migration -d ./typeorm.config.ts",
+        "migration:run": "bun nx run database:build && bunx --bun typeorm migration:run -d ./typeorm.config.ts",
+        "migration:revert": "bun nx run database:build && bunx --bun typeorm migration:revert -d ./typeorm.config.ts",
         "dev": "nx run-many --target=serve --projects=tag:type:app --output-style=stream",
         "auth:generate": "bun x auth@latest generate --config ./libs/auth/src/lib/auth.config.ts",
         "auth:migrate": "bun ./scripts/ensure-auth-schema.ts && bun x auth@latest migrate --config ./libs/auth/src/lib/auth.config.ts",

@@ -1,6 +1,5 @@
 import { DatabaseModule } from '../database.module';
 import { buildTypeOrmOptions } from '../build-typeorm-options';
-import { MIGRATIONS } from '../migrations';
 
 describe('DatabaseModule', () => {
     it('forRootAsync returns a global DynamicModule importing TypeOrm', () => {
@@ -13,13 +12,13 @@ describe('DatabaseModule', () => {
         expect(dynamicModule.imports?.length).toBeGreaterThan(0);
     });
 
-    it('buildTypeOrmOptions registers migrations glob and disables synchronize', () => {
+    it('buildTypeOrmOptions registers entity and migration globs and disables synchronize', () => {
         const options = buildTypeOrmOptions({ url: 'postgres://localhost:5432/shipshout' });
 
         expect(options.type).toBe('postgres');
         expect(options.synchronize).toBe(false);
         expect(options.namingStrategy).toBeDefined();
-        expect(options.migrations).toBe(MIGRATIONS);
-        expect(String(options.migrations[0])).toContain('libs/database/src/lib/migrations');
+        expect(String(options.entities[0])).toContain('entities/**/*.entity.');
+        expect(String(options.migrations[0])).toContain('migrations/**/*.');
     });
 });
