@@ -11,6 +11,7 @@ import { AuthModule } from '@shipshout/auth';
 import { RepositoryModule } from './repository/repository.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
+import { createGetSubscriptionPlans } from './subscription/get-subscription-plans';
 
 @Module({
     imports: [
@@ -23,17 +24,23 @@ import { PaymentsModule } from './payments/payments.module';
         }),
         AuthModule.forRootAsync({
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                databaseUrl: configService.getOrThrow<string>('DATABASE_URL'),
-                secret: configService.getOrThrow<string>('BETTER_AUTH_SECRET'),
-                baseUrl: configService.getOrThrow<string>('BETTER_AUTH_BASE_URL'),
-                clientAppUrl: configService.getOrThrow<string>('CLIENT_APP_URL'),
-                cookieDomain: configService.get<string>('AUTH_COOKIE_DOMAIN'),
-                googleClientId: configService.get<string>('GOOGLE_CLIENT_ID'),
-                googleClientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
-                githubClientId: configService.get<string>('GITHUB_CLIENT_ID'),
-                githubClientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
-            }),
+            useFactory: (configService: ConfigService) => {
+                const databaseUrl = configService.getOrThrow<string>('DATABASE_URL');
+                return {
+                    databaseUrl,
+                    secret: configService.getOrThrow<string>('BETTER_AUTH_SECRET'),
+                    baseUrl: configService.getOrThrow<string>('BETTER_AUTH_BASE_URL'),
+                    clientAppUrl: configService.getOrThrow<string>('CLIENT_APP_URL'),
+                    cookieDomain: configService.get<string>('AUTH_COOKIE_DOMAIN'),
+                    googleClientId: configService.get<string>('GOOGLE_CLIENT_ID'),
+                    googleClientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
+                    githubClientId: configService.get<string>('GITHUB_CLIENT_ID'),
+                    githubClientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
+                    stripeSecretKey: configService.get<string>('STRIPE_SECRET_KEY'),
+                    stripeWebhookSecret: configService.get<string>('STRIPE_WEBHOOK_SECRET'),
+                    getSubscriptionPlans: createGetSubscriptionPlans(databaseUrl),
+                };
+            },
         }),
         CoreModule,
         TerminusModule,
