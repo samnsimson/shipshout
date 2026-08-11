@@ -3,6 +3,8 @@ jest.mock('better-auth/plugins', () => ({
     username: jest.fn(() => ({})),
     oneTimeToken: jest.fn(() => ({})),
 }));
+jest.mock('@better-auth/stripe', () => ({ stripe: jest.fn(() => ({ id: 'stripe-plugin' })) }));
+jest.mock('stripe', () => jest.fn().mockImplementation(() => ({})));
 
 jest.mock('pg', () => ({ Pool: jest.fn() }));
 jest.mock('better-auth/node', () => ({

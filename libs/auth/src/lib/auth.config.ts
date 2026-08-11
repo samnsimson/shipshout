@@ -1,12 +1,34 @@
+import { stripe } from '@better-auth/stripe';
 import { betterAuth } from 'better-auth';
-import { Pool } from 'pg';
 import { oneTimeToken, username } from 'better-auth/plugins';
+import { Pool } from 'pg';
+import Stripe from 'stripe';
+import { mapPlansForStripe } from './billing/map-plans-for-stripe';
 import { AuthOptions } from './contracts/types/auth.types';
 import { AuthUtils } from './utils/auth-http';
+
+function buildStripePlugin(opts: AuthOptions) {
+    const hasSecret = Boolean(opts.stripeSecretKey);
+    const hasWebhook = Boolean(opts.stripeWebhookSecret);
+    if (hasSecret !== hasWebhook) throw new Error('STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are both required when enabling Stripe');
+    if (!opts.stripeSecretKey || !opts.stripeWebhookSecret) return null;
+
+    const stripeClient = new Stripe(opts.stripeSecretKey, { apiVersion: '2026-07-29.dahlia' });
+    return stripe({
+        stripeClient,
+        stripeWebhookSecret: opts.stripeWebhookSecret,
+        createCustomerOnSignUp: true,
+        subscription: {
+            enabled: true,
+            plans: async () => mapPlansForStripe(await (opts.getSubscriptionPlans?.() ?? [])),
+        },
+    });
+}
 
 export function createAuth(opts: AuthOptions) {
     const clientAppUrl = opts.clientAppUrl.replace(/\/$/, '');
     const useSecureCookies = (opts.baseUrl ?? '').startsWith('https://');
+    const stripePlugin = buildStripePlugin(opts);
     return betterAuth({
         secret: opts.secret,
         baseURL: opts.baseUrl,
@@ -48,7 +70,7 @@ export function createAuth(opts: AuthOptions) {
             google: { clientId: opts.googleClientId ?? '', clientSecret: opts.googleClientSecret ?? '' },
             github: { clientId: opts.githubClientId ?? '', clientSecret: opts.githubClientSecret ?? '' },
         },
-        plugins: [username(), oneTimeToken({ expiresIn: 5 })],
+        plugins: [username(), oneTimeToken({ expiresIn: 5 }), ...(stripePlugin ? [stripePlugin] : [])],
     });
 }
 
@@ -63,4 +85,7 @@ export const auth = createAuth({
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     githubClientId: process.env.GITHUB_CLIENT_ID,
     githubClientSecret: process.env.GITHUB_CLIENT_SECRET,
+    stripeSecretKey: process.env.STRIPE_SECRET_KEY,
+    stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+    getSubscriptionPlans: async () => [],
 });
