@@ -17,8 +17,12 @@ export class GithubOAuthService {
     private readonly scopes = ['read:user', 'repo', 'read:org'];
 
     constructor(private readonly configService: ConfigService) {
-        this.clientId = this.configService.getOrThrow<string>('GITHUB_CLIENT_ID');
-        this.clientSecret = this.configService.getOrThrow<string>('GITHUB_CLIENT_SECRET');
+        this.clientId =
+            this.configService.get<string>('GITHUB_REPO_CLIENT_ID') ??
+            this.configService.getOrThrow<string>('GITHUB_CLIENT_ID');
+        this.clientSecret =
+            this.configService.get<string>('GITHUB_REPO_CLIENT_SECRET') ??
+            this.configService.getOrThrow<string>('GITHUB_CLIENT_SECRET');
         const baseUrl = this.configService.getOrThrow<string>('BETTER_AUTH_BASE_URL').replace(/\/$/, '');
         this.callbackUrl = this.configService.get<string>('GITHUB_REPO_OAUTH_CALLBACK_URL') ?? `${baseUrl}/repositories/github/callback`;
         this.clientAppUrl = this.configService.getOrThrow<string>('CLIENT_APP_URL').replace(/\/$/, '');
@@ -37,11 +41,11 @@ export class GithubOAuthService {
     }
 
     getSuccessRedirectUrl(): string {
-        return `${this.clientAppUrl}/repositories?github=connected`;
+        return `${this.clientAppUrl}/dashboard/repositories?github=connected`;
     }
 
     getFailureRedirectUrl(reason: string): string {
-        return `${this.clientAppUrl}/repositories?github=error&reason=${encodeURIComponent(reason)}`;
+        return `${this.clientAppUrl}/dashboard/repositories?github=error&reason=${encodeURIComponent(reason)}`;
     }
 
     getCallbackUrl(): string {

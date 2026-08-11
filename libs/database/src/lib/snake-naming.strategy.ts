@@ -1,5 +1,12 @@
 import { DefaultNamingStrategy, NamingStrategyInterface } from 'typeorm';
-import { snakeCase } from 'typeorm/util/StringUtils';
+
+/** Maps camelCase / PascalCase identifiers to snake_case. */
+function snakeCase(str: string): string {
+    return str
+        .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+        .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+        .toLowerCase();
+}
 
 /** Maps camelCase entity properties to snake_case column names. */
 export class SnakeNamingStrategy extends DefaultNamingStrategy implements NamingStrategyInterface {

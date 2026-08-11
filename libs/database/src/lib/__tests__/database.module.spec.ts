@@ -13,13 +13,13 @@ describe('DatabaseModule', () => {
         expect(dynamicModule.imports?.length).toBeGreaterThan(0);
     });
 
-    it('buildTypeOrmOptions registers MIGRATIONS and disables synchronize', () => {
+    it('buildTypeOrmOptions registers migrations glob and disables synchronize', () => {
         const options = buildTypeOrmOptions({ url: 'postgres://localhost:5432/shipshout' });
 
         expect(options.type).toBe('postgres');
         expect(options.synchronize).toBe(false);
         expect(options.namingStrategy).toBeDefined();
         expect(options.migrations).toBe(MIGRATIONS);
-        expect(options.migrations.length).toBeGreaterThan(0);
+        expect(String(options.migrations[0])).toContain('libs/database/src/lib/migrations');
     });
 });

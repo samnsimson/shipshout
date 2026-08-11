@@ -1,16 +1,16 @@
+import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import { ENTITIES } from './libs/database/src/lib/entities';
 import { databaseNamingStrategy } from './libs/database/src/lib/snake-naming.strategy';
+import path from 'path';
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error('DATABASE_URL is required for TypeORM CLI');
 
 export default new DataSource({
-    type: 'postgres',
     url,
-    entities: ENTITIES,
+    type: 'postgres',
     namingStrategy: databaseNamingStrategy,
-    // Timestamp-prefixed files only — excludes migrations/index.ts registry
-    migrations: ['libs/database/src/lib/migrations/[0-9]*.{ts,js}'],
+    entities: [path.join(__dirname, 'libs/database/dist/lib/entities/**/*.entity.{ts,js}')],
+    migrations: [path.join(__dirname, 'libs/database/src/lib/migrations/**/*.{ts,js}')],
     synchronize: false,
 });

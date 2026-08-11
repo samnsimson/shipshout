@@ -4,6 +4,9 @@
     "files": [],
     "references": [
         {
+            "path": "./tsconfig.typeorm.json"
+        },
+        {
             "path": "./apps/shipshout-api-svc-e2e"
         },
         {

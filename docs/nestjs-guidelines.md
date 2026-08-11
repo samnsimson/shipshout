@@ -196,14 +196,14 @@ Follow the library’s design; do not bypass it.
 | Driver / entities | Library fixes `type: 'postgres'`, registers `ENTITIES`, sets `synchronize: false`. Callers must not pass `type` or `entities`.                                             |
 | Entity ownership  | New entities live under `libs/database/src/lib/entities/` and are registered in `ENTITIES`.                                                                                |
 | Repositories      | Extend `BaseRepository<Entity>`; do not reinvent TypeORM repository wrapping.                                                                                              |
-| Migrations (Nest) | Register migration classes in `MIGRATIONS` (`libs/database/src/lib/migrations/index.ts`).                                                                                  |
+| Migrations (Nest) | Shared `MIGRATIONS` glob in `libs/database/src/lib/migrations/index.ts` (timestamp-prefixed files).                                                                         |
 | Migrations (CLI)  | Repo-root `typeorm.config.ts` + bun scripts `migration:generate` / `migration:run` / `migration:revert`. Requires `DATABASE_URL`.                                          |
 | Auto-migrate      | **Never** enable `migrationsRun` on boot unless a dedicated decision says otherwise.                                                                                       |
 | Env               | Library Nest APIs do not read `process.env`; only the CLI DataSource may.                                                                                                  |
 
 Wire `DatabaseModule` into `AppModule` only when intentionally connecting the API to Postgres (pass config from `ConfigService`).
 
-After generating a migration file, **also** add the class to `MIGRATIONS` so Nest and the CLI stay aligned.
+New migration files must be timestamp-prefixed under `libs/database/src/lib/migrations/` so the shared glob picks them up — no manual class registry.
 
 ---
 
