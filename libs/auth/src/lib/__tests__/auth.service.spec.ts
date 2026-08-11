@@ -156,7 +156,11 @@ describe('AuthService', () => {
 
         expect(api.signInSocial).toHaveBeenCalledWith(
             expect.objectContaining({
-                body: expect.objectContaining({ provider: 'google', disableRedirect: true }),
+                body: expect.objectContaining({
+                    provider: 'google',
+                    disableRedirect: true,
+                    callbackURL: 'http://localhost:3000/dashboard',
+                }),
             }),
         );
         expect(result.url).toBe('https://accounts.google.com/o/oauth2');

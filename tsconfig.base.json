@@ -5,6 +5,8 @@
         "emitDeclarationOnly": true,
         "importHelpers": true,
         "isolatedModules": true,
+        // Nest apps/libs use tsconfig.nest.json (isolatedModules: false) so type-only imports
+        // work in @Inject() constructor params with emitDecoratorMetadata enabled.
         // Keep false so type-only symbols can use normal `import { Foo }` (tsc elides them).
         // Enabling verbatimModuleSyntax would require `import type` / `import { type Foo }`.
         "verbatimModuleSyntax": false,

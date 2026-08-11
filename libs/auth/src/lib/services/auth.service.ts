@@ -6,7 +6,7 @@ import { IncomingHttpHeaders } from 'node:http';
 import { AUTH_OPTIONS } from '../auth-options.token';
 import { auth } from '../auth.config';
 import { AuthApiPayload, AuthLoginResult, AuthLogoutResult, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
-import type { AuthOptions } from '../contracts/types/auth.types';
+import { AuthOptions } from '../contracts/types/auth.types';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
@@ -28,13 +28,7 @@ export class AuthService {
 
     async register(body: RegisterDto, requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResult> {
         try {
-            const payload = {
-                email: body.email,
-                password: body.password,
-                name: body.name,
-                username: body.username,
-                displayUsername: body.displayUsername,
-            };
+            const payload = { email: body.email, password: body.password, name: body.name, username: body.username, displayUsername: body.displayUsername };
             const result = await this.betterAuth.api.signUpEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
         } catch (error) {
@@ -83,10 +77,7 @@ export class AuthService {
 
     async logout(requestHeaders: IncomingHttpHeaders): Promise<AuthLogoutResult> {
         try {
-            const result = await this.betterAuth.api.signOut({
-                headers: fromNodeHeaders(requestHeaders),
-                returnHeaders: true,
-            });
+            const result = await this.betterAuth.api.signOut({ headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             return { headers: result.headers ?? new Headers(), body: { ok: true } };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -124,10 +115,7 @@ export class AuthService {
 
     async verifyEmail(body: VerifyEmailDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
         try {
-            await this.betterAuth.api.verifyEmail({
-                query: { token: body.token },
-                headers: fromNodeHeaders(requestHeaders),
-            });
+            await this.betterAuth.api.verifyEmail({ query: { token: body.token }, headers: fromNodeHeaders(requestHeaders) });
             return { ok: true };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -136,10 +124,7 @@ export class AuthService {
 
     async resendVerification(body: ResendVerificationDto, requestHeaders: IncomingHttpHeaders): Promise<OkResponseDto> {
         try {
-            await this.betterAuth.api.sendVerificationEmail({
-                body: { email: body.email },
-                headers: fromNodeHeaders(requestHeaders),
-            });
+            await this.betterAuth.api.sendVerificationEmail({ body: { email: body.email }, headers: fromNodeHeaders(requestHeaders) });
         } catch {
             // Intentionally swallow — do not reveal account existence / state
         }
@@ -148,7 +133,7 @@ export class AuthService {
 
     async startSocial(provider: 'google' | 'github', requestHeaders: IncomingHttpHeaders): Promise<SocialRedirectResult> {
         try {
-            const payload = { provider, disableRedirect: true };
+            const payload = { provider, disableRedirect: true, callbackURL: this.dashboardRedirectUrl() };
             const result = await this.betterAuth.api.signInSocial({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
             const url = (result.response as AuthApiPayload).url;
             if (!url) throw new Error('Missing OAuth redirect URL');
@@ -158,8 +143,16 @@ export class AuthService {
         }
     }
 
+    private clientAppBaseUrl(): string {
+        return this.authOptions.clientAppUrl.replace(/\/$/, '');
+    }
+
+    private dashboardRedirectUrl(): string {
+        return `${this.clientAppBaseUrl()}/dashboard`;
+    }
+
     private verifyEmailRedirectUrl(email?: string): string {
-        const base = this.authOptions.clientAppUrl.replace(/\/$/, '');
+        const base = this.clientAppBaseUrl();
         if (email) return `${base}/verify-email?email=${encodeURIComponent(email)}`;
         return `${base}/verify-email`;
     }

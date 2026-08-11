@@ -5,10 +5,12 @@ import { AuthUtils } from './utils/auth-http';
 import { username } from 'better-auth/plugins';
 
 export function createAuth(opts: AuthOptions) {
+    const clientAppUrl = opts.clientAppUrl.replace(/\/$/, '');
     return betterAuth({
         secret: opts.secret,
         baseURL: opts.baseUrl,
         basePath: '/auth-service',
+        trustedOrigins: [clientAppUrl],
         experimental: { joins: true },
         database: new Pool({ connectionString: opts.databaseUrl, options: '-c search_path=auth' }),
         emailAndPassword: {
@@ -20,8 +22,7 @@ export function createAuth(opts: AuthOptions) {
             sendOnSignIn: true,
             autoSignInAfterVerification: false,
             sendVerificationEmail: async ({ user, token }) => {
-                const base = opts.clientAppUrl.replace(/\/$/, '');
-                const url = `${base}/verify-email?token=${encodeURIComponent(token)}`;
+                const url = `${clientAppUrl}/verify-email?token=${encodeURIComponent(token)}`;
                 await AuthUtils.sendVerificationEmail(user, url);
             },
         },
