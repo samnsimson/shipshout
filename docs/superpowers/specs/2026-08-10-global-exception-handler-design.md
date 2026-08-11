@@ -12,14 +12,14 @@ Provide a catch-all Nest exception filter in `@shipshout/core` that returns a co
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Scope | Nest-like rich body + `transactionId` (option B from brainstorm) |
-| Response shape | `{ statusCode, message, error, transactionId, path, timestamp }` |
+| Topic             | Choice                                                                              |
+| ----------------- | ----------------------------------------------------------------------------------- |
+| Scope             | Nest-like rich body + `transactionId` (option B from brainstorm)                    |
+| Response shape    | `{ statusCode, message, error, transactionId, path, timestamp }`                    |
 | Unexpected errors | Always generic client message `"Internal server error"`; log full error server-side |
-| Registration | `app.useGlobalFilters(new GlobalExceptionFilter())` in `main.ts` (Approach 3) |
-| `CoreModule` | Unchanged — does **not** register `APP_FILTER` |
-| Domain mapping | Out of scope — Better Auth / ORM / Zod stay mapped to `HttpException` at call sites |
+| Registration      | `app.useGlobalFilters(new GlobalExceptionFilter())` in `main.ts` (Approach 3)       |
+| `CoreModule`      | Unchanged — does **not** register `APP_FILTER`                                      |
+| Domain mapping    | Out of scope — Better Auth / ORM / Zod stay mapped to `HttpException` at call sites |
 
 ## Architecture
 
@@ -62,10 +62,10 @@ Ownership:
 }
 ```
 
-| Case | `statusCode` | `message` | `error` | Logging |
-| --- | --- | --- | --- | --- |
-| `HttpException` | exception status | Nest `getResponse()` message (string or string[]) | Nest `error` string when present, else HTTP status text | `warn` for 4xx; `error` for 5xx |
-| Anything else | `500` | `"Internal server error"` | `"Internal Server Error"` | `error` with original exception (include stack) |
+| Case            | `statusCode`     | `message`                                         | `error`                                                 | Logging                                         |
+| --------------- | ---------------- | ------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------- |
+| `HttpException` | exception status | Nest `getResponse()` message (string or string[]) | Nest `error` string when present, else HTTP status text | `warn` for 4xx; `error` for 5xx                 |
+| Anything else   | `500`            | `"Internal server error"`                         | `"Internal Server Error"`                               | `error` with original exception (include stack) |
 
 `path` comes from the HTTP request URL/path. `timestamp` is `new Date().toISOString()` at handle time.
 

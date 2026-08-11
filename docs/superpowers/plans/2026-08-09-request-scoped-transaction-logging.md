@@ -22,36 +22,38 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `libs/core/src/lib/request-context.ts` | ALS store + `run` / `getTransactionId` |
-| `libs/core/src/index.ts` | Export RequestContext |
-| `libs/core/src/lib/middlewares/logger.middleware.ts` | Resolve id, enter ALS, log without manual prefix |
-| `libs/core/src/lib/__tests__/request-context.spec.ts` | ALS unit tests |
-| `libs/core/src/lib/__tests__/logger.middleware.spec.ts` | Middleware unit tests |
-| `libs/core/tsconfig.lib.json` | Exclude `__tests__` |
-| `libs/logger/src/lib/transaction-id.format.ts` | Winston enrich format |
-| `libs/logger/src/lib/logger.module.ts` | Wire format into `combine` |
-| `libs/logger/src/index.ts` | Export format for tests/reuse |
-| `libs/logger/src/lib/__tests__/transaction-id.format.spec.ts` | Format unit tests |
-| `libs/logger/package.json` | Add `@shipshout/core` dependency |
-| `libs/logger/tsconfig.lib.json` | Reference core + exclude `__tests__` |
+| File                                                          | Responsibility                                   |
+| ------------------------------------------------------------- | ------------------------------------------------ |
+| `libs/core/src/lib/request-context.ts`                        | ALS store + `run` / `getTransactionId`           |
+| `libs/core/src/index.ts`                                      | Export RequestContext                            |
+| `libs/core/src/lib/middlewares/logger.middleware.ts`          | Resolve id, enter ALS, log without manual prefix |
+| `libs/core/src/lib/__tests__/request-context.spec.ts`         | ALS unit tests                                   |
+| `libs/core/src/lib/__tests__/logger.middleware.spec.ts`       | Middleware unit tests                            |
+| `libs/core/tsconfig.lib.json`                                 | Exclude `__tests__`                              |
+| `libs/logger/src/lib/transaction-id.format.ts`                | Winston enrich format                            |
+| `libs/logger/src/lib/logger.module.ts`                        | Wire format into `combine`                       |
+| `libs/logger/src/index.ts`                                    | Export format for tests/reuse                    |
+| `libs/logger/src/lib/__tests__/transaction-id.format.spec.ts` | Format unit tests                                |
+| `libs/logger/package.json`                                    | Add `@shipshout/core` dependency                 |
+| `libs/logger/tsconfig.lib.json`                               | Reference core + exclude `__tests__`             |
 
 ---
 
 ### Task 1: RequestContext ALS in `@shipshout/core`
 
 **Files:**
+
 - Create: `libs/core/src/lib/request-context.ts`
 - Create: `libs/core/src/lib/__tests__/request-context.spec.ts`
 - Modify: `libs/core/src/index.ts`
 - Modify: `libs/core/tsconfig.lib.json`
 
 **Interfaces:**
+
 - Consumes: `node:async_hooks` `AsyncLocalStorage`
 - Produces:
-  - `export type RequestContextStore = { transactionId: string }`
-  - `export const RequestContext = { run<T>(store: RequestContextStore, fn: () => T): T; getTransactionId(): string | undefined }`
+    - `export type RequestContextStore = { transactionId: string }`
+    - `export const RequestContext = { run<T>(store: RequestContextStore, fn: () => T): T; getTransactionId(): string | undefined }`
 
 - [ ] **Step 1: Write the failing test**
 
@@ -139,10 +141,12 @@ git commit -m "Add RequestContext AsyncLocalStorage in core."
 ### Task 2: Enter ALS from LoggerMiddleware
 
 **Files:**
+
 - Modify: `libs/core/src/lib/middlewares/logger.middleware.ts`
 - Create: `libs/core/src/lib/__tests__/logger.middleware.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `RequestContext.run`, `TRANSACTION_ID_HEADER`, `randomUUID`
 - Produces: middleware that sets headers/`req.transactionId`, runs `next` + finish listener inside ALS, logs `→` / `←` without manual `[id]` prefixes
 
@@ -199,9 +203,7 @@ describe('LoggerMiddleware', () => {
             idInsideNext = RequestContext.getTransactionId();
         });
 
-        expect(idInsideNext).toMatch(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-        );
+        expect(idInsideNext).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
         expect((req as RequestWithTransactionId).transactionId).toBe(idInsideNext);
         expect(res.headers[TRANSACTION_ID_HEADER]).toBe(idInsideNext);
         expect(Logger.prototype.log).toHaveBeenCalledWith(expect.stringMatching(/^→ GET /));
@@ -231,9 +233,7 @@ describe('LoggerMiddleware', () => {
         });
 
         expect(idInsideNext).not.toBe(oversized);
-        expect(idInsideNext).toMatch(
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-        );
+        expect(idInsideNext).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
 
     it('registers finish listener inside ALS so outbound log sees context', () => {
@@ -324,6 +324,7 @@ git commit -m "Enter RequestContext from LoggerMiddleware."
 ### Task 3: Winston transaction-id format + logger dependency on core
 
 **Files:**
+
 - Create: `libs/logger/src/lib/transaction-id.format.ts`
 - Create: `libs/logger/src/lib/__tests__/transaction-id.format.spec.ts`
 - Modify: `libs/logger/src/lib/logger.module.ts`
@@ -332,6 +333,7 @@ git commit -m "Enter RequestContext from LoggerMiddleware."
 - Modify: `libs/logger/tsconfig.lib.json`
 
 **Interfaces:**
+
 - Consumes: `RequestContext.getTransactionId` from `@shipshout/core`
 - Produces: `export const transactionIdFormat = winston.format(...)` that sets `info.transactionId` and prefixes string `info.message` when id present
 
@@ -344,6 +346,7 @@ In `libs/logger/package.json` dependencies add:
 ```
 
 In `libs/logger/tsconfig.lib.json`:
+
 - add `"src/**/__tests__/**"` to `exclude`
 - set `"references": [{ "path": "../core/tsconfig.lib.json" }]`
 
@@ -460,13 +463,13 @@ git commit -m "Enrich Winston logs with request transaction id."
 
 ## Spec coverage checklist
 
-| Spec requirement | Task |
-| --- | --- |
-| RequestContext ALS run/get | Task 1 |
-| Middleware enters ALS, headers, no manual prefix | Task 2 |
-| Header blank / >128 regenerate | Task 2 |
-| Winston metadata + prefix + double-prefix guard | Task 3 |
-| logger → core dependency; core no logger dep | Task 3 |
-| Unit tests for ALS, format, middleware | Tasks 1–3 |
-| App main.ts / `{*path}` unchanged | N/A (already correct) |
-| No integration harness | Explicitly skipped |
+| Spec requirement                                 | Task                  |
+| ------------------------------------------------ | --------------------- |
+| RequestContext ALS run/get                       | Task 1                |
+| Middleware enters ALS, headers, no manual prefix | Task 2                |
+| Header blank / >128 regenerate                   | Task 2                |
+| Winston metadata + prefix + double-prefix guard  | Task 3                |
+| logger → core dependency; core no logger dep     | Task 3                |
+| Unit tests for ALS, format, middleware           | Tasks 1–3             |
+| App main.ts / `{*path}` unchanged                | N/A (already correct) |
+| No integration harness                           | Explicitly skipped    |

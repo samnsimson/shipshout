@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { GithubApiService } from './services/github-api.service';
-import { GithubOAuthService } from './services/github-oauth.service';
-import { RepositoryService } from './services/repository.service';
-import { GithubConnectionRepository } from './repositories/github-connection.repository';
-import { LinkedRepositoryRepository } from './repositories/linked-repository.repository';
+import { GithubConnectionRepository } from '../repositories/github-connection.repository';
+import { LinkedRepositoryRepository } from '../repositories/linked-repository.repository';
+import { GithubApiService } from '../services/github-api.service';
+import { GithubOAuthService } from '../services/github-oauth.service';
+import { RepositoryService } from '../services/repository.service';
 
 describe('RepositoryService', () => {
     let service: RepositoryService;

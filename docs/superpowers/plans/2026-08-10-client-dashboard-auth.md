@@ -21,43 +21,45 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
+| File                                                        | Responsibility                                                  |
+| ----------------------------------------------------------- | --------------------------------------------------------------- |
 | `libs/auth/.../auth.service.ts` + controller + DTOs + tests | `GET /auth/session`, `POST /auth/logout`, optional verify proxy |
-| `apps/shipshout-client-dashboard/package.json` | Chakra deps |
-| `.../src/components/ui/provider.tsx` | Chakra Provider + color mode |
-| `.../src/theme/index.ts` | Design tokens → Chakra system |
-| `.../src/lib/auth/cookies.ts` | `applySetCookies`, session cookie name helpers |
-| `.../src/lib/auth/api.ts` | `authFetch` |
-| `.../src/lib/auth/actions.ts` | Server actions |
-| `.../src/app/layout.tsx` | Font + Provider |
-| `.../src/app/(auth)/layout.tsx` | Auth shell |
-| `.../src/app/(auth)/login/page.tsx` (+ forms) | Login UI |
-| `.../src/app/(auth)/register/page.tsx` | Register UI |
-| `.../src/app/(auth)/forgot-password/page.tsx` | Forgot UI |
-| `.../src/app/(auth)/reset-password/page.tsx` | Reset UI |
-| `.../src/app/(auth)/verify-email/page.tsx` | Verify UI |
-| `.../src/app/dashboard/page.tsx` | Placeholder + logout |
-| `.../src/middleware.ts` | Session guard |
-| `.../src/app/page.tsx` | Redirect home |
-| Root / app `.env.example` | Document API URL vars |
+| `apps/shipshout-client-dashboard/package.json`              | Chakra deps                                                     |
+| `.../src/components/ui/provider.tsx`                        | Chakra Provider + color mode                                    |
+| `.../src/theme/index.ts`                                    | Design tokens → Chakra system                                   |
+| `.../src/lib/auth/cookies.ts`                               | `applySetCookies`, session cookie name helpers                  |
+| `.../src/lib/auth/api.ts`                                   | `authFetch`                                                     |
+| `.../src/lib/auth/actions.ts`                               | Server actions                                                  |
+| `.../src/app/layout.tsx`                                    | Font + Provider                                                 |
+| `.../src/app/(auth)/layout.tsx`                             | Auth shell                                                      |
+| `.../src/app/(auth)/login/page.tsx` (+ forms)               | Login UI                                                        |
+| `.../src/app/(auth)/register/page.tsx`                      | Register UI                                                     |
+| `.../src/app/(auth)/forgot-password/page.tsx`               | Forgot UI                                                       |
+| `.../src/app/(auth)/reset-password/page.tsx`                | Reset UI                                                        |
+| `.../src/app/(auth)/verify-email/page.tsx`                  | Verify UI                                                       |
+| `.../src/app/dashboard/page.tsx`                            | Placeholder + logout                                            |
+| `.../src/middleware.ts`                                     | Session guard                                                   |
+| `.../src/app/page.tsx`                                      | Redirect home                                                   |
+| Root / app `.env.example`                                   | Document API URL vars                                           |
 
 ---
 
 ### Task 1: Nest session + logout endpoints
 
 **Files:**
+
 - Modify: `libs/auth/src/lib/services/auth.service.ts`
 - Modify: `libs/auth/src/lib/controllers/auth.controller.ts`
 - Create: `libs/auth/src/lib/dto/session-response.dto.ts` (if needed)
 - Modify: `libs/auth/src/lib/__tests__/auth.service.spec.ts`, `auth.controller.spec.ts`
 
 **Interfaces:**
+
 - Produces:
-  - `getSession(headers): Promise<{ user, session } | null>`
-  - `logout(headers): Promise<{ ok: true }>` returning Set-Cookie clears via `returnHeaders: true` when applicable
-  - `GET /auth/session` → session JSON or 401/empty
-  - `POST /auth/logout` → `{ ok: true }` + clear cookies
+    - `getSession(headers): Promise<{ user, session } | null>`
+    - `logout(headers): Promise<{ ok: true }>` returning Set-Cookie clears via `returnHeaders: true` when applicable
+    - `GET /auth/session` → session JSON or 401/empty
+    - `POST /auth/logout` → `{ ok: true }` + clear cookies
 
 - [ ] **Step 1: Extend AuthService**
 
@@ -124,6 +126,7 @@ EOF
 ### Task 2: Chakra theme, provider, fonts
 
 **Files:**
+
 - Modify: `apps/shipshout-client-dashboard/package.json` (and workspace root install)
 - Create: `apps/shipshout-client-dashboard/src/theme/index.ts`
 - Create: `apps/shipshout-client-dashboard/src/components/ui/provider.tsx`
@@ -131,6 +134,7 @@ EOF
 - Modify: `apps/shipshout-client-dashboard/next.config.js` — `optimizePackageImports: ['@chakra-ui/react']` if supported
 
 **Interfaces:**
+
 - Produces: `Provider` wrapping app; theme tokens: `primary #0075de`, `canvas-soft #f6f5f4`, `ink #000`, `hairline #e6e6e6`, radii from `DESIGN.md`; dark semantic counterparts; `next/font` Inter as `--font-inter`
 
 - [ ] **Step 1: Install**
@@ -182,6 +186,7 @@ EOF
 ### Task 3: Auth HTTP helpers + server actions
 
 **Files:**
+
 - Create: `apps/shipshout-client-dashboard/src/lib/auth/cookies.ts`
 - Create: `apps/shipshout-client-dashboard/src/lib/auth/api.ts`
 - Create: `apps/shipshout-client-dashboard/src/lib/auth/actions.ts`
@@ -190,13 +195,14 @@ EOF
 - Document env in `.env.example` (root or app)
 
 **Interfaces:**
+
 - Produces:
-  - `SESSION_COOKIE_NAMES = ['better-auth.session_token', '__Secure-better-auth.session_token']`
-  - `applySetCookies(res: Response): Promise<void>` using `cookies()` from `next/headers`
-  - `authFetch(path: string, init?: RequestInit): Promise<Response>`
-  - `loginAction(formData): Promise<AuthActionResult>`
-  - `registerAction`, `forgotPasswordAction`, `resetPasswordAction`, `checkUsernameAction`, `logoutAction`
-  - `type AuthActionResult = { ok: true } | { ok: false; error: string }`
+    - `SESSION_COOKIE_NAMES = ['better-auth.session_token', '__Secure-better-auth.session_token']`
+    - `applySetCookies(res: Response): Promise<void>` using `cookies()` from `next/headers`
+    - `authFetch(path: string, init?: RequestInit): Promise<Response>`
+    - `loginAction(formData): Promise<AuthActionResult>`
+    - `registerAction`, `forgotPasswordAction`, `resetPasswordAction`, `checkUsernameAction`, `logoutAction`
+    - `type AuthActionResult = { ok: true } | { ok: false; error: string }`
 
 - [ ] **Step 1: Failing test for cookie parse/apply** (mock `cookies().set`)
 
@@ -240,6 +246,7 @@ EOF
 ### Task 4: Auth pages (login, register, forgot, reset) + social
 
 **Files:**
+
 - Create: `apps/shipshout-client-dashboard/src/app/(auth)/layout.tsx`
 - Create: `apps/shipshout-client-dashboard/src/app/(auth)/login/page.tsx`
 - Create: `apps/shipshout-client-dashboard/src/components/auth/login-form.tsx` (client)
@@ -249,6 +256,7 @@ EOF
 - Modify: `apps/shipshout-client-dashboard/src/app/page.tsx` → redirect helper (session cookie → dashboard else login) — can be temporary until Task 6
 
 **Interfaces:**
+
 - Consumes: actions from Task 3; `NEXT_PUBLIC_SHIPSHOUT_API_URL`
 - Produces: working forms calling actions; social hrefs `${NEXT_PUBLIC_SHIPSHOUT_API_URL}/auth/google|github`
 
@@ -260,7 +268,7 @@ EOF
 
 - [ ] **Step 4: Forgot + reset** — forgot email only; reset reads `searchParams.token`, newPassword + confirm client-side match then `resetPasswordAction`.
 
-- [ ] **Step 5: Visual check against DESIGN.md (primary pill, hairline, body-sm inputs); commit.
+- [ ] \*\*Step 5: Visual check against DESIGN.md (primary pill, hairline, body-sm inputs); commit.
 
 ```bash
 git commit -m "$(cat <<'EOF'
@@ -275,12 +283,14 @@ EOF
 ### Task 5: Dashboard + logout + verify-email page
 
 **Files:**
+
 - Create: `apps/shipshout-client-dashboard/src/app/dashboard/page.tsx`
 - Create: `apps/shipshout-client-dashboard/src/components/auth/logout-button.tsx`
 - Create: `apps/shipshout-client-dashboard/src/app/(auth)/verify-email/page.tsx`
 - Optionally Nest `GET /auth/verify-email` proxy — or client/server call to `${API}/auth-service/verify-email?token=`
 
 **Interfaces:**
+
 - Consumes: `logoutAction`; verify via fetch to Better Auth verify URL
 - Produces: dashboard placeholder “You’re in” + Logout; verify page states: missing token / success / error
 
@@ -303,11 +313,13 @@ EOF
 ### Task 6: Middleware session guard + home redirect
 
 **Files:**
+
 - Create: `apps/shipshout-client-dashboard/src/middleware.ts`
 - Modify: `apps/shipshout-client-dashboard/src/app/page.tsx`
 - Create/update: `.env.example` with `SHIPSHOUT_API_URL` and `NEXT_PUBLIC_SHIPSHOUT_API_URL`
 
 **Interfaces:**
+
 - Consumes: `SESSION_COOKIE_NAMES` from cookies helper (or duplicate constant safe for edge)
 - Produces: redirects per spec
 
@@ -353,17 +365,17 @@ EOF
 
 ## Spec coverage (self-review)
 
-| Spec item | Task |
-| --- | --- |
-| Chakra + DESIGN.md + dark mode + Inter | Task 2 |
-| Login/Register/Forgot/Reset + social | Task 4 |
-| Server actions + cookie forward | Task 3 |
-| `/dashboard` landing + logout | Task 5 |
-| Verify-email page | Task 5 |
-| Middleware guard | Task 6 |
-| Nest session/logout | Task 1 |
-| Swagger on Nest only | Task 1 (annotations); no Next Swagger |
-| Env vars | Tasks 3–6 |
+| Spec item                              | Task                                  |
+| -------------------------------------- | ------------------------------------- |
+| Chakra + DESIGN.md + dark mode + Inter | Task 2                                |
+| Login/Register/Forgot/Reset + social   | Task 4                                |
+| Server actions + cookie forward        | Task 3                                |
+| `/dashboard` landing + logout          | Task 5                                |
+| Verify-email page                      | Task 5                                |
+| Middleware guard                       | Task 6                                |
+| Nest session/logout                    | Task 1                                |
+| Swagger on Nest only                   | Task 1 (annotations); no Next Swagger |
+| Env vars                               | Tasks 3–6                             |
 
 ## Manual verification (end)
 

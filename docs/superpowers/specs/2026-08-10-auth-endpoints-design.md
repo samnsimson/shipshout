@@ -11,14 +11,14 @@ Expose Nest HTTP endpoints under `/auth` for email/password register, login, for
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Surface | Nest `AuthController` wrappers (option A) |
-| Password reset | Both forgot + reset |
-| Email | Logging stub + `EmailAdapter` for later Resend/other |
-| Login/register response | Cookie **and** `{ user, session }` body |
-| Social | `GET /auth/google` / `GET /auth/github`; callbacks stay on Better Auth `basePath` `/auth-service` |
-| Approach | Thin controller → `AuthService.api.*` |
+| Topic                   | Choice                                                                                            |
+| ----------------------- | ------------------------------------------------------------------------------------------------- |
+| Surface                 | Nest `AuthController` wrappers (option A)                                                         |
+| Password reset          | Both forgot + reset                                                                               |
+| Email                   | Logging stub + `EmailAdapter` for later Resend/other                                              |
+| Login/register response | Cookie **and** `{ user, session }` body                                                           |
+| Social                  | `GET /auth/google` / `GET /auth/github`; callbacks stay on Better Auth `basePath` `/auth-service` |
+| Approach                | Thin controller → `AuthService.api.*`                                                             |
 
 ## Architecture
 
@@ -44,26 +44,26 @@ createAuth
 
 ## Components
 
-| Piece | Responsibility |
-| --- | --- |
-| `AuthController` | Public Nest routes; thin; maps BA errors to Nest HTTP exceptions |
-| `dto/` | Register, Login, ForgotPassword, ResetPassword request DTOs; AuthSession response DTO |
-| `EmailAdapter` + `EMAIL_ADAPTER` | `send({ to, subject, html?, text? })` |
-| `LoggingEmailAdapter` | Default: log reset URL / payload |
-| `createAuth` | Wire providers + `sendResetPassword` to adapter |
-| `AuthModule.forRootAsync` | Validate options; register controller, adapter provider; optional `emailAdapter` |
-| Better Auth `/auth-service` | OAuth callbacks (+ SDK if used) |
+| Piece                            | Responsibility                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `AuthController`                 | Public Nest routes; thin; maps BA errors to Nest HTTP exceptions                      |
+| `dto/`                           | Register, Login, ForgotPassword, ResetPassword request DTOs; AuthSession response DTO |
+| `EmailAdapter` + `EMAIL_ADAPTER` | `send({ to, subject, html?, text? })`                                                 |
+| `LoggingEmailAdapter`            | Default: log reset URL / payload                                                      |
+| `createAuth`                     | Wire providers + `sendResetPassword` to adapter                                       |
+| `AuthModule.forRootAsync`        | Validate options; register controller, adapter provider; optional `emailAdapter`      |
+| Better Auth `/auth-service`      | OAuth callbacks (+ SDK if used)                                                       |
 
 ### Routes
 
-| Method | Path | Body / notes |
-| --- | --- | --- |
-| `POST` | `/auth/register` | email, password, name |
-| `POST` | `/auth/login` | email, password |
-| `POST` | `/auth/forgot-password` | email |
-| `POST` | `/auth/reset-password` | token, newPassword |
-| `GET` | `/auth/google` | start OAuth redirect |
-| `GET` | `/auth/github` | start OAuth redirect |
+| Method | Path                    | Body / notes          |
+| ------ | ----------------------- | --------------------- |
+| `POST` | `/auth/register`        | email, password, name |
+| `POST` | `/auth/login`           | email, password       |
+| `POST` | `/auth/forgot-password` | email                 |
+| `POST` | `/auth/reset-password`  | token, newPassword    |
+| `GET`  | `/auth/google`          | start OAuth redirect  |
+| `GET`  | `/auth/github`          | start OAuth redirect  |
 
 ## Data flow
 

@@ -10,15 +10,15 @@ Replace the stub `DatabaseModule` with a NestJS dynamic module that boots TypeOR
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Config injection | Caller passes Nest-style async options (`imports` / `inject` / `useFactory`) |
-| What callers configure | Connection only (e.g. `url`, or host/port/user/password/database) |
-| Entity ownership | `DatabaseModule` / `libs/database` owns all entities |
-| Repositories | Generic `BaseRepository<Entity>` extending TypeORM `Repository<Entity>` |
-| Domain entities in this pass | None — scaffold folders and empty registry only |
-| Driver | Postgres (`type: 'postgres'` fixed in the module) |
-| `DatabaseService` | Remove (replaced by TypeORM + repositories) |
+| Topic                        | Choice                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------- |
+| Config injection             | Caller passes Nest-style async options (`imports` / `inject` / `useFactory`) |
+| What callers configure       | Connection only (e.g. `url`, or host/port/user/password/database)            |
+| Entity ownership             | `DatabaseModule` / `libs/database` owns all entities                         |
+| Repositories                 | Generic `BaseRepository<Entity>` extending TypeORM `Repository<Entity>`      |
+| Domain entities in this pass | None — scaffold folders and empty registry only                              |
+| Driver                       | Postgres (`type: 'postgres'` fixed in the module)                            |
+| `DatabaseService`            | Remove (replaced by TypeORM + repositories)                                  |
 
 ## Architecture
 
@@ -38,12 +38,12 @@ AppModule
 
 ```ts
 DatabaseModule.forRootAsync({
-  imports: [ConfigModule],
-  inject: [ConfigService],
-  useFactory: (config: ConfigService) => ({
-    url: config.getOrThrow<string>('DATABASE_URL'),
-  }),
-})
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (config: ConfigService) => ({
+        url: config.getOrThrow<string>('DATABASE_URL'),
+    }),
+});
 ```
 
 ## Components

@@ -63,7 +63,8 @@ export class AuthUtils {
 
         // Better Auth may throw APIError from a duplicate package copy — detect by shape.
         if (error && typeof error === 'object' && 'statusCode' in error && 'message' in error) {
-            const status = Number((error as { statusCode?: number; status?: string | number }).statusCode ?? (error as { status?: string | number }).status) || 500;
+            const status =
+                Number((error as { statusCode?: number; status?: string | number }).statusCode ?? (error as { status?: string | number }).status) || 500;
             const message = String((error as { message?: string }).message || 'Authentication error');
             if (status === 401) throw new UnauthorizedException(message);
             if (status === 409) throw new ConflictException(message);

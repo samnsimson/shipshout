@@ -4,8 +4,8 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
 }));
 
 import { Test, TestingModule } from '@nestjs/testing';
-import { RepositoryController } from './controllers/repository.controller';
-import { RepositoryService } from './services/repository.service';
+import { RepositoryController } from '../controllers/repository.controller';
+import { RepositoryService } from '../services/repository.service';
 
 describe('RepositoryController', () => {
     let controller: RepositoryController;

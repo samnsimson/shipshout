@@ -3,11 +3,7 @@ import { GithubConnectionEntity, LinkedRepositoryEntity } from '@shipshout/datab
 import { GithubConnectionResponseDto } from '../dto/github-connection-response.dto';
 import { GithubRepoDto, GithubRepoListResponseDto } from '../dto/github-repo.dto';
 import { LinkRepositoriesDto } from '../dto/link-repositories.dto';
-import {
-    LinkRepositoriesResponseDto,
-    LinkedRepositoryListResponseDto,
-    LinkedRepositoryResponseDto,
-} from '../dto/linked-repository-response.dto';
+import { LinkRepositoriesResponseDto, LinkedRepositoryListResponseDto, LinkedRepositoryResponseDto } from '../dto/linked-repository-response.dto';
 import { GithubRepoSummary } from '../interfaces/github.types';
 import { GithubConnectionRepository } from '../repositories/github-connection.repository';
 import { LinkedRepositoryRepository } from '../repositories/linked-repository.repository';

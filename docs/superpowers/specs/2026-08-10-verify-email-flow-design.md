@@ -13,14 +13,14 @@ Complete end-to-end email verification: Nest sends verification mail (via existi
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Post-register landing | Redirect to `/verify-email?email=…` (Approach A) |
-| Resend | Yes — email field + resend; Nest always `{ ok: true }` |
-| After successful verify | Success UI + primary CTA to `/login` (no auto sign-in) |
-| Architecture | Nest wrappers; Nest calls Better Auth internally |
-| Email transport | Existing console/`EmailAdapter` stub (same as password reset) |
-| Verification link host | Client dashboard URL (`CLIENT_APP_URL`), not API `baseURL` |
+| Topic                   | Choice                                                        |
+| ----------------------- | ------------------------------------------------------------- |
+| Post-register landing   | Redirect to `/verify-email?email=…` (Approach A)              |
+| Resend                  | Yes — email field + resend; Nest always `{ ok: true }`        |
+| After successful verify | Success UI + primary CTA to `/login` (no auto sign-in)        |
+| Architecture            | Nest wrappers; Nest calls Better Auth internally              |
+| Email transport         | Existing console/`EmailAdapter` stub (same as password reset) |
+| Verification link host  | Client dashboard URL (`CLIENT_APP_URL`), not API `baseURL`    |
 
 ## Architecture
 
@@ -58,19 +58,19 @@ Ownership:
 
 ### Endpoints
 
-| Method / path | Body | Behavior |
-| --- | --- | --- |
-| `POST /auth/verify-email` | `{ token: string }` | Call `betterAuth.api.verifyEmail`; map errors via `AuthUtils.mapAuthError`; return `{ ok: true }` on success. Do not forward session cookies (no auto sign-in). |
+| Method / path                    | Body                | Behavior                                                                                                                                                                                                   |
+| -------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `POST /auth/verify-email`        | `{ token: string }` | Call `betterAuth.api.verifyEmail`; map errors via `AuthUtils.mapAuthError`; return `{ ok: true }` on success. Do not forward session cookies (no auto sign-in).                                            |
 | `POST /auth/resend-verification` | `{ email: string }` | Call `betterAuth.api.sendVerificationEmail` with `callbackURL` pointing at dashboard verify page if required by BA; **always** return `{ ok: true }` to the client (swallow not-found / already-verified). |
 
 DTOs + Swagger annotations required. Pass **plain objects** into Better Auth (not Nest DTO class instances).
 
 ### Env
 
-| Variable | Example | Used by |
-| --- | --- | --- |
-| `CLIENT_APP_URL` | `http://localhost:3000` | Auth config link rewrite |
-| Existing `BETTER_AUTH_*` / `SHIPSHOUT_API_URL` | unchanged | API + dashboard |
+| Variable                                       | Example                 | Used by                  |
+| ---------------------------------------------- | ----------------------- | ------------------------ |
+| `CLIENT_APP_URL`                               | `http://localhost:3000` | Auth config link rewrite |
+| Existing `BETTER_AUTH_*` / `SHIPSHOUT_API_URL` | unchanged               | API + dashboard          |
 
 Document in `.env.example`. Pass `clientAppUrl` through Nest auth module options if other secrets are already injected that way.
 

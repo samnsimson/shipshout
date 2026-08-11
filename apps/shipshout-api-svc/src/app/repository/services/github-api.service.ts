@@ -11,12 +11,18 @@ export class GithubApiService {
     async listAccessibleRepos(accessToken: string): Promise<GithubRepoSummary[]> {
         const repos = new Map<number, GithubRepoSummary>();
 
-        for await (const repo of this.paginateRepos(accessToken, 'https://api.github.com/user/repos?affiliation=owner,collaborator,organization_member&sort=updated&per_page=100'))
+        for await (const repo of this.paginateRepos(
+            accessToken,
+            'https://api.github.com/user/repos?affiliation=owner,collaborator,organization_member&sort=updated&per_page=100',
+        ))
             repos.set(repo.githubId, repo);
 
         const orgs = await this.request<GithubOrgResponse[]>(accessToken, 'https://api.github.com/user/orgs?per_page=100');
         for (const org of orgs) {
-            for await (const repo of this.paginateRepos(accessToken, `https://api.github.com/orgs/${encodeURIComponent(org.login)}/repos?sort=updated&per_page=100`))
+            for await (const repo of this.paginateRepos(
+                accessToken,
+                `https://api.github.com/orgs/${encodeURIComponent(org.login)}/repos?sort=updated&per_page=100`,
+            ))
                 repos.set(repo.githubId, repo);
         }
 

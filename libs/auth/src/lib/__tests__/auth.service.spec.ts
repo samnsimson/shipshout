@@ -75,9 +75,7 @@ describe('AuthService', () => {
 
         await service.login({ login: 'ada', password: 'password1' }, {});
 
-        expect(api.signInUsername).toHaveBeenCalledWith(
-            expect.objectContaining({ body: { username: 'ada', password: 'password1' } }),
-        );
+        expect(api.signInUsername).toHaveBeenCalledWith(expect.objectContaining({ body: { username: 'ada', password: 'password1' } }));
         expect(api.signInEmail).not.toHaveBeenCalled();
     });
 
@@ -89,9 +87,7 @@ describe('AuthService', () => {
 
         await service.login({ login: 'a@b.com', password: 'password1' }, {});
 
-        expect(api.signInEmail).toHaveBeenCalledWith(
-            expect.objectContaining({ body: { email: 'a@b.com', password: 'password1' } }),
-        );
+        expect(api.signInEmail).toHaveBeenCalledWith(expect.objectContaining({ body: { email: 'a@b.com', password: 'password1' } }));
         expect(api.signInUsername).not.toHaveBeenCalled();
     });
 
@@ -198,9 +194,7 @@ describe('AuthService', () => {
 
         const result = await service.verifyOneTimeToken({ token: 'ott-123' }, {});
 
-        expect(api.verifyOneTimeToken).toHaveBeenCalledWith(
-            expect.objectContaining({ body: { token: 'ott-123' } }),
-        );
+        expect(api.verifyOneTimeToken).toHaveBeenCalledWith(expect.objectContaining({ body: { token: 'ott-123' } }));
         expect(result.body.user.email).toBe('a@b.com');
         expect(result.headers).toBe(headers);
     });

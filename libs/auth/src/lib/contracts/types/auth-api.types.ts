@@ -32,4 +32,3 @@ export type SocialRedirectResult = {
 export type AuthRedirectResult = {
     redirectUrl: string;
 };
-

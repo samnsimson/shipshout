@@ -11,14 +11,14 @@ Every Nest `Logger` call during an HTTP request (DI or `new Logger(...)`) includ
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Output shape | Structured field `transactionId` + message prefix `[id] ` (option C) |
-| Scope | Request-scoped only; bootstrap/CLI/jobs omit id |
-| Coverage | Any Nest `Logger` during a request (middleware, controllers, services, Nest pipeline) |
-| Mechanism | Node `AsyncLocalStorage` + Winston format enrichment |
-| Session / cookie store | Out of scope — wrong lifetime for per-request ids |
-| Header | Existing `x-transaction-id` (`TRANSACTION_ID_HEADER`) |
+| Topic                  | Choice                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------- |
+| Output shape           | Structured field `transactionId` + message prefix `[id] ` (option C)                  |
+| Scope                  | Request-scoped only; bootstrap/CLI/jobs omit id                                       |
+| Coverage               | Any Nest `Logger` during a request (middleware, controllers, services, Nest pipeline) |
+| Mechanism              | Node `AsyncLocalStorage` + Winston format enrichment                                  |
+| Session / cookie store | Out of scope — wrong lifetime for per-request ids                                     |
+| Header                 | Existing `x-transaction-id` (`TRANSACTION_ID_HEADER`)                                 |
 
 ## Architecture
 
@@ -66,8 +66,8 @@ Dependency direction: `logger` → `core` for context reads only. Core must not 
 
 - Custom `winston.format` (or equivalent) applied in `LoggerModule.instance` before (or as part of) the existing `nestLike` combine.
 - When `getTransactionId()` returns a value:
-  - set `info.transactionId`
-  - if `info.message` is a string and does not already start with `[${id}]`, prepend `[${id}] `
+    - set `info.transactionId`
+    - if `info.message` is a string and does not already start with `[${id}]`, prepend `[${id}] `
 - When absent: leave message and metadata unchanged.
 
 ### App wiring

@@ -13,19 +13,19 @@ Ship an authenticated client-dashboard experience: Chakra UI v3 auth pages theme
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Pages (first pass) | Login, Register, Forgot + Reset, Google/GitHub (option C) |
-| Post-auth landing | `/dashboard` |
-| Styling | Chakra UI v3 themed from `DESIGN.md` |
-| API access | Server actions → Nest (Approach 1); forward `Set-Cookie` into Next `cookies()` |
-| Social | Browser navigate to `GET {API}/auth/google\|github` (not actions) |
-| Session guard | Next middleware (cookie / session presence) |
-| Logout | Dashboard control + server action (Nest logout wrapper or Better Auth sign-out) |
-| Email verification | Dedicated page wired to verify-email flow |
-| Dark mode | Chakra light + dark; default follow system |
-| Fonts | `next/font` Inter (NotionInter alias / fallback until branded files exist) |
-| Swagger | Remains on Nest API only; dashboard does not host Swagger |
+| Topic              | Choice                                                                          |
+| ------------------ | ------------------------------------------------------------------------------- |
+| Pages (first pass) | Login, Register, Forgot + Reset, Google/GitHub (option C)                       |
+| Post-auth landing  | `/dashboard`                                                                    |
+| Styling            | Chakra UI v3 themed from `DESIGN.md`                                            |
+| API access         | Server actions → Nest (Approach 1); forward `Set-Cookie` into Next `cookies()`  |
+| Social             | Browser navigate to `GET {API}/auth/google\|github` (not actions)               |
+| Session guard      | Next middleware (cookie / session presence)                                     |
+| Logout             | Dashboard control + server action (Nest logout wrapper or Better Auth sign-out) |
+| Email verification | Dedicated page wired to verify-email flow                                       |
+| Dark mode          | Chakra light + dark; default follow system                                      |
+| Fonts              | `next/font` Inter (NotionInter alias / fallback until branded files exist)      |
+| Swagger            | Remains on Nest API only; dashboard does not host Swagger                       |
 
 ## Architecture
 
@@ -51,15 +51,15 @@ Ownership:
 
 ## Routes
 
-| Route | Auth | Notes |
-| --- | --- | --- |
-| `/` | public | Redirect: session → `/dashboard`, else → `/login` |
-| `/login` | guest | login + password; social; links |
-| `/register` | guest | name, username (+ availability), email, password; social |
-| `/forgot-password` | guest | email → success copy (no enumeration) |
-| `/reset-password` | guest | `?token=`; new password (+ confirm) |
-| `/verify-email` | guest | token/query or “check your email” states |
-| `/dashboard` | protected | Placeholder + logout |
+| Route              | Auth      | Notes                                                    |
+| ------------------ | --------- | -------------------------------------------------------- |
+| `/`                | public    | Redirect: session → `/dashboard`, else → `/login`        |
+| `/login`           | guest     | login + password; social; links                          |
+| `/register`        | guest     | name, username (+ availability), email, password; social |
+| `/forgot-password` | guest     | email → success copy (no enumeration)                    |
+| `/reset-password`  | guest     | `?token=`; new password (+ confirm)                      |
+| `/verify-email`    | guest     | token/query or “check your email” states                 |
+| `/dashboard`       | protected | Placeholder + logout                                     |
 
 ## UI (Chakra + DESIGN.md)
 
@@ -111,13 +111,13 @@ Keep Swagger annotations on any new Nest endpoints (API Swagger only).
 
 ## Components (dashboard)
 
-| Piece | Role |
-| --- | --- |
-| Chakra `Provider` + theme | Tokens from `DESIGN.md` |
-| Auth layout | Shared shell for guest routes |
+| Piece                          | Role                           |
+| ------------------------------ | ------------------------------ |
+| Chakra `Provider` + theme      | Tokens from `DESIGN.md`        |
+| Auth layout                    | Shared shell for guest routes  |
 | Form fields / alerts / buttons | Token-styled Chakra primitives |
-| SocialButtons | Links to API Google/GitHub |
-| Dashboard shell | Minimal placeholder + logout |
+| SocialButtons                  | Links to API Google/GitHub     |
+| Dashboard shell                | Minimal placeholder + logout   |
 
 ## Testing
 

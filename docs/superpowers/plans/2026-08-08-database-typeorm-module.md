@@ -23,6 +23,7 @@
 ### Task 1: Entity registry + BaseRepository scaffolding
 
 **Files:**
+
 - Create: `libs/database/src/lib/entities/index.ts`
 - Create: `libs/database/src/lib/repositories/base.repository.ts`
 - Create: `libs/database/src/lib/repositories/index.ts`
@@ -31,6 +32,7 @@
 - Delete: `libs/database/src/lib/database.service.spec.ts`
 
 **Interfaces:**
+
 - Produces: `ENTITIES: Function[]` (empty array), `BaseRepository<Entity extends ObjectLiteral>`
 
 - [ ] **Step 1: Create entity registry**
@@ -78,17 +80,19 @@ git add libs/database/src && git commit -m "Scaffold database entities and BaseR
 ### Task 2: Dynamic DatabaseModule with TypeORM
 
 **Files:**
+
 - Create: `libs/database/src/lib/database-module.options.ts`
 - Modify: `libs/database/src/lib/database.module.ts`
 - Create: `libs/database/src/lib/database.module.spec.ts`
 - Modify: `libs/database/package.json` (add peer/runtime deps if needed)
 
 **Interfaces:**
+
 - Consumes: `ENTITIES` from Task 1
 - Produces:
-  - `DatabaseConnectionOptions` — `Pick` of Postgres credentials (`url` | host/port/username/password/database/ssl/applicationName)
-  - `DatabaseModuleAsyncOptions` — `{ imports?, inject?, useFactory: (...args) => DatabaseConnectionOptions | Promise<...> }`
-  - `DatabaseModule.forRootAsync(options: DatabaseModuleAsyncOptions): DynamicModule`
+    - `DatabaseConnectionOptions` — `Pick` of Postgres credentials (`url` | host/port/username/password/database/ssl/applicationName)
+    - `DatabaseModuleAsyncOptions` — `{ imports?, inject?, useFactory: (...args) => DatabaseConnectionOptions | Promise<...> }`
+    - `DatabaseModule.forRootAsync(options: DatabaseModuleAsyncOptions): DynamicModule`
 
 - [ ] **Step 1: Write failing test**
 

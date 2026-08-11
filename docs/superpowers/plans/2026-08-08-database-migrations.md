@@ -23,24 +23,25 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `libs/database/src/lib/migrations/index.ts` | Export empty `MIGRATIONS` registry |
-| `libs/database/src/lib/build-typeorm-options.ts` | Pure merge of connection + fixed TypeORM options (entities, migrations, synchronize) |
-| `libs/database/src/lib/database.module.ts` | Call `buildTypeOrmOptions` inside `forRootAsync` factory |
-| `libs/database/src/index.ts` | Re-export migrations barrel |
-| `libs/database/src/lib/__tests__/database.module.spec.ts` | Module + options tests (moved from beside module) |
-| `libs/database/src/lib/__tests__/typeorm.config.spec.ts` | Smoke-test root CLI DataSource |
-| `typeorm.config.ts` | Root CLI `DataSource` (env + glob) |
-| `package.json` | bun migration scripts |
-| `libs/database/README.md` | Register-after-generate note |
-| `libs/database/tsconfig.lib.json` / `tsconfig.spec.json` | Exclude/include `__tests__` correctly |
+| File                                                      | Responsibility                                                                       |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `libs/database/src/lib/migrations/index.ts`               | Export empty `MIGRATIONS` registry                                                   |
+| `libs/database/src/lib/build-typeorm-options.ts`          | Pure merge of connection + fixed TypeORM options (entities, migrations, synchronize) |
+| `libs/database/src/lib/database.module.ts`                | Call `buildTypeOrmOptions` inside `forRootAsync` factory                             |
+| `libs/database/src/index.ts`                              | Re-export migrations barrel                                                          |
+| `libs/database/src/lib/__tests__/database.module.spec.ts` | Module + options tests (moved from beside module)                                    |
+| `libs/database/src/lib/__tests__/typeorm.config.spec.ts`  | Smoke-test root CLI DataSource                                                       |
+| `typeorm.config.ts`                                       | Root CLI `DataSource` (env + glob)                                                   |
+| `package.json`                                            | bun migration scripts                                                                |
+| `libs/database/README.md`                                 | Register-after-generate note                                                         |
+| `libs/database/tsconfig.lib.json` / `tsconfig.spec.json`  | Exclude/include `__tests__` correctly                                                |
 
 ---
 
 ### Task 1: Migrations registry + Nest TypeORM options
 
 **Files:**
+
 - Create: `libs/database/src/lib/migrations/index.ts`
 - Create: `libs/database/src/lib/build-typeorm-options.ts`
 - Modify: `libs/database/src/lib/database.module.ts`
@@ -51,10 +52,11 @@
 - Modify: `libs/database/tsconfig.spec.json` (include `__tests__` specs)
 
 **Interfaces:**
+
 - Consumes: `ENTITIES` from `./entities`, `DatabaseConnectionOptions` from `./database-module.options`
 - Produces:
-  - `MIGRATIONS: Function[]`
-  - `buildTypeOrmOptions(connection: DatabaseConnectionOptions)` returning `{ ...connection, type: 'postgres', entities: ENTITIES, migrations: MIGRATIONS, synchronize: false }`
+    - `MIGRATIONS: Function[]`
+    - `buildTypeOrmOptions(connection: DatabaseConnectionOptions)` returning `{ ...connection, type: 'postgres', entities: ENTITIES, migrations: MIGRATIONS, synchronize: false }`
 
 - [ ] **Step 1: Move existing spec under `__tests__` and write failing migrations assertion**
 
@@ -186,12 +188,14 @@ EOF
 ### Task 2: Root CLI DataSource + bun scripts + docs
 
 **Files:**
+
 - Create: `typeorm.config.ts`
 - Create: `libs/database/src/lib/__tests__/typeorm.config.spec.ts`
 - Modify: `package.json` (scripts)
 - Modify: `libs/database/README.md`
 
 **Interfaces:**
+
 - Consumes: `ENTITIES` from `./libs/database/src/lib/entities` (relative import for CLI/ts-node reliability)
 - Produces: default-exported `DataSource` for TypeORM CLI `-d typeorm.config.ts`
 - Scripts: `migration:generate`, `migration:run`, `migration:revert` via `bunx typeorm-ts-node-commonjs`

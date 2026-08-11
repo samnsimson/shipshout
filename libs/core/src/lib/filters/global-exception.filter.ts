@@ -69,7 +69,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     private logMessage(exception: unknown, body: HttpErrorResponse): string {
-        if (exception instanceof HttpException) return `${body.statusCode} ${body.path} ${typeof body.message === 'string' ? body.message : body.message.join('; ')}`;
+        if (exception instanceof HttpException)
+            return `${body.statusCode} ${body.path} ${typeof body.message === 'string' ? body.message : body.message.join('; ')}`;
         if (exception instanceof Error) return `${body.statusCode} ${body.path} ${exception.message}`;
         return `${body.statusCode} ${body.path} Unexpected error`;
     }

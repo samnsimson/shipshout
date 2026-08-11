@@ -5,7 +5,14 @@ import { isEmail } from 'class-validator';
 import { IncomingHttpHeaders } from 'node:http';
 import { AUTH_OPTIONS } from '../auth-options.token';
 import { auth } from '../auth.config';
-import { AuthApiPayload, AuthLoginResult, AuthLogoutResult, AuthRedirectResult, AuthSessionResult, SocialRedirectResult } from '../contracts/types/auth-api.types';
+import {
+    AuthApiPayload,
+    AuthLoginResult,
+    AuthLogoutResult,
+    AuthRedirectResult,
+    AuthSessionResult,
+    SocialRedirectResult,
+} from '../contracts/types/auth-api.types';
 import { AuthOptions } from '../contracts/types/auth.types';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';

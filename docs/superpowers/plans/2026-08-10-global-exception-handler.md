@@ -19,28 +19,30 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `libs/core/src/lib/filters/http-error-response.ts` | `HttpErrorResponse` type |
-| `libs/core/src/lib/filters/global-exception.filter.ts` | Catch-all Nest exception filter |
-| `libs/core/src/lib/__tests__/global-exception.filter.spec.ts` | Unit tests for the filter |
-| `libs/core/src/index.ts` | Re-export filter + type |
-| `apps/shipshout-api-svc/src/main.ts` | `useGlobalFilters(new GlobalExceptionFilter())` |
+| File                                                          | Responsibility                                  |
+| ------------------------------------------------------------- | ----------------------------------------------- |
+| `libs/core/src/lib/filters/http-error-response.ts`            | `HttpErrorResponse` type                        |
+| `libs/core/src/lib/filters/global-exception.filter.ts`        | Catch-all Nest exception filter                 |
+| `libs/core/src/lib/__tests__/global-exception.filter.spec.ts` | Unit tests for the filter                       |
+| `libs/core/src/index.ts`                                      | Re-export filter + type                         |
+| `apps/shipshout-api-svc/src/main.ts`                          | `useGlobalFilters(new GlobalExceptionFilter())` |
 
 ---
 
 ### Task 1: `GlobalExceptionFilter` + unit tests
 
 **Files:**
+
 - Create: `libs/core/src/lib/filters/http-error-response.ts`
 - Create: `libs/core/src/lib/filters/global-exception.filter.ts`
 - Create: `libs/core/src/lib/__tests__/global-exception.filter.spec.ts`
 - Modify: `libs/core/src/index.ts`
 
 **Interfaces:**
+
 - Produces:
-  - `export type HttpErrorResponse = { statusCode: number; message: string | string[]; error: string; transactionId: string | null; path: string; timestamp: string }`
-  - `export class GlobalExceptionFilter implements ExceptionFilter` with `catch(exception: unknown, host: ArgumentsHost): void`
+    - `export type HttpErrorResponse = { statusCode: number; message: string | string[]; error: string; transactionId: string | null; path: string; timestamp: string }`
+    - `export class GlobalExceptionFilter implements ExceptionFilter` with `catch(exception: unknown, host: ArgumentsHost): void`
 - Consumes: `RequestContext.getTransactionId(): string | undefined`
 
 - [ ] **Step 1: Write the failing tests**
@@ -233,7 +235,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     private logMessage(exception: unknown, body: HttpErrorResponse): string {
-        if (exception instanceof HttpException) return `${body.statusCode} ${body.path} ${typeof body.message === 'string' ? body.message : body.message.join('; ')}`;
+        if (exception instanceof HttpException)
+            return `${body.statusCode} ${body.path} ${typeof body.message === 'string' ? body.message : body.message.join('; ')}`;
         if (exception instanceof Error) return `${body.statusCode} ${body.path} ${exception.message}`;
         return `${body.statusCode} ${body.path} Unexpected error`;
     }
@@ -290,9 +293,11 @@ EOF
 ### Task 2: Register filter in `shipshout-api-svc`
 
 **Files:**
+
 - Modify: `apps/shipshout-api-svc/src/main.ts`
 
 **Interfaces:**
+
 - Consumes: `GlobalExceptionFilter` from `@shipshout/core`
 - Produces: global filter registration at bootstrap (no new public API)
 
@@ -344,14 +349,14 @@ EOF
 
 ## Spec coverage (self-review)
 
-| Spec requirement | Task |
-| --- | --- |
-| Catch-all filter in `@shipshout/core` | Task 1 |
-| Body `{ statusCode, message, error, transactionId, path, timestamp }` | Task 1 |
-| `transactionId` from ALS or `null` | Task 1 |
-| Generic 500 for unexpected errors + server log | Task 1 |
-| Validation `message: string[]` preserved | Task 1 |
-| `useGlobalFilters` in `main.ts` | Task 2 |
-| `CoreModule` unchanged / no `APP_FILTER` | Task 2 (explicit non-change) |
-| No domain remapping in filter | Task 1 (HttpException / unknown only) |
-| Export from core index | Task 1 |
+| Spec requirement                                                      | Task                                  |
+| --------------------------------------------------------------------- | ------------------------------------- |
+| Catch-all filter in `@shipshout/core`                                 | Task 1                                |
+| Body `{ statusCode, message, error, transactionId, path, timestamp }` | Task 1                                |
+| `transactionId` from ALS or `null`                                    | Task 1                                |
+| Generic 500 for unexpected errors + server log                        | Task 1                                |
+| Validation `message: string[]` preserved                              | Task 1                                |
+| `useGlobalFilters` in `main.ts`                                       | Task 2                                |
+| `CoreModule` unchanged / no `APP_FILTER`                              | Task 2 (explicit non-change)          |
+| No domain remapping in filter                                         | Task 1 (HttpException / unknown only) |
+| Export from core index                                                | Task 1                                |

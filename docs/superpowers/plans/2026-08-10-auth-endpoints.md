@@ -21,36 +21,38 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `libs/auth/src/lib/email/email-adapter.ts` | `EmailAdapter` interface + `EMAIL_ADAPTER` token |
-| `libs/auth/src/lib/email/logging-email.adapter.ts` | Default logging implementation |
-| `libs/auth/src/lib/auth.config.ts` | `createAuth(opts, emailAdapter)` + CLI export |
-| `libs/auth/src/lib/auth.options.ts` | Optional `emailAdapter` on async options / AuthOptions if needed |
-| `libs/auth/src/lib/dto/*.ts` | Request/response DTOs |
-| `libs/auth/src/lib/controllers/auth.controller.ts` | HTTP endpoints |
-| `libs/auth/src/lib/utils/auth-http.ts` | Cookie forward + BA error mapping helpers |
-| `libs/auth/src/lib/auth.module.ts` | Register providers + controller |
-| `libs/auth/src/index.ts` | Public exports |
-| `libs/auth/src/lib/__tests__/*` | Unit tests |
-| `libs/auth/package.json` | Add swagger/validator deps as needed |
+| File                                               | Responsibility                                                   |
+| -------------------------------------------------- | ---------------------------------------------------------------- |
+| `libs/auth/src/lib/email/email-adapter.ts`         | `EmailAdapter` interface + `EMAIL_ADAPTER` token                 |
+| `libs/auth/src/lib/email/logging-email.adapter.ts` | Default logging implementation                                   |
+| `libs/auth/src/lib/auth.config.ts`                 | `createAuth(opts, emailAdapter)` + CLI export                    |
+| `libs/auth/src/lib/auth.options.ts`                | Optional `emailAdapter` on async options / AuthOptions if needed |
+| `libs/auth/src/lib/dto/*.ts`                       | Request/response DTOs                                            |
+| `libs/auth/src/lib/controllers/auth.controller.ts` | HTTP endpoints                                                   |
+| `libs/auth/src/lib/utils/auth-http.ts`             | Cookie forward + BA error mapping helpers                        |
+| `libs/auth/src/lib/auth.module.ts`                 | Register providers + controller                                  |
+| `libs/auth/src/index.ts`                           | Public exports                                                   |
+| `libs/auth/src/lib/__tests__/*`                    | Unit tests                                                       |
+| `libs/auth/package.json`                           | Add swagger/validator deps as needed                             |
 
 ---
 
 ### Task 1: Email adapter
 
 **Files:**
+
 - Create: `libs/auth/src/lib/email/email-adapter.ts`
 - Create: `libs/auth/src/lib/email/logging-email.adapter.ts`
 - Create: `libs/auth/src/lib/__tests__/logging-email.adapter.spec.ts`
 - Modify: `libs/auth/src/index.ts`
 
 **Interfaces:**
+
 - Produces:
-  - `EMAIL_ADAPTER = Symbol('EMAIL_ADAPTER')`
-  - `EmailMessage = { to: string; subject: string; html?: string; text?: string }`
-  - `EmailAdapter = { send(message: EmailMessage): Promise<void> }`
-  - `class LoggingEmailAdapter implements EmailAdapter`
+    - `EMAIL_ADAPTER = Symbol('EMAIL_ADAPTER')`
+    - `EmailMessage = { to: string; subject: string; html?: string; text?: string }`
+    - `EmailAdapter = { send(message: EmailMessage): Promise<void> }`
+    - `class LoggingEmailAdapter implements EmailAdapter`
 
 - [ ] **Step 1: Write failing test** for LoggingEmailAdapter (spy Logger).
 - [ ] **Step 2: Implement adapter + token; export; make test pass; commit.**
@@ -60,6 +62,7 @@
 ### Task 2: Wire createAuth + module options
 
 **Files:**
+
 - Modify: `libs/auth/src/lib/auth.config.ts`
 - Modify: `libs/auth/src/lib/auth.options.ts`
 - Modify: `libs/auth/src/lib/auth.module.ts`
@@ -67,6 +70,7 @@
 - Test: extend `auth.module.spec.ts`
 
 **Interfaces:**
+
 - `createAuth(opts: AuthOptions, emailAdapter: EmailAdapter)`
 - `emailAndPassword: { enabled: true, sendResetPassword: async ({ user, url }) => emailAdapter.send(...) }`
 - Only include socialProviders entries when clientId and clientSecret are non-empty
@@ -80,11 +84,13 @@
 ### Task 3: DTOs + HTTP helpers
 
 **Files:**
+
 - Create: `libs/auth/src/lib/dto/register.dto.ts`, `login.dto.ts`, `forgot-password.dto.ts`, `reset-password.dto.ts`, `auth-session-response.dto.ts`, `ok-response.dto.ts`
 - Create: `libs/auth/src/lib/utils/auth-http.ts`
 - Create: `libs/auth/src/lib/__tests__/auth-http.spec.ts`
 
 **Interfaces:**
+
 - DTOs with `class-validator` + `@ApiProperty`
 - `applyAuthCookies(res: Response, headers: Headers): void` — copy every `set-cookie`
 - `mapAuthError(error: unknown): never` — throw Nest HttpException from BA `APIError` status/code
@@ -96,16 +102,18 @@
 ### Task 4: AuthController endpoints
 
 **Files:**
+
 - Modify: `libs/auth/src/lib/controllers/auth.controller.ts`
 - Create: `libs/auth/src/lib/__tests__/auth.controller.spec.ts`
 - Modify: `libs/auth/package.json` if missing `@shipshout/swagger`
 
 **Interfaces:**
+
 - `@Controller('auth')` + `@AllowAnonymous()` (class-level)
 - Methods call:
-  - `this.authService.api.signUpEmail({ body, headers: fromNodeHeaders(req.headers), returnHeaders: true })`
-  - same pattern for `signInEmail`, `requestPasswordReset`, `resetPassword`
-  - social: `signInSocial({ body: { provider, callbackURL? }, headers, returnHeaders: true })` then `res.redirect(url)` when redirect URL present
+    - `this.authService.api.signUpEmail({ body, headers: fromNodeHeaders(req.headers), returnHeaders: true })`
+    - same pattern for `signInEmail`, `requestPasswordReset`, `resetPassword`
+    - social: `signInSocial({ body: { provider, callbackURL? }, headers, returnHeaders: true })` then `res.redirect(url)` when redirect URL present
 - OpenAPI via `@ApiTags('auth')` + `@ApiOperation` / `@ApiResponse` (and `@ApiBody` where needed); follow project Swagger rules
 
 - [ ] **Step 1: Failing controller tests with mocked AuthService.**
@@ -115,11 +123,11 @@
 
 ## Spec coverage
 
-| Spec item | Task |
-| --- | --- |
-| EmailAdapter + logging | 1 |
-| createAuth sendResetPassword + social conditional | 2 |
-| DTOs + cookie/error helpers | 3 |
-| Six Nest routes + OpenAPI | 4 |
-| Cookie + body / ok responses | 4 |
-| Unit tests | 1–4 |
+| Spec item                                         | Task |
+| ------------------------------------------------- | ---- |
+| EmailAdapter + logging                            | 1    |
+| createAuth sendResetPassword + social conditional | 2    |
+| DTOs + cookie/error helpers                       | 3    |
+| Six Nest routes + OpenAPI                         | 4    |
+| Cookie + body / ok responses                      | 4    |
+| Unit tests                                        | 1–4  |

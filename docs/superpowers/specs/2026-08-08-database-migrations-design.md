@@ -11,16 +11,16 @@ Add TypeORM migration support to `@shipshout/database`: Nest registers an explic
 
 ## Decisions
 
-| Topic | Choice |
-| --- | --- |
-| Scope | Config wiring + CLI (no `migrationsRun` on boot) |
-| Migration file location | `libs/database/src/lib/migrations/` |
-| Nest discovery | Explicit `MIGRATIONS` registry (mirrors `ENTITIES`) |
-| CLI discovery | Glob on the migrations folder via root `typeorm.config.ts` |
-| Credentials in Nest APIs | Library does not read `process.env` |
-| Credentials for CLI | Root `typeorm.config.ts` reads env (e.g. `DATABASE_URL`); fail if missing |
-| Package manager | bun / bunx |
-| Spec file location | Under `__tests__` directories |
+| Topic                    | Choice                                                                    |
+| ------------------------ | ------------------------------------------------------------------------- |
+| Scope                    | Config wiring + CLI (no `migrationsRun` on boot)                          |
+| Migration file location  | `libs/database/src/lib/migrations/`                                       |
+| Nest discovery           | Explicit `MIGRATIONS` registry (mirrors `ENTITIES`)                       |
+| CLI discovery            | Glob on the migrations folder via root `typeorm.config.ts`                |
+| Credentials in Nest APIs | Library does not read `process.env`                                       |
+| Credentials for CLI      | Root `typeorm.config.ts` reads env (e.g. `DATABASE_URL`); fail if missing |
+| Package manager          | bun / bunx                                                                |
+| Spec file location       | Under `__tests__` directories                                             |
 
 ## Architecture
 

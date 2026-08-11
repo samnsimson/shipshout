@@ -8,11 +8,11 @@ Canonical path: `docs/nestjs-guidelines.md`
 
 ## 1. Workspace shape
 
-| Kind | Location | Package name | Notes |
-| --- | --- | --- | --- |
-| HTTP API app | `apps/shipshout-api-svc` | `@shipshout/shipshout-api-svc` | Nest bootstrap, controllers, app-level wiring |
-| API e2e | `apps/shipshout-api-svc-e2e` | `@shipshout/shipshout-api-svc-e2e` | Jest e2e against the API |
-| Shared libs | `libs/<name>` | `@shipshout/<name>` | Reusable Nest modules, domain infra |
+| Kind         | Location                     | Package name                       | Notes                                         |
+| ------------ | ---------------------------- | ---------------------------------- | --------------------------------------------- |
+| HTTP API app | `apps/shipshout-api-svc`     | `@shipshout/shipshout-api-svc`     | Nest bootstrap, controllers, app-level wiring |
+| API e2e      | `apps/shipshout-api-svc-e2e` | `@shipshout/shipshout-api-svc-e2e` | Jest e2e against the API                      |
+| Shared libs  | `libs/<name>`                | `@shipshout/<name>`                | Reusable Nest modules, domain infra           |
 
 - Manage packages with **bun** (`bun`, `bunx`). Prefer `bun nx …` / `bunx nx …` over `npx nx …`.
 - Use Nx generators/move tools for new apps/libs and renames; do not hand-copy project scaffolding unless Nx cannot do the job.
@@ -73,24 +73,24 @@ Group files by **role** in plural, lowercase folders. Do not leave controllers, 
 
 ### Standard role folders
 
-| Folder | Contains |
-| --- | --- |
-| `controllers/` | HTTP (or RPC) controllers |
-| `services/` | `@Injectable()` application/domain services |
-| `dto/` | Request/response DTOs (`class-validator` / `class-transformer`) |
-| `entities/` | TypeORM entity classes (prefer owning these in `@shipshout/database` — see §6) |
-| `repositories/` | Custom repositories extending `BaseRepository` |
-| `guards/` | AuthZ/AuthN and other guards |
-| `pipes/` | Custom pipes |
-| `interceptors/` | Interceptors |
-| `filters/` | Exception filters |
-| `middleware/` | Nest middleware |
-| `factories/` | Provider factories, factory functions used by dynamic modules / DI |
-| `decorators/` | Custom parameter/method/class decorators |
-| `constants/` | Injection tokens, static maps, non-secret constants |
-| `interfaces/` | Shared TS interfaces/types that are not DTOs |
-| `migrations/` | TypeORM migrations (`@shipshout/database` only) |
-| `__tests__/` | Unit/integration specs for that module/lib area |
+| Folder          | Contains                                                                       |
+| --------------- | ------------------------------------------------------------------------------ |
+| `controllers/`  | HTTP (or RPC) controllers                                                      |
+| `services/`     | `@Injectable()` application/domain services                                    |
+| `dto/`          | Request/response DTOs (`class-validator` / `class-transformer`)                |
+| `entities/`     | TypeORM entity classes (prefer owning these in `@shipshout/database` — see §6) |
+| `repositories/` | Custom repositories extending `BaseRepository`                                 |
+| `guards/`       | AuthZ/AuthN and other guards                                                   |
+| `pipes/`        | Custom pipes                                                                   |
+| `interceptors/` | Interceptors                                                                   |
+| `filters/`      | Exception filters                                                              |
+| `middleware/`   | Nest middleware                                                                |
+| `factories/`    | Provider factories, factory functions used by dynamic modules / DI             |
+| `decorators/`   | Custom parameter/method/class decorators                                       |
+| `constants/`    | Injection tokens, static maps, non-secret constants                            |
+| `interfaces/`   | Shared TS interfaces/types that are not DTOs                                   |
+| `migrations/`   | TypeORM migrations (`@shipshout/database` only)                                |
+| `__tests__/`    | Unit/integration specs for that module/lib area                                |
 
 Create a folder only when you add the first file of that kind. Do not pre-create empty role folders “for later.”
 
@@ -159,7 +159,9 @@ libs/<name>/src/
 ```ts
 // Feature module skeleton
 @Module({
-    imports: [/* other modules */],
+    imports: [
+        /* other modules */
+    ],
     controllers: [FeatureController],
     providers: [FeatureService, FeatureRepository],
     exports: [FeatureService], // export services, never the module itself
@@ -188,16 +190,16 @@ Match the existing `DatabaseModule.forRootAsync` style:
 
 Follow the library’s design; do not bypass it.
 
-| Concern | Rule |
-| --- | --- |
-| Connection | Apps call `DatabaseModule.forRootAsync({ imports, inject, useFactory })` with **connection-only** options (`url` or host/port/user/password/database/ssl/applicationName). |
-| Driver / entities | Library fixes `type: 'postgres'`, registers `ENTITIES`, sets `synchronize: false`. Callers must not pass `type` or `entities`. |
-| Entity ownership | New entities live under `libs/database/src/lib/entities/` and are registered in `ENTITIES`. |
-| Repositories | Extend `BaseRepository<Entity>`; do not reinvent TypeORM repository wrapping. |
-| Migrations (Nest) | Register migration classes in `MIGRATIONS` (`libs/database/src/lib/migrations/index.ts`). |
-| Migrations (CLI) | Repo-root `typeorm.config.ts` + bun scripts `migration:generate` / `migration:run` / `migration:revert`. Requires `DATABASE_URL`. |
-| Auto-migrate | **Never** enable `migrationsRun` on boot unless a dedicated decision says otherwise. |
-| Env | Library Nest APIs do not read `process.env`; only the CLI DataSource may. |
+| Concern           | Rule                                                                                                                                                                       |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Connection        | Apps call `DatabaseModule.forRootAsync({ imports, inject, useFactory })` with **connection-only** options (`url` or host/port/user/password/database/ssl/applicationName). |
+| Driver / entities | Library fixes `type: 'postgres'`, registers `ENTITIES`, sets `synchronize: false`. Callers must not pass `type` or `entities`.                                             |
+| Entity ownership  | New entities live under `libs/database/src/lib/entities/` and are registered in `ENTITIES`.                                                                                |
+| Repositories      | Extend `BaseRepository<Entity>`; do not reinvent TypeORM repository wrapping.                                                                                              |
+| Migrations (Nest) | Register migration classes in `MIGRATIONS` (`libs/database/src/lib/migrations/index.ts`).                                                                                  |
+| Migrations (CLI)  | Repo-root `typeorm.config.ts` + bun scripts `migration:generate` / `migration:run` / `migration:revert`. Requires `DATABASE_URL`.                                          |
+| Auto-migrate      | **Never** enable `migrationsRun` on boot unless a dedicated decision says otherwise.                                                                                       |
+| Env               | Library Nest APIs do not read `process.env`; only the CLI DataSource may.                                                                                                  |
 
 Wire `DatabaseModule` into `AppModule` only when intentionally connecting the API to Postgres (pass config from `ConfigService`).
 

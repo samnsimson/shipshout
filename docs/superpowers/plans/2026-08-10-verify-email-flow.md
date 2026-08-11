@@ -21,27 +21,28 @@
 
 ## File map
 
-| File | Responsibility |
-| --- | --- |
-| `libs/auth/src/lib/contracts/schema/auth.schema.ts` | Add `clientAppUrl` |
-| `libs/auth/src/lib/auth.config.ts` | `emailVerification.sendVerificationEmail` + link rewrite |
-| `libs/auth/src/lib/utils/auth-http.ts` | `sendVerificationEmail` helper |
-| `libs/auth/src/lib/dto/verify-email.dto.ts` | `{ token }` |
-| `libs/auth/src/lib/dto/resend-verification.dto.ts` | `{ email }` |
-| `libs/auth/src/lib/services/auth.service.ts` | `verifyEmail`, `resendVerification` |
-| `libs/auth/src/lib/controllers/auth.controller.ts` | Nest routes |
-| `libs/auth/.../__tests__/*` | Unit coverage |
-| `apps/shipshout-api-svc/src/app/app.module.ts` | Inject `CLIENT_APP_URL` |
-| `.env.example` (+ local `.env` if needed) | Document `CLIENT_APP_URL` |
-| `apps/shipshout-client-dashboard/src/lib/auth/actions.ts` | Register redirect + resend action |
-| `apps/.../components/auth/resend-verification-form.tsx` | Resend UI |
-| `apps/.../app/(auth)/verify-email/page.tsx` | Awaiting / success / error states via Nest |
+| File                                                      | Responsibility                                           |
+| --------------------------------------------------------- | -------------------------------------------------------- |
+| `libs/auth/src/lib/contracts/schema/auth.schema.ts`       | Add `clientAppUrl`                                       |
+| `libs/auth/src/lib/auth.config.ts`                        | `emailVerification.sendVerificationEmail` + link rewrite |
+| `libs/auth/src/lib/utils/auth-http.ts`                    | `sendVerificationEmail` helper                           |
+| `libs/auth/src/lib/dto/verify-email.dto.ts`               | `{ token }`                                              |
+| `libs/auth/src/lib/dto/resend-verification.dto.ts`        | `{ email }`                                              |
+| `libs/auth/src/lib/services/auth.service.ts`              | `verifyEmail`, `resendVerification`                      |
+| `libs/auth/src/lib/controllers/auth.controller.ts`        | Nest routes                                              |
+| `libs/auth/.../__tests__/*`                               | Unit coverage                                            |
+| `apps/shipshout-api-svc/src/app/app.module.ts`            | Inject `CLIENT_APP_URL`                                  |
+| `.env.example` (+ local `.env` if needed)                 | Document `CLIENT_APP_URL`                                |
+| `apps/shipshout-client-dashboard/src/lib/auth/actions.ts` | Register redirect + resend action                        |
+| `apps/.../components/auth/resend-verification-form.tsx`   | Resend UI                                                |
+| `apps/.../app/(auth)/verify-email/page.tsx`               | Awaiting / success / error states via Nest               |
 
 ---
 
 ### Task 1: Nest email verification send config + adapter
 
 **Files:**
+
 - Modify: `libs/auth/src/lib/contracts/schema/auth.schema.ts`
 - Modify: `libs/auth/src/lib/auth.config.ts`
 - Modify: `libs/auth/src/lib/utils/auth-http.ts`
@@ -51,11 +52,12 @@
 - Modify: `.env` (local only; do not commit secrets)
 
 **Interfaces:**
+
 - Consumes: existing `EmailAdapter.send`, `AuthOptions`
 - Produces:
-  - `AuthOptions.clientAppUrl: string` (required)
-  - `AuthUtils.sendVerificationEmail(user: { email: string }, url: string): Promise<void>`
-  - BA `emailVerification.sendVerificationEmail` builds `url = \`${opts.clientAppUrl.replace(/\/$/, '')}/verify-email?token=${encodeURIComponent(token)}\``
+    - `AuthOptions.clientAppUrl: string` (required)
+    - `AuthUtils.sendVerificationEmail(user: { email: string }, url: string): Promise<void>`
+    - BA `emailVerification.sendVerificationEmail` builds `url = \`${opts.clientAppUrl.replace(/\/$/, '')}/verify-email?token=${encodeURIComponent(token)}\``
 
 - [ ] **Step 1: Write failing adapter test**
 
@@ -163,6 +165,7 @@ EOF
 ### Task 2: Nest `POST /auth/verify-email` + `POST /auth/resend-verification`
 
 **Files:**
+
 - Create: `libs/auth/src/lib/dto/verify-email.dto.ts`
 - Create: `libs/auth/src/lib/dto/resend-verification.dto.ts`
 - Modify: `libs/auth/src/lib/services/auth.service.ts`
@@ -171,12 +174,13 @@ EOF
 - Modify: `libs/auth/src/lib/__tests__/auth.controller.spec.ts`
 
 **Interfaces:**
+
 - Consumes: `betterAuth.api.verifyEmail({ query: { token } })`, `betterAuth.api.sendVerificationEmail({ body: { email, callbackURL? }, headers })`
 - Produces:
-  - `AuthService.verifyEmail(body, headers): Promise<OkResponseDto>` → `{ ok: true }`
-  - `AuthService.resendVerification(body, headers): Promise<OkResponseDto>` → always `{ ok: true }`
-  - `POST /auth/verify-email` body `{ token: string }`
-  - `POST /auth/resend-verification` body `{ email: string }`
+    - `AuthService.verifyEmail(body, headers): Promise<OkResponseDto>` → `{ ok: true }`
+    - `AuthService.resendVerification(body, headers): Promise<OkResponseDto>` → always `{ ok: true }`
+    - `POST /auth/verify-email` body `{ token: string }`
+    - `POST /auth/resend-verification` body `{ email: string }`
 - Note: BA `verifyEmail` is GET; call with **query**, omit `callbackURL` so errors throw instead of redirect. Do **not** use `returnHeaders: true` / do not apply cookies on verify.
 
 - [ ] **Step 1: Write failing service tests**
@@ -194,9 +198,7 @@ Add cases:
 it('verifyEmail calls BA with query token and returns ok', async () => {
     api.verifyEmail.mockResolvedValue({ status: true, user: { id: '1' } });
     await expect(service.verifyEmail({ token: 'tok' }, {})).resolves.toEqual({ ok: true });
-    expect(api.verifyEmail).toHaveBeenCalledWith(
-        expect.objectContaining({ query: { token: 'tok' } }),
-    );
+    expect(api.verifyEmail).toHaveBeenCalledWith(expect.objectContaining({ query: { token: 'tok' } }));
 });
 
 it('resendVerification returns ok even when BA throws', async () => {
@@ -328,17 +330,19 @@ EOF
 ### Task 3: Dashboard register → `/verify-email` + Nest-backed verify/resend UI
 
 **Files:**
+
 - Modify: `apps/shipshout-client-dashboard/src/lib/auth/actions.ts`
 - Create: `apps/shipshout-client-dashboard/src/components/auth/resend-verification-form.tsx`
 - Modify: `apps/shipshout-client-dashboard/src/app/(auth)/verify-email/page.tsx`
 - Do **not** change `proxy.ts` matcher (keep `/verify-email` off guest bounce list)
 
 **Interfaces:**
+
 - Consumes: `POST /auth/verify-email`, `POST /auth/resend-verification`, existing `authFetch` / `applySetCookies` / `readErrorMessage`
 - Produces:
-  - `registerAction` → on success without session token: `redirect('/verify-email?email=…')` (no cookie apply); with session token: keep cookie apply + `/dashboard`
-  - `resendVerificationAction(formData): Promise<AuthActionResult>`
-  - Page states: awaiting / verified / failed
+    - `registerAction` → on success without session token: `redirect('/verify-email?email=…')` (no cookie apply); with session token: keep cookie apply + `/dashboard`
+    - `resendVerificationAction(formData): Promise<AuthActionResult>`
+    - Page states: awaiting / verified / failed
 
 - [ ] **Step 1: Update `registerAction` + add `resendVerificationAction`**
 
@@ -470,18 +474,18 @@ EOF
 
 ## Spec coverage checklist
 
-| Spec requirement | Task |
-| --- | --- |
-| `emailVerification.sendVerificationEmail` + dashboard link rewrite | Task 1 |
-| `CLIENT_APP_URL` / `clientAppUrl` | Task 1 |
-| `autoSignInAfterVerification: false` | Task 1 |
-| `POST /auth/verify-email` → BA `verifyEmail` | Task 2 |
-| `POST /auth/resend-verification` always `{ ok: true }` | Task 2 |
-| Register → `/verify-email?email=` when no session | Task 3 |
-| Nest-backed verify page (not `/auth-service`) | Task 3 |
-| Resend form + non-enumerating copy | Task 3 |
-| Success → login CTA only | Task 3 |
-| Proxy leaves `/verify-email` reachable | Task 3 (explicit non-change) |
+| Spec requirement                                                   | Task                         |
+| ------------------------------------------------------------------ | ---------------------------- |
+| `emailVerification.sendVerificationEmail` + dashboard link rewrite | Task 1                       |
+| `CLIENT_APP_URL` / `clientAppUrl`                                  | Task 1                       |
+| `autoSignInAfterVerification: false`                               | Task 1                       |
+| `POST /auth/verify-email` → BA `verifyEmail`                       | Task 2                       |
+| `POST /auth/resend-verification` always `{ ok: true }`             | Task 2                       |
+| Register → `/verify-email?email=` when no session                  | Task 3                       |
+| Nest-backed verify page (not `/auth-service`)                      | Task 3                       |
+| Resend form + non-enumerating copy                                 | Task 3                       |
+| Success → login CTA only                                           | Task 3                       |
+| Proxy leaves `/verify-email` reachable                             | Task 3 (explicit non-change) |
 
 ## Manual verification (end)
 

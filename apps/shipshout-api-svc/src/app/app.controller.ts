@@ -10,8 +10,7 @@ export class AppController {
     @Get()
     @ApiResource({
         name: 'app',
-        summary: 'Health / hello',
-        description: 'Returns a simple greeting payload',
+        operationId: 'getHello',
         status: 200,
         isPublic: true,
         response: HelloResponseDto,
