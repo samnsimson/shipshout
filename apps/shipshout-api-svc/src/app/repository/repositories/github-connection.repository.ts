@@ -1,6 +1,14 @@
+import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { BaseRepository, GithubConnectionEntity } from '@shipshout/database';
+import { DataSource } from 'typeorm';
 
+@Injectable()
 export class GithubConnectionRepository extends BaseRepository<GithubConnectionEntity> {
+    constructor(@InjectDataSource() dataSource: DataSource) {
+        super(GithubConnectionEntity, dataSource);
+    }
+
     findByUserId(userId: string): Promise<GithubConnectionEntity | null> {
         return this.findOne({ where: { userId } });
     }

@@ -1,7 +1,14 @@
+import { Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
 import { BaseRepository, LinkedRepositoryEntity } from '@shipshout/database';
-import { DeleteResult } from 'typeorm';
+import { DataSource, DeleteResult } from 'typeorm';
 
+@Injectable()
 export class LinkedRepositoryRepository extends BaseRepository<LinkedRepositoryEntity> {
+    constructor(@InjectDataSource() dataSource: DataSource) {
+        super(LinkedRepositoryEntity, dataSource);
+    }
+
     findByUserId(userId: string): Promise<LinkedRepositoryEntity[]> {
         return this.find({ where: { userId }, order: { linkedAt: 'DESC' } });
     }

@@ -195,7 +195,7 @@ Follow the library’s design; do not bypass it.
 | Connection        | Apps call `DatabaseModule.forRootAsync({ imports, inject, useFactory })` with **connection-only** options (`url` or host/port/user/password/database/ssl/applicationName). |
 | Driver / entities | Library fixes `type: 'postgres'`, discovers entities via glob, sets `synchronize: false`. Callers must not pass `type` or `entities`.                                       |
 | Entity ownership  | New entities live under `libs/database/src/lib/entities/` as `*.entity.ts` (picked up by the glob).                                                                         |
-| Repositories      | Extend `BaseRepository<Entity>`; do not reinvent TypeORM repository wrapping.                                                                                              |
+| Repositories      | Extend `BaseRepository<Entity>` as `@Injectable()`; inject `DataSource` via `@InjectDataSource()` and call `super(dataSource, Entity)`. List the class in `providers` — no `forFeature` / factory helpers. |
 | Migrations (Nest) | Discovered via `path.join(__dirname, 'migrations/**/*.{ts,js}')` in `buildTypeOrmOptions`.                                                                                 |
 | Migrations (CLI)  | Repo-root `typeorm.config.ts` + bun scripts `migration:generate` / `migration:run` / `migration:revert`. Requires `DATABASE_URL`.                                          |
 | Auto-migrate      | **Never** enable `migrationsRun` on boot unless a dedicated decision says otherwise.                                                                                       |

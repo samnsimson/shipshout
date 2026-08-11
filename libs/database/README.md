@@ -25,3 +25,17 @@ CLI discovery (`typeorm.config.ts`) uses absolute globs from the repo root:
 - migrations: `libs/database/src/lib/migrations/**/*.{ts,js}`
 
 Nest `buildTypeOrmOptions` uses the same style relative to this package's `lib/` dir via `path.join(__dirname, 'entities/**/*.entity.{ts,js}')` and `path.join(__dirname, 'migrations/**/*.{ts,js}')`.
+
+Feature modules must **not** call `TypeOrmModule.forFeature`. Register `DatabaseModule.forRootAsync` once in the app. Custom repos are normal Nest providers:
+
+```ts
+@Injectable()
+export class GithubConnectionRepository extends BaseRepository<GithubConnectionEntity> {
+    constructor(@InjectDataSource() dataSource: DataSource) {
+        super(dataSource, GithubConnectionEntity);
+    }
+}
+
+@Module({ providers: [GithubConnectionRepository] })
+export class RepositoryModule {}
+```
