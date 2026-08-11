@@ -15,7 +15,8 @@ function buildStripePlugin(opts: AuthOptions) {
 
     const stripeClient = new Stripe(opts.stripeSecretKey, { apiVersion: '2026-07-29.dahlia' });
     return stripe({
-        stripeClient,
+        // Stripe CJS/ESM typings diverge under bun+tsc; runtime client is fine for the plugin.
+        stripeClient: stripeClient as never,
         stripeWebhookSecret: opts.stripeWebhookSecret,
         createCustomerOnSignUp: true,
         subscription: {

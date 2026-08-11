@@ -1,34 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { ApiResource } from '@shipshout/swagger';
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
+import type { Request } from 'express';
+import { SubscriptionMeResponseDto, SubscriptionPlansListResponseDto } from './dto/subscription-response.dto';
 import { SubscriptionService } from './subscription.service';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
 
-@Controller('subscription')
+@ApiTags('subscriptions')
+@Controller('subscriptions')
 export class SubscriptionController {
     constructor(private readonly subscriptionService: SubscriptionService) {}
 
-    @Post()
-    create(@Body() createSubscriptionDto: CreateSubscriptionDto) {
-        return this.subscriptionService.create(createSubscriptionDto);
+    @Get('plans')
+    @ApiResource({ operationId: 'listSubscriptionPlans', status: 200, response: SubscriptionPlansListResponseDto })
+    listPlans(): Promise<SubscriptionPlansListResponseDto> {
+        return this.subscriptionService.listPlans();
     }
 
-    @Get()
-    findAll() {
-        return this.subscriptionService.findAll();
-    }
-
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.subscriptionService.findOne(+id);
-    }
-
-    @Patch(':id')
-    update(@Param('id') id: string, @Body() updateSubscriptionDto: UpdateSubscriptionDto) {
-        return this.subscriptionService.update(+id, updateSubscriptionDto);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.subscriptionService.remove(+id);
+    @Get('me')
+    @ApiResource({ operationId: 'getMySubscription', status: 200, response: SubscriptionMeResponseDto })
+    getMe(@Session() session: UserSession, @Req() req: Request): Promise<SubscriptionMeResponseDto> {
+        return this.subscriptionService.getMe(session.user.id, req.headers);
     }
 }

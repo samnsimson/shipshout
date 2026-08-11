@@ -1,26 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionDto } from './dto/create-subscription.dto';
-import { UpdateSubscriptionDto } from './dto/update-subscription.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { SubscriptionPlanLimits, SubscriptionPlanRepository } from '@shipshout/database';
+import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
+import { IncomingHttpHeaders } from 'node:http';
+import { SubscriptionMeResponseDto, SubscriptionPlansListResponseDto } from './dto/subscription-response.dto';
+
+type ListedSubscription = {
+    status?: string | null;
+    plan?: string | null;
+    periodEnd?: Date | string | null;
+    stripeSubscriptionId?: string | null;
+    limits?: SubscriptionPlanLimits | null;
+};
+
+type BetterAuthApi = {
+    api: {
+        listActiveSubscriptions: (args: { headers: Headers; query: Record<string, unknown> }) => Promise<ListedSubscription[] | null>;
+    };
+};
+
+function toWebHeaders(incoming: IncomingHttpHeaders): Headers {
+    const headers = new Headers();
+    for (const [key, value] of Object.entries(incoming)) {
+        if (value === undefined) continue;
+        if (Array.isArray(value)) {
+            for (const item of value) headers.append(key, item);
+            continue;
+        }
+        headers.set(key, value);
+    }
+    return headers;
+}
 
 @Injectable()
 export class SubscriptionService {
-    create(createSubscriptionDto: CreateSubscriptionDto) {
-        return 'This action adds a new subscription';
+    constructor(
+        private readonly plans: SubscriptionPlanRepository,
+        private readonly betterAuth: BetterAuthService,
+    ) {}
+
+    async listPlans(): Promise<SubscriptionPlansListResponseDto> {
+        const rows = await this.plans.findActiveOrdered();
+        return {
+            plans: rows.map((row) => ({
+                name: row.name,
+                displayName: row.displayName,
+                trialDays: row.trialDays,
+                limits: row.limits,
+                isBillable: Boolean(row.stripePriceId),
+            })),
+        };
     }
 
-    findAll() {
-        return `This action returns all subscription`;
-    }
+    async getMe(_userId: string, headers: IncomingHttpHeaders): Promise<SubscriptionMeResponseDto> {
+        const listed = await (this.betterAuth as unknown as BetterAuthApi).api.listActiveSubscriptions({
+            headers: toWebHeaders(headers),
+            query: {},
+        });
 
-    findOne(id: number) {
-        return `This action returns a #${id} subscription`;
-    }
+        const active = (listed ?? []).find((sub) => sub.status === 'active' || sub.status === 'trialing');
+        if (!active?.plan) {
+            const free = await this.plans.findActiveByName('free');
+            if (!free) throw new NotFoundException('Free plan is not configured');
+            return { plan: 'free', status: null, periodEnd: null, stripeSubscriptionId: null, limits: free.limits };
+        }
 
-    update(id: number, updateSubscriptionDto: UpdateSubscriptionDto) {
-        return `This action updates a #${id} subscription`;
-    }
-
-    remove(id: number) {
-        return `This action removes a #${id} subscription`;
+        const planRow = await this.plans.findActiveByName(active.plan);
+        const limits = planRow?.limits ?? active.limits ?? { repos: 0, releasesPerMonth: 0 };
+        const periodEnd = active.periodEnd ? new Date(active.periodEnd).toISOString() : null;
+        return {
+            plan: active.plan,
+            status: active.status ?? null,
+            periodEnd,
+            stripeSubscriptionId: active.stripeSubscriptionId ?? null,
+            limits,
+        };
     }
 }
