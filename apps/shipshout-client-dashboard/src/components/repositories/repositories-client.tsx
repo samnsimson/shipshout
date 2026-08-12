@@ -1,8 +1,9 @@
 'use client';
 
 import { Alert, Badge, Box, Button, Checkbox, Flex, Input, InputGroup, Link as ChakraLink, NativeSelect, Stack, Table, Text } from '@chakra-ui/react';
+import Link from 'next/link';
 import { useDeferredValue, useMemo, useState, useTransition } from 'react';
-import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Unlink } from 'lucide-react';
+import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Settings2, Unlink } from 'lucide-react';
 import { disconnectGithubAction, linkRepositoriesAction, unlinkRepositoryAction } from '../../lib/repositories/actions';
 import { QueryBanner } from './query-banner';
 import type { GithubConnectionResponseDto, GithubRepoDto, LinkedRepositoryResponseDto } from '@shipshout/api-client';
@@ -243,24 +244,34 @@ export function RepositoriesClient(props: {
                                         <Table.Cell color="fg.muted">{repo.owner}</Table.Cell>
                                         <Table.Cell color="fg.muted">{repo.private ? 'Private' : 'Public'}</Table.Cell>
                                         <Table.Cell textAlign="end">
-                                            <Button
-                                                size="sm"
-                                                variant="outline"
-                                                borderColor="border.hairline"
-                                                borderRadius="full"
-                                                gap="xs"
-                                                onClick={() =>
-                                                    startTransition(() => {
-                                                        unlinkRepositoryAction(repo.id).then((res) => {
-                                                            if (!res.ok) setError(res.error);
-                                                        });
-                                                    })
-                                                }
-                                                loading={pending}
-                                            >
-                                                <Unlink size={14} strokeWidth={2} aria-hidden />
-                                                Unlink
-                                            </Button>
+                                            <Flex justify="flex-end" gap="xs" flexWrap="wrap">
+                                                <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
+                                                    <Link href={`/dashboard/repositories/${repo.id}`}>
+                                                        <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full" gap="xs">
+                                                            <Settings2 size={14} strokeWidth={2} aria-hidden />
+                                                            Configure
+                                                        </Button>
+                                                    </Link>
+                                                </ChakraLink>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    borderColor="border.hairline"
+                                                    borderRadius="full"
+                                                    gap="xs"
+                                                    onClick={() =>
+                                                        startTransition(() => {
+                                                            unlinkRepositoryAction(repo.id).then((res) => {
+                                                                if (!res.ok) setError(res.error);
+                                                            });
+                                                        })
+                                                    }
+                                                    loading={pending}
+                                                >
+                                                    <Unlink size={14} strokeWidth={2} aria-hidden />
+                                                    Unlink
+                                                </Button>
+                                            </Flex>
                                         </Table.Cell>
                                     </Table.Row>
                                 ))}

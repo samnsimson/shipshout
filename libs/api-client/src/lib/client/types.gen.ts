@@ -35,20 +35,12 @@ export type AuthUserDto = {
     emailVerified?: boolean;
 };
 
-export type AuthSessionDto = {
-    /**
-     * Session token when returned by Better Auth
-     */
-    token?: string;
-    id?: string;
-    expiresAt?: {
-        [key: string]: unknown;
-    };
-};
-
 export type AuthSessionResponseDto = {
     user: AuthUserDto;
-    session: AuthSessionDto;
+    /**
+     * JWT access token (15 min)
+     */
+    accessToken: string;
 };
 
 export type LoginDto = {
@@ -57,6 +49,13 @@ export type LoginDto = {
      */
     login: string;
     password: string;
+};
+
+export type AuthRefreshResponseDto = {
+    /**
+     * JWT access token (15 min)
+     */
+    accessToken: string;
 };
 
 export type OkResponseDto = {
@@ -153,6 +152,93 @@ export type LinkRepositoriesDto = {
 
 export type LinkRepositoriesResponseDto = {
     linked: Array<LinkedRepositoryResponseDto>;
+};
+
+export type RepositoryTriggersDto = {
+    release: boolean;
+    tagPush: boolean;
+    branchPush: boolean;
+};
+
+export type WebhookManualSetupDto = {
+    url: string;
+    secret: string;
+    instructions: string;
+};
+
+export type RepositoryWebhookStatusDto = {
+    status: 'pending' | 'active' | 'manual_required' | 'error' | 'not_configured';
+    lastDeliveryAt?: string | null;
+    lastError?: string | null;
+    manualSetup?: WebhookManualSetupDto | null;
+};
+
+export type LinkedRepositoryDetailResponseDto = {
+    id: string;
+    githubId: number;
+    fullName: string;
+    name: string;
+    owner: string;
+    defaultBranch: string;
+    private: boolean;
+    htmlUrl: string;
+    linkedAt: string;
+    triggers: RepositoryTriggersDto;
+    activeTriggerCount: number;
+    webhook: RepositoryWebhookStatusDto;
+};
+
+export type RepositoryTriggersResponseDto = {
+    triggers: RepositoryTriggersDto;
+    webhook: RepositoryWebhookStatusDto;
+};
+
+export type UpdateRepositoryTriggersDto = {
+    release: boolean;
+    tagPush: boolean;
+    branchPush: boolean;
+};
+
+export type TriggerEventResponseDto = {
+    id: string;
+    eventType: string;
+    triggerType: string;
+    summary: string;
+    status: string;
+    shoutoutId?: string | null;
+    createdAt: string;
+};
+
+export type TriggerEventListResponseDto = {
+    events: Array<TriggerEventResponseDto>;
+};
+
+export type ShoutoutResponseDto = {
+    id: string;
+    title: string;
+    status: string;
+    linkedRepositoryId: string;
+    repositoryFullName: string;
+    triggerType: string;
+    createdAt: string;
+};
+
+export type ShoutoutListResponseDto = {
+    shoutouts: Array<ShoutoutResponseDto>;
+};
+
+export type ShoutoutDetailResponseDto = {
+    id: string;
+    title: string;
+    status: string;
+    linkedRepositoryId: string;
+    repositoryFullName: string;
+    triggerType: string;
+    createdAt: string;
+    sourceSummary: {
+        [key: string]: unknown;
+    };
+    triggerEventId: string;
 };
 
 export type SubscriptionPlanLimitsDto = {
@@ -350,6 +436,26 @@ export type AuthControllerSessionResponses = {
 };
 
 export type AuthControllerSessionResponse = AuthControllerSessionResponses[keyof AuthControllerSessionResponses];
+
+export type AuthControllerRefreshData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/refresh';
+};
+
+export type AuthControllerRefreshErrors = {
+    /**
+     * Invalid or expired refresh token
+     */
+    401: unknown;
+};
+
+export type AuthControllerRefreshResponses = {
+    200: AuthRefreshResponseDto;
+};
+
+export type AuthControllerRefreshResponse = AuthControllerRefreshResponses[keyof AuthControllerRefreshResponses];
 
 export type AuthControllerLogoutData = {
     body?: never;
@@ -623,6 +729,194 @@ export type UnlinkRepositoryResponses = {
 };
 
 export type UnlinkRepositoryResponse = UnlinkRepositoryResponses[keyof UnlinkRepositoryResponses];
+
+export type GetLinkedRepositoryDetailData = {
+    body?: never;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/repositories/{id}';
+};
+
+export type GetLinkedRepositoryDetailErrors = {
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type GetLinkedRepositoryDetailResponses = {
+    /**
+     * Get Linked Repository Detail
+     */
+    200: LinkedRepositoryDetailResponseDto;
+};
+
+export type GetLinkedRepositoryDetailResponse = GetLinkedRepositoryDetailResponses[keyof GetLinkedRepositoryDetailResponses];
+
+export type GetRepositoryTriggersData = {
+    body?: never;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/repositories/{id}/triggers';
+};
+
+export type GetRepositoryTriggersErrors = {
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type GetRepositoryTriggersResponses = {
+    /**
+     * Get Repository Triggers
+     */
+    200: RepositoryTriggersResponseDto;
+};
+
+export type GetRepositoryTriggersResponse = GetRepositoryTriggersResponses[keyof GetRepositoryTriggersResponses];
+
+export type UpdateRepositoryTriggersData = {
+    body: UpdateRepositoryTriggersDto;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/repositories/{id}/triggers';
+};
+
+export type UpdateRepositoryTriggersErrors = {
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type UpdateRepositoryTriggersResponses = {
+    /**
+     * Update Repository Triggers
+     */
+    200: RepositoryTriggersResponseDto;
+};
+
+export type UpdateRepositoryTriggersResponse = UpdateRepositoryTriggersResponses[keyof UpdateRepositoryTriggersResponses];
+
+export type ListRepositoryTriggerEventsData = {
+    body?: never;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: {
+        limit?: string;
+    };
+    url: '/repositories/{id}/events';
+};
+
+export type ListRepositoryTriggerEventsErrors = {
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type ListRepositoryTriggerEventsResponses = {
+    /**
+     * List Repository Trigger Events
+     */
+    200: TriggerEventListResponseDto;
+};
+
+export type ListRepositoryTriggerEventsResponse = ListRepositoryTriggerEventsResponses[keyof ListRepositoryTriggerEventsResponses];
+
+export type IngestGithubWebhookData = {
+    body?: never;
+    path: {
+        /**
+         * Webhook delivery token
+         */
+        deliveryToken: string;
+    };
+    query?: never;
+    url: '/webhooks/github/{deliveryToken}';
+};
+
+export type IngestGithubWebhookErrors = {
+    /**
+     * Invalid webhook signature
+     */
+    401: unknown;
+    /**
+     * Webhook not found
+     */
+    404: unknown;
+};
+
+export type IngestGithubWebhookResponses = {
+    /**
+     * Ingest Github Webhook
+     */
+    200: unknown;
+};
+
+export type ListShoutoutsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/shoutouts';
+};
+
+export type ListShoutoutsResponses = {
+    /**
+     * List Shoutouts
+     */
+    200: ShoutoutListResponseDto;
+};
+
+export type ListShoutoutsResponse = ListShoutoutsResponses[keyof ListShoutoutsResponses];
+
+export type GetShoutoutData = {
+    body?: never;
+    path: {
+        /**
+         * Shoutout id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}';
+};
+
+export type GetShoutoutErrors = {
+    /**
+     * Shoutout not found
+     */
+    404: unknown;
+};
+
+export type GetShoutoutResponses = {
+    /**
+     * Get Shoutout
+     */
+    200: ShoutoutDetailResponseDto;
+};
+
+export type GetShoutoutResponse = GetShoutoutResponses[keyof GetShoutoutResponses];
 
 export type ListSubscriptionPlansData = {
     body?: never;

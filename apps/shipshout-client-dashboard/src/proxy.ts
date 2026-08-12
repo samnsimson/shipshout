@@ -4,12 +4,9 @@ import { hasAuthCookies } from './lib/auth/cookies';
 
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const session = hasAuthCookies(request);
-    const isAuthPage = ['/login', '/register', '/forgot-password'].includes(pathname);
     const isProtected = pathname.startsWith('/dashboard');
 
-    if (isProtected && !session) return NextResponse.redirect(new URL('/login', request.url));
-    if (isAuthPage && session) return NextResponse.redirect(new URL('/dashboard', request.url));
+    if (isProtected && !hasAuthCookies(request)) return NextResponse.redirect(new URL('/login', request.url));
     return NextResponse.next();
 }
 

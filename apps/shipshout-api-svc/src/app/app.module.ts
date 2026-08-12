@@ -9,6 +9,9 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@shipshout/auth';
 import { RepositoryModule } from './repository/repository.module';
+import { ShoutoutModule } from './shoutout/shoutout.module';
+import { TriggerModule } from './trigger/trigger.module';
+import { WebhookModule } from './webhook/webhook.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
@@ -48,6 +51,9 @@ import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils'
         TerminusModule,
         HttpModule,
         RepositoryModule,
+        TriggerModule,
+        WebhookModule,
+        ShoutoutModule,
         SubscriptionModule,
         PaymentsModule,
     ],

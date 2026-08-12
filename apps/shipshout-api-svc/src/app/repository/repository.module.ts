@@ -9,5 +9,6 @@ import { RepositoryService } from './services/repository.service';
 @Module({
     controllers: [RepositoryController],
     providers: [GithubConnectionRepository, LinkedRepositoryRepository, RepositoryService, GithubOAuthService, GithubApiService],
+    exports: [GithubConnectionRepository, LinkedRepositoryRepository, GithubApiService, RepositoryService],
 })
 export class RepositoryModule {}

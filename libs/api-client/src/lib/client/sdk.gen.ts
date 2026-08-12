@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { AuthControllerForgotPasswordData, AuthControllerForgotPasswordResponses, AuthControllerGithubData, AuthControllerGoogleData, AuthControllerIsUsernameAvailableData, AuthControllerIsUsernameAvailableResponses, AuthControllerLoginData, AuthControllerLoginErrors, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerOauthBridgeData, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerResendVerificationData, AuthControllerResendVerificationResponses, AuthControllerResetPasswordData, AuthControllerResetPasswordErrors, AuthControllerResetPasswordResponses, AuthControllerSessionData, AuthControllerSessionResponses, AuthControllerVerifyEmailData, AuthControllerVerifyEmailErrors, AuthControllerVerifyEmailResponses, AuthControllerVerifyOneTimeTokenData, AuthControllerVerifyOneTimeTokenErrors, AuthControllerVerifyOneTimeTokenResponses, ConnectGithubData, DisconnectGithubData, DisconnectGithubResponses, GetGithubConnectionData, GetGithubConnectionResponses, GetHelloData, GetHelloResponses, GetMySubscriptionData, GetMySubscriptionResponses, GithubCallbackData, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, LinkRepositoriesData, LinkRepositoriesErrors, LinkRepositoriesResponses, ListAvailableReposData, ListAvailableReposErrors, ListAvailableReposResponses, ListLinkedReposData, ListLinkedReposResponses, ListMyPaymentsData, ListMyPaymentsResponses, ListSubscriptionPlansData, ListSubscriptionPlansResponses, UnlinkRepositoryData, UnlinkRepositoryErrors, UnlinkRepositoryResponses } from './types.gen.js';
+import type { AuthControllerForgotPasswordData, AuthControllerForgotPasswordResponses, AuthControllerGithubData, AuthControllerGoogleData, AuthControllerIsUsernameAvailableData, AuthControllerIsUsernameAvailableResponses, AuthControllerLoginData, AuthControllerLoginErrors, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerOauthBridgeData, AuthControllerRefreshData, AuthControllerRefreshErrors, AuthControllerRefreshResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerResendVerificationData, AuthControllerResendVerificationResponses, AuthControllerResetPasswordData, AuthControllerResetPasswordErrors, AuthControllerResetPasswordResponses, AuthControllerSessionData, AuthControllerSessionResponses, AuthControllerVerifyEmailData, AuthControllerVerifyEmailErrors, AuthControllerVerifyEmailResponses, AuthControllerVerifyOneTimeTokenData, AuthControllerVerifyOneTimeTokenErrors, AuthControllerVerifyOneTimeTokenResponses, ConnectGithubData, DisconnectGithubData, DisconnectGithubResponses, GetGithubConnectionData, GetGithubConnectionResponses, GetHelloData, GetHelloResponses, GetLinkedRepositoryDetailData, GetLinkedRepositoryDetailErrors, GetLinkedRepositoryDetailResponses, GetMySubscriptionData, GetMySubscriptionResponses, GetRepositoryTriggersData, GetRepositoryTriggersErrors, GetRepositoryTriggersResponses, GetShoutoutData, GetShoutoutErrors, GetShoutoutResponses, GithubCallbackData, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IngestGithubWebhookData, IngestGithubWebhookErrors, IngestGithubWebhookResponses, LinkRepositoriesData, LinkRepositoriesErrors, LinkRepositoriesResponses, ListAvailableReposData, ListAvailableReposErrors, ListAvailableReposResponses, ListLinkedReposData, ListLinkedReposResponses, ListMyPaymentsData, ListMyPaymentsResponses, ListRepositoryTriggerEventsData, ListRepositoryTriggerEventsErrors, ListRepositoryTriggerEventsResponses, ListShoutoutsData, ListShoutoutsResponses, ListSubscriptionPlansData, ListSubscriptionPlansResponses, UnlinkRepositoryData, UnlinkRepositoryErrors, UnlinkRepositoryResponses, UpdateRepositoryTriggersData, UpdateRepositoryTriggersErrors, UpdateRepositoryTriggersResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -99,10 +99,17 @@ export class ApiClient extends HeyApiClient {
     }
     
     /**
-     * Current session
+     * Current authenticated user from JWT
      */
     public authControllerSession<ThrowOnError extends boolean = false>(options?: Options<AuthControllerSessionData, ThrowOnError>): RequestResult<AuthControllerSessionResponses, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<AuthControllerSessionResponses, unknown, ThrowOnError>({ url: '/auth/session', ...options });
+    }
+    
+    /**
+     * Refresh access JWT using refresh cookie
+     */
+    public authControllerRefresh<ThrowOnError extends boolean = false>(options?: Options<AuthControllerRefreshData, ThrowOnError>): RequestResult<AuthControllerRefreshResponses, AuthControllerRefreshErrors, ThrowOnError> {
+        return (options?.client ?? this.client).post<AuthControllerRefreshResponses, AuthControllerRefreshErrors, ThrowOnError>({ url: '/auth/refresh', ...options });
     }
     
     /**
@@ -190,7 +197,7 @@ export class ApiClient extends HeyApiClient {
     }
     
     /**
-     * Exchange a one-time token for a session cookie
+     * Exchange a one-time token for JWT auth cookies
      */
     public authControllerVerifyOneTimeToken<ThrowOnError extends boolean = false>(options: Options<AuthControllerVerifyOneTimeTokenData, ThrowOnError>): RequestResult<AuthControllerVerifyOneTimeTokenResponses, AuthControllerVerifyOneTimeTokenErrors, ThrowOnError> {
         return (options.client ?? this.client).post<AuthControllerVerifyOneTimeTokenResponses, AuthControllerVerifyOneTimeTokenErrors, ThrowOnError>({
@@ -294,6 +301,76 @@ export class ApiClient extends HeyApiClient {
      */
     public unlinkRepository<ThrowOnError extends boolean = false>(options: Options<UnlinkRepositoryData, ThrowOnError>): RequestResult<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError> {
         return (options.client ?? this.client).delete<UnlinkRepositoryResponses, UnlinkRepositoryErrors, ThrowOnError>({ url: '/repositories/{id}', ...options });
+    }
+    
+    /**
+     * Get Linked Repository Detail
+     *
+     * Get Linked Repository Detail
+     */
+    public getLinkedRepositoryDetail<ThrowOnError extends boolean = false>(options: Options<GetLinkedRepositoryDetailData, ThrowOnError>): RequestResult<GetLinkedRepositoryDetailResponses, GetLinkedRepositoryDetailErrors, ThrowOnError> {
+        return (options.client ?? this.client).get<GetLinkedRepositoryDetailResponses, GetLinkedRepositoryDetailErrors, ThrowOnError>({ url: '/repositories/{id}', ...options });
+    }
+    
+    /**
+     * Get Repository Triggers
+     *
+     * Get Repository Triggers
+     */
+    public getRepositoryTriggers<ThrowOnError extends boolean = false>(options: Options<GetRepositoryTriggersData, ThrowOnError>): RequestResult<GetRepositoryTriggersResponses, GetRepositoryTriggersErrors, ThrowOnError> {
+        return (options.client ?? this.client).get<GetRepositoryTriggersResponses, GetRepositoryTriggersErrors, ThrowOnError>({ url: '/repositories/{id}/triggers', ...options });
+    }
+    
+    /**
+     * Update Repository Triggers
+     *
+     * Update Repository Triggers
+     */
+    public updateRepositoryTriggers<ThrowOnError extends boolean = false>(options: Options<UpdateRepositoryTriggersData, ThrowOnError>): RequestResult<UpdateRepositoryTriggersResponses, UpdateRepositoryTriggersErrors, ThrowOnError> {
+        return (options.client ?? this.client).patch<UpdateRepositoryTriggersResponses, UpdateRepositoryTriggersErrors, ThrowOnError>({
+            url: '/repositories/{id}/triggers',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * List Repository Trigger Events
+     *
+     * List Repository Trigger Events
+     */
+    public listRepositoryTriggerEvents<ThrowOnError extends boolean = false>(options: Options<ListRepositoryTriggerEventsData, ThrowOnError>): RequestResult<ListRepositoryTriggerEventsResponses, ListRepositoryTriggerEventsErrors, ThrowOnError> {
+        return (options.client ?? this.client).get<ListRepositoryTriggerEventsResponses, ListRepositoryTriggerEventsErrors, ThrowOnError>({ url: '/repositories/{id}/events', ...options });
+    }
+    
+    /**
+     * Ingest Github Webhook
+     *
+     * Ingest Github Webhook
+     */
+    public ingestGithubWebhook<ThrowOnError extends boolean = false>(options: Options<IngestGithubWebhookData, ThrowOnError>): RequestResult<IngestGithubWebhookResponses, IngestGithubWebhookErrors, ThrowOnError> {
+        return (options.client ?? this.client).post<IngestGithubWebhookResponses, IngestGithubWebhookErrors, ThrowOnError>({ url: '/webhooks/github/{deliveryToken}', ...options });
+    }
+    
+    /**
+     * List Shoutouts
+     *
+     * List Shoutouts
+     */
+    public listShoutouts<ThrowOnError extends boolean = false>(options?: Options<ListShoutoutsData, ThrowOnError>): RequestResult<ListShoutoutsResponses, unknown, ThrowOnError> {
+        return (options?.client ?? this.client).get<ListShoutoutsResponses, unknown, ThrowOnError>({ url: '/shoutouts', ...options });
+    }
+    
+    /**
+     * Get Shoutout
+     *
+     * Get Shoutout
+     */
+    public getShoutout<ThrowOnError extends boolean = false>(options: Options<GetShoutoutData, ThrowOnError>): RequestResult<GetShoutoutResponses, GetShoutoutErrors, ThrowOnError> {
+        return (options.client ?? this.client).get<GetShoutoutResponses, GetShoutoutErrors, ThrowOnError>({ url: '/shoutouts/{id}', ...options });
     }
     
     /**

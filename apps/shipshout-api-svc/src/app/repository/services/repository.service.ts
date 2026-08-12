@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { ModuleRef } from '@nestjs/core';
 import { GithubConnectionEntity, LinkedRepositoryEntity } from '@shipshout/database';
 import { GithubConnectionResponseDto } from '../dto/github-connection-response.dto';
 import { GithubRepoDto, GithubRepoListResponseDto } from '../dto/github-repo.dto';
@@ -9,6 +10,8 @@ import { GithubConnectionRepository } from '../repositories/github-connection.re
 import { LinkedRepositoryRepository } from '../repositories/linked-repository.repository';
 import { GithubApiService } from './github-api.service';
 import { GithubOAuthService } from './github-oauth.service';
+import { TriggerLifecycleService } from '../../trigger/services/trigger-lifecycle.service';
+import { TriggerService } from '../../trigger/services/trigger.service';
 
 @Injectable()
 export class RepositoryService {
@@ -17,6 +20,7 @@ export class RepositoryService {
         private readonly linkedRepositories: LinkedRepositoryRepository,
         private readonly githubOAuth: GithubOAuthService,
         private readonly githubApi: GithubApiService,
+        private readonly moduleRef: ModuleRef,
     ) {}
 
     getConnectUrl(userId: string): string {
@@ -57,6 +61,8 @@ export class RepositoryService {
     }
 
     async disconnectGithub(userId: string): Promise<void> {
+        const lifecycle = this.getTriggerLifecycleService();
+        if (lifecycle) await lifecycle.cleanupAllForUser(userId);
         await this.githubConnections.deleteByUserId(userId);
     }
 
@@ -97,6 +103,8 @@ export class RepositoryService {
                 private: repo.private,
                 htmlUrl: repo.htmlUrl,
             });
+            const triggerService = this.getTriggerService();
+            if (triggerService) await triggerService.seedForLinkedRepository(saved.id);
             linked.push(this.toLinkedRepositoryDto(saved));
         }
 
@@ -104,8 +112,26 @@ export class RepositoryService {
     }
 
     async unlinkRepository(userId: string, repositoryId: string): Promise<void> {
+        const lifecycle = this.getTriggerLifecycleService();
+        if (lifecycle) await lifecycle.cleanupLinkedRepository(userId, repositoryId);
         const result = await this.linkedRepositories.deleteByIdAndUserId(repositoryId, userId);
         if (!result.affected) throw new NotFoundException('Linked repository not found');
+    }
+
+    private getTriggerService(): TriggerService | null {
+        try {
+            return this.moduleRef.get(TriggerService, { strict: false });
+        } catch {
+            return null;
+        }
+    }
+
+    private getTriggerLifecycleService(): TriggerLifecycleService | null {
+        try {
+            return this.moduleRef.get(TriggerLifecycleService, { strict: false });
+        } catch {
+            return null;
+        }
     }
 
     private async requireConnection(userId: string): Promise<GithubConnectionEntity> {

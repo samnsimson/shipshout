@@ -46,11 +46,22 @@ export async function applySetCookies(response: Response): Promise<void> {
 
 export async function readErrorMessage(response: Response): Promise<string> {
     try {
-        const body = (await response.json()) as { message?: string | string[] };
+        const body = await parseJsonResponse<{ message?: string | string[] }>(response);
+        if (!body) return `Request failed (${response.status})`;
         if (Array.isArray(body.message)) return body.message.join('; ');
         if (typeof body.message === 'string' && body.message) return body.message;
     } catch {
         // ignore
     }
     return `Request failed (${response.status})`;
+}
+
+export async function parseJsonResponse<T>(response: Response): Promise<T | null> {
+    const text = await response.text();
+    if (!text.trim()) return null;
+    try {
+        return JSON.parse(text) as T;
+    } catch {
+        return null;
+    }
 }

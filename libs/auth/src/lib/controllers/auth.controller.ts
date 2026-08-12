@@ -58,8 +58,9 @@ export class AuthController {
     @ApiOperation({ summary: 'Current authenticated user from JWT' })
     @ApiResponse({ status: 200, type: AuthSessionResponseDto })
     @ApiResponse({ status: 200, description: 'Null when unauthenticated' })
-    async session(@Req() req: ExpressRequest): Promise<AuthSessionResponseDto | null> {
-        return this.authService.getSession(req.headers);
+    async session(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
+        const session = await this.authService.getSession(req.headers);
+        res.status(200).json(session);
     }
 
     @Post('refresh')

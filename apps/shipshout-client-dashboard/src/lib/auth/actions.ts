@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { authFetch, getApiBaseUrl, readErrorMessage } from './api';
+import { authFetch, getApiBaseUrl, parseJsonResponse, readErrorMessage } from './api';
 import { AuthCookieUtils } from './auth-cookie.utils';
 import type { AuthActionResult } from './cookies';
 
@@ -46,8 +46,8 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
     });
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
 
-    const payload = (await response.json()) as { accessToken?: string | null };
-    if (payload.accessToken) {
+    const payload = await parseJsonResponse<{ accessToken?: string | null }>(response);
+    if (payload?.accessToken) {
         await AuthCookieUtils.applyToCookieStore(response);
         redirect('/dashboard');
     }
@@ -103,20 +103,32 @@ export async function checkUsernameAction(username: string): Promise<{ available
         body: JSON.stringify({ username: trimmed }),
     });
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
-    const body = (await response.json()) as { available?: boolean };
-    return { available: Boolean(body.available) };
+    const body = await parseJsonResponse<{ available?: boolean }>(response);
+    return { available: Boolean(body?.available) };
 }
 
 export async function getSessionAction(): Promise<{
     user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
     accessToken?: string;
 } | null> {
+    const session = await fetchSessionFromApi();
+    if (session) return session;
+
+    const refreshed = await refreshAccessTokenAction();
+    if (!refreshed) return null;
+    return fetchSessionFromApi();
+}
+
+async function fetchSessionFromApi(): Promise<{
+    user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
+    accessToken?: string;
+} | null> {
     const response = await authFetch('/auth/session', { method: 'GET' });
     if (!response.ok) return null;
-    const body = (await response.json()) as {
+    const body = await parseJsonResponse<{
         user?: { id: string; email: string; name: string; username?: string | null; image?: string | null };
         accessToken?: string;
-    } | null;
+    }>(response);
     if (!body?.user) return null;
     return { user: body.user, accessToken: body.accessToken };
 }
@@ -124,9 +136,9 @@ export async function getSessionAction(): Promise<{
 export async function refreshAccessTokenAction(): Promise<string | null> {
     const response = await authFetch('/auth/refresh', { method: 'POST', body: '{}' });
     if (!response.ok) return null;
-    const body = (await response.json()) as { accessToken?: string };
-    if (body.accessToken) await AuthCookieUtils.applyToCookieStore(response);
-    return body.accessToken ?? null;
+    const body = await parseJsonResponse<{ accessToken?: string }>(response);
+    if (body?.accessToken) await AuthCookieUtils.applyToCookieStore(response);
+    return body?.accessToken ?? null;
 }
 
 export async function logoutAction(): Promise<void> {
