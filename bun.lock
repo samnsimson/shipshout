@@ -152,16 +152,18 @@
       "name": "@shipshout/auth",
       "version": "0.0.1",
       "dependencies": {
+        "@better-auth/stripe": "^1.6.26",
         "@nestjs/common": "^11.0.0",
         "@nestjs/config": "^4.0.4",
         "@nestjs/swagger": "^11.4.6",
+        "@shipshout/email-client": "workspace:*",
         "@shipshout/swagger": "workspace:*",
         "@thallesp/nestjs-better-auth": "^2.7.0",
         "better-auth": "^1.6.26",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.15.1",
         "pg": "^8.22.0",
-        "resend": "^6.19.0",
+        "stripe": "^22.0.0",
         "tslib": "^2.3.0",
         "zod": "^4.4.3",
       },
@@ -184,6 +186,15 @@
         "@nestjs/typeorm": "^11.0.3",
         "tslib": "^2.3.0",
         "typeorm": "^1.1.0",
+      },
+    },
+    "libs/email-client": {
+      "name": "@shipshout/email-client",
+      "version": "0.0.1",
+      "dependencies": {
+        "@nestjs/common": "^11.0.0",
+        "resend": "^6.19.0",
+        "tslib": "^2.3.0",
       },
     },
     "libs/logger": {
@@ -1095,6 +1106,8 @@
     "@shipshout/core": ["@shipshout/core@workspace:libs/core"],
 
     "@shipshout/database": ["@shipshout/database@workspace:libs/database"],
+
+    "@shipshout/email-client": ["@shipshout/email-client@workspace:libs/email-client"],
 
     "@shipshout/logger": ["@shipshout/logger@workspace:libs/logger"],
 

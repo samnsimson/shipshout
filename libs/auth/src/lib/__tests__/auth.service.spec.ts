@@ -40,6 +40,7 @@ describe('AuthService', () => {
         databaseUrl: 'postgres://localhost/db',
         clientAppUrl: 'http://localhost:3000',
         baseUrl: 'http://localhost:8000',
+        resendApiKey: 're_test',
     };
     const service = new AuthService(betterAuth, authOptions);
 

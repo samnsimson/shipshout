@@ -32,6 +32,8 @@ import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils'
                     baseUrl: configService.getOrThrow<string>('BETTER_AUTH_BASE_URL'),
                     clientAppUrl: configService.getOrThrow<string>('CLIENT_APP_URL'),
                     cookieDomain: configService.get<string>('AUTH_COOKIE_DOMAIN'),
+                    resendApiKey: configService.getOrThrow<string>('RESEND_API_KEY'),
+                    emailFrom: configService.get<string>('EMAIL_FROM'),
                     googleClientId: configService.get<string>('GOOGLE_CLIENT_ID'),
                     googleClientSecret: configService.get<string>('GOOGLE_CLIENT_SECRET'),
                     githubClientId: configService.get<string>('GITHUB_CLIENT_ID'),

@@ -7,6 +7,8 @@ export const authOptionsSchema = z.object({
     databaseUrl: z.string(),
     clientAppUrl: z.string().url(),
     cookieDomain: z.string().optional(),
+    resendApiKey: z.string().min(1),
+    emailFrom: z.string().optional(),
     googleClientId: z.string().optional(),
     googleClientSecret: z.string().optional(),
     githubClientId: z.string().optional(),

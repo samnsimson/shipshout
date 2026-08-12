@@ -23,6 +23,7 @@ describe('createAuth stripe plugin', () => {
         createAuth({
             databaseUrl: 'postgres://x',
             clientAppUrl: 'http://localhost:3000',
+            resendApiKey: 're_test',
             stripeSecretKey: 'sk_test',
             stripeWebhookSecret: 'whsec_test',
             getSubscriptionPlans: async () => [
@@ -39,6 +40,7 @@ describe('createAuth stripe plugin', () => {
         createAuth({
             databaseUrl: 'postgres://x',
             clientAppUrl: 'http://localhost:3000',
+            resendApiKey: 're_test',
         });
 
         expect(stripe).not.toHaveBeenCalled();
@@ -49,6 +51,7 @@ describe('createAuth stripe plugin', () => {
             createAuth({
                 databaseUrl: 'postgres://x',
                 clientAppUrl: 'http://localhost:3000',
+                resendApiKey: 're_test',
                 stripeSecretKey: 'sk_test',
             }),
         ).toThrow(/both required/i);

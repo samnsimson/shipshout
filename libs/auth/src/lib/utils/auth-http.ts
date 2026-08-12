@@ -3,17 +3,11 @@ import { BadRequestException, ConflictException, ForbiddenException, HttpExcepti
 import { stripe } from '@better-auth/stripe';
 import { APIError } from 'better-auth/api';
 import { Response } from 'express';
+import { EmailClient } from '@shipshout/email-client';
 import { BillingUtils } from '../billing/billing.utils';
 import { AuthOptions } from '../contracts/types/auth.types';
-import { EmailAdapter } from '../email/email-adapter';
 
 export class AuthUtils {
-    private static emailAdapter: EmailAdapter | null = null;
-
-    static configureEmailAdapter(adapter: EmailAdapter): void {
-        this.emailAdapter = adapter;
-    }
-
     static buildStripePlugin(opts: AuthOptions) {
         const hasSecret = Boolean(opts.stripeSecretKey);
         const hasWebhook = Boolean(opts.stripeWebhookSecret);
@@ -42,8 +36,8 @@ export class AuthUtils {
         }
     }
 
-    static async sendResetPasswordEmail(user: { email: string }, url: string): Promise<void> {
-        await this.getEmailAdapter().send({
+    static async sendResetPasswordEmail(emailClient: EmailClient, user: { email: string }, url: string): Promise<void> {
+        await emailClient.send({
             to: user.email,
             subject: 'Reset your password',
             text: url,
@@ -51,8 +45,8 @@ export class AuthUtils {
         });
     }
 
-    static async sendVerificationEmail(user: { email: string }, url: string): Promise<void> {
-        await this.getEmailAdapter().send({
+    static async sendVerificationEmail(emailClient: EmailClient, user: { email: string }, url: string): Promise<void> {
+        await emailClient.send({
             to: user.email,
             subject: 'Verify your email',
             text: url,
@@ -111,10 +105,5 @@ export class AuthUtils {
         if (error instanceof Error) return error.message;
         if (error && typeof error === 'object' && 'message' in error) return String((error as { message?: unknown }).message ?? '');
         return '';
-    }
-
-    private static getEmailAdapter(): EmailAdapter {
-        if (!this.emailAdapter) throw new Error('EmailAdapter is not configured');
-        return this.emailAdapter;
     }
 }

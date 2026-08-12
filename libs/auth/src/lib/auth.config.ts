@@ -3,11 +3,14 @@ import { betterAuth } from 'better-auth';
 import { oneTimeToken, username } from 'better-auth/plugins';
 import { AuthOptions } from './contracts/types/auth.types';
 import { AuthUtils } from './utils/auth-http';
+import { EmailClient } from '@shipshout/email-client';
 
 export function createAuth(opts: AuthOptions) {
     const clientAppUrl = opts.clientAppUrl.replace(/\/$/, '');
     const useSecureCookies = (opts.baseUrl ?? '').startsWith('https://');
     const stripePlugin = AuthUtils.buildStripePlugin(opts);
+    const emailClient = new EmailClient(opts.resendApiKey, opts.emailFrom);
+
     return betterAuth({
         secret: opts.secret,
         baseURL: opts.baseUrl,
@@ -23,14 +26,14 @@ export function createAuth(opts: AuthOptions) {
         emailAndPassword: {
             enabled: true,
             requireEmailVerification: true,
-            sendResetPassword: async ({ user, url }) => AuthUtils.sendResetPasswordEmail(user, url),
+            sendResetPassword: async ({ user, url }) => AuthUtils.sendResetPasswordEmail(emailClient, user, url),
         },
         emailVerification: {
             sendOnSignIn: true,
             autoSignInAfterVerification: false,
             sendVerificationEmail: async ({ user, token }) => {
                 const url = `${clientAppUrl}/verify-email?token=${encodeURIComponent(token)}`;
-                await AuthUtils.sendVerificationEmail(user, url);
+                await AuthUtils.sendVerificationEmail(emailClient, user, url);
             },
         },
         socialProviders: {
@@ -48,6 +51,8 @@ export const auth = createAuth({
     baseUrl: process.env.BETTER_AUTH_BASE_URL,
     clientAppUrl: process.env.CLIENT_APP_URL ?? 'http://localhost:3000',
     cookieDomain: process.env.AUTH_COOKIE_DOMAIN,
+    resendApiKey: process.env.RESEND_API_KEY ?? '',
+    emailFrom: process.env.EMAIL_FROM,
     googleClientId: process.env.GOOGLE_CLIENT_ID,
     googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
     githubClientId: process.env.GITHUB_CLIENT_ID,

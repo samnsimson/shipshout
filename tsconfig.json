@@ -35,6 +35,9 @@
         },
         {
             "path": "./libs/api-client"
+        },
+        {
+            "path": "./libs/email-client"
         }
     ]
 }

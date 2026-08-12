@@ -19,6 +19,7 @@ jest.mock('better-auth/api', () => {
 
 import { BadRequestException, ConflictException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { APIError } from 'better-auth/api';
+import { EmailClient } from '@shipshout/email-client';
 import { AuthUtils } from '../utils/auth-http';
 
 describe('AuthUtils', () => {
@@ -63,13 +64,12 @@ describe('AuthUtils', () => {
     });
 
     describe('sendResetPasswordEmail', () => {
-        it('sends reset email via the adapter', async () => {
-            const adapter = { send: jest.fn().mockResolvedValue(undefined) };
-            AuthUtils.configureEmailAdapter(adapter as never);
+        it('sends reset email via EmailClient', async () => {
+            const emailClient = { send: jest.fn().mockResolvedValue(undefined) } as unknown as EmailClient;
 
-            await AuthUtils.sendResetPasswordEmail({ email: 'ada@example.com' }, 'https://example.com/reset?token=abc');
+            await AuthUtils.sendResetPasswordEmail(emailClient, { email: 'ada@example.com' }, 'https://example.com/reset?token=abc');
 
-            expect(adapter.send).toHaveBeenCalledWith({
+            expect(emailClient.send).toHaveBeenCalledWith({
                 to: 'ada@example.com',
                 subject: 'Reset your password',
                 text: 'https://example.com/reset?token=abc',
@@ -79,13 +79,12 @@ describe('AuthUtils', () => {
     });
 
     describe('sendVerificationEmail', () => {
-        it('sends verification email via the adapter', async () => {
-            const adapter = { send: jest.fn().mockResolvedValue(undefined) };
-            AuthUtils.configureEmailAdapter(adapter as never);
+        it('sends verification email via EmailClient', async () => {
+            const emailClient = { send: jest.fn().mockResolvedValue(undefined) } as unknown as EmailClient;
 
-            await AuthUtils.sendVerificationEmail({ email: 'ada@example.com' }, 'http://localhost:3000/verify-email?token=abc');
+            await AuthUtils.sendVerificationEmail(emailClient, { email: 'ada@example.com' }, 'http://localhost:3000/verify-email?token=abc');
 
-            expect(adapter.send).toHaveBeenCalledWith({
+            expect(emailClient.send).toHaveBeenCalledWith({
                 to: 'ada@example.com',
                 subject: 'Verify your email',
                 text: 'http://localhost:3000/verify-email?token=abc',
