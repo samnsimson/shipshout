@@ -30,7 +30,7 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
 import { AuthModule } from '../auth.module';
 import { AUTH_OPTIONS } from '../auth-options.token';
 import { AuthController } from '../controllers/auth.controller';
-import { EMAIL_ADAPTER, EmailAdapter } from '../email/email-adapter';
+import { EmailAdapter } from '../email/email-adapter';
 
 describe('AuthModule', () => {
     it('forRootAsync returns a global DynamicModule with email adapter', () => {
@@ -49,13 +49,10 @@ describe('AuthModule', () => {
             expect.arrayContaining([
                 EmailAdapter,
                 expect.objectContaining({
-                    provide: EMAIL_ADAPTER,
-                    useExisting: EmailAdapter,
-                }),
-                expect.objectContaining({
                     provide: AUTH_OPTIONS,
                 }),
             ]),
         );
+        expect(dynamicModule.exports).toEqual(expect.arrayContaining([EmailAdapter, AUTH_OPTIONS]));
     });
 });

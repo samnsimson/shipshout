@@ -1,8 +1,8 @@
+import Stripe from 'stripe';
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { stripe } from '@better-auth/stripe';
 import { APIError } from 'better-auth/api';
-import type { Response } from 'express';
-import Stripe from 'stripe';
+import { Response } from 'express';
 import { BillingUtils } from '../billing/billing.utils';
 import { AuthOptions } from '../contracts/types/auth.types';
 import { EmailAdapter } from '../email/email-adapter';
@@ -32,7 +32,6 @@ export class AuthUtils {
             },
         });
     }
-
 
     static applyAuthCookies(res: Response, headers: Headers): void {
         const cookies = headers.getSetCookie?.() ?? [];

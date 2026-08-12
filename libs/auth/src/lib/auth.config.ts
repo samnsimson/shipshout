@@ -1,6 +1,6 @@
+import { Pool } from 'pg';
 import { betterAuth } from 'better-auth';
 import { oneTimeToken, username } from 'better-auth/plugins';
-import { Pool } from 'pg';
 import { AuthOptions } from './contracts/types/auth.types';
 import { AuthUtils } from './utils/auth-http';
 
@@ -16,20 +16,8 @@ export function createAuth(opts: AuthOptions) {
         experimental: { joins: true },
         advanced: {
             useSecureCookies,
-            defaultCookieAttributes: {
-                sameSite: 'lax',
-                path: '/',
-                httpOnly: true,
-                secure: useSecureCookies,
-            },
-            ...(opts.cookieDomain
-                ? {
-                      crossSubDomainCookies: {
-                          enabled: true,
-                          domain: opts.cookieDomain,
-                      },
-                  }
-                : {}),
+            defaultCookieAttributes: { sameSite: 'lax', path: '/', httpOnly: true, secure: useSecureCookies },
+            ...(opts.cookieDomain ? { crossSubDomainCookies: { enabled: true, domain: opts.cookieDomain } } : {}),
         },
         database: new Pool({ connectionString: opts.databaseUrl, options: '-c search_path=auth' }),
         emailAndPassword: {
