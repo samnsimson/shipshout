@@ -1,20 +1,19 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard, JwtUser, type JwtUserPayload } from '@shipshout/auth/guard';
 import { ApiResource } from '@shipshout/swagger';
-import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { PaymentsListResponseDto } from './dto/payments-response.dto';
 import { PaymentsService } from './payments.service';
 
-type SessionUserWithStripe = UserSession['user'] & { stripeCustomerId?: string | null };
-
 @ApiTags('payments')
 @Controller('payments')
+@UseGuards(JwtAuthGuard)
 export class PaymentsController {
     constructor(private readonly paymentsService: PaymentsService) {}
 
     @Get('me')
     @ApiResource({ operationId: 'listMyPayments', status: 200, response: PaymentsListResponseDto })
-    listMine(@Session() session: UserSession): Promise<PaymentsListResponseDto> {
-        return this.paymentsService.listMine(session.user as SessionUserWithStripe);
+    listMine(@JwtUser() user: JwtUserPayload): Promise<PaymentsListResponseDto> {
+        return this.paymentsService.listMine({ id: user.sub, stripeCustomerId: user.stripeCustomerId ?? null });
     }
 }

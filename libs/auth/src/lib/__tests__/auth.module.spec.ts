@@ -1,8 +1,14 @@
+jest.mock('jose', () => ({
+    createRemoteJWKSet: jest.fn(),
+    jwtVerify: jest.fn(),
+}));
 jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({})) }));
 jest.mock('better-auth/plugins', () => ({
     username: jest.fn(() => ({})),
     oneTimeToken: jest.fn(() => ({})),
+    jwt: jest.fn(() => ({})),
 }));
+jest.mock('@shipshout/email-client', () => ({ EmailClient: jest.fn() }));
 jest.mock('@better-auth/stripe', () => ({ stripe: jest.fn(() => ({ id: 'stripe-plugin' })) }));
 jest.mock('stripe', () => jest.fn().mockImplementation(() => ({})));
 

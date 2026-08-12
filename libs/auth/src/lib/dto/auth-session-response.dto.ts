@@ -23,21 +23,10 @@ export class AuthUserDto {
     emailVerified?: boolean;
 }
 
-export class AuthSessionDto {
-    @ApiPropertyOptional({ description: 'Session token when returned by Better Auth' })
-    token?: string;
-
-    @ApiPropertyOptional()
-    id?: string;
-
-    @ApiPropertyOptional()
-    expiresAt?: string | Date;
-}
-
 export class AuthSessionResponseDto {
     @ApiProperty({ type: AuthUserDto })
     user!: AuthUserDto;
 
-    @ApiProperty({ type: AuthSessionDto })
-    session!: AuthSessionDto;
+    @ApiProperty({ description: 'JWT access token (15 min)' })
+    accessToken!: string;
 }

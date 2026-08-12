@@ -2,6 +2,7 @@ jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ id: 'auth' })) })
 jest.mock('better-auth/plugins', () => ({
     username: jest.fn(() => ({ id: 'username' })),
     oneTimeToken: jest.fn(() => ({ id: 'oneTimeToken' })),
+    jwt: jest.fn(() => ({ id: 'jwt' })),
 }));
 jest.mock('@better-auth/stripe', () => ({ stripe: jest.fn(() => ({ id: 'stripe-plugin' })) }));
 jest.mock('stripe', () => jest.fn().mockImplementation(() => ({})));

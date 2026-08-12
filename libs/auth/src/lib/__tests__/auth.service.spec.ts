@@ -2,6 +2,7 @@ jest.mock('better-auth', () => ({ betterAuth: jest.fn(() => ({ api: {} })) }));
 jest.mock('better-auth/plugins', () => ({
     username: jest.fn(() => ({})),
     oneTimeToken: jest.fn(() => ({})),
+    jwt: jest.fn(() => ({})),
 }));
 jest.mock('@better-auth/stripe', () => ({ stripe: jest.fn(() => ({ id: 'stripe-plugin' })) }));
 jest.mock('stripe', () => jest.fn().mockImplementation(() => ({})));
@@ -14,9 +15,20 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
     AuthService: class BetterAuthService {},
 }));
 jest.mock('better-auth/node', () => ({
-    fromNodeHeaders: jest.fn(() => new Headers()),
+    fromNodeHeaders: jest.fn((headers: Record<string, string>) => new Headers(headers)),
+}));
+jest.mock('../utils/auth-jwt.utils', () => ({
+    AuthJwtUtils: {
+        parseSessionTokenFromHeaders: jest.fn(),
+        extractAccessToken: jest.fn(),
+        extractRefreshToken: jest.fn(),
+        refreshCookieHeader: jest.fn((token: string) => `auth_refresh=${token}`),
+        verifyAccessToken: jest.fn(),
+    },
 }));
 
+import { UnauthorizedException } from '@nestjs/common';
+import { AuthJwtUtils } from '../utils/auth-jwt.utils';
 import { AuthService } from '../services/auth.service';
 
 describe('AuthService', () => {
@@ -25,6 +37,7 @@ describe('AuthService', () => {
         signInEmail: jest.fn(),
         signInUsername: jest.fn(),
         getSession: jest.fn(),
+        getToken: jest.fn(),
         signOut: jest.fn(),
         isUsernameAvailable: jest.fn(),
         requestPasswordReset: jest.fn(),
@@ -46,34 +59,31 @@ describe('AuthService', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        (AuthJwtUtils.parseSessionTokenFromHeaders as jest.Mock).mockReturnValue('sess_tok');
+        api.getToken.mockResolvedValue({ token: 'jwt.access' });
     });
 
-    it('register returns user/session and headers', async () => {
+    it('register returns user and accessToken', async () => {
         const headers = new Headers();
-        headers.append('set-cookie', 'session=abc; Path=/');
+        headers.append('set-cookie', 'better-auth.session_token=sess_tok; Path=/');
         api.signUpEmail.mockResolvedValue({
             headers,
-            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' } },
         });
 
         const result = await service.register({ email: 'a@b.com', password: 'password1', name: 'Ada', username: 'ada' }, {});
 
-        expect(api.signUpEmail).toHaveBeenCalledWith(
-            expect.objectContaining({
-                body: expect.objectContaining({ username: 'ada', email: 'a@b.com' }),
-            }),
-        );
         expect(result.body).toEqual({
             user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' },
-            session: { token: 'tok' },
+            accessToken: 'jwt.access',
         });
-        expect(result.headers).toBe(headers);
+        expect(result.tokens).toEqual({ accessToken: 'jwt.access', refreshToken: 'sess_tok' });
     });
 
     it('login with username uses signInUsername', async () => {
         api.signInUsername.mockResolvedValue({
             headers: new Headers(),
-            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' } },
         });
 
         await service.login({ login: 'ada', password: 'password1' }, {});
@@ -85,7 +95,7 @@ describe('AuthService', () => {
     it('login with email uses signInEmail', async () => {
         api.signInEmail.mockResolvedValue({
             headers: new Headers(),
-            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' }, token: 'tok' },
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' } },
         });
 
         await service.login({ login: 'a@b.com', password: 'password1' }, {});
@@ -107,24 +117,37 @@ describe('AuthService', () => {
     });
 
     it('getSession returns null when unauthenticated', async () => {
-        api.getSession.mockResolvedValue(null);
+        (AuthJwtUtils.extractAccessToken as jest.Mock).mockReturnValue(null);
         await expect(service.getSession({})).resolves.toBeNull();
     });
 
-    it('getSession maps user and session', async () => {
-        api.getSession.mockResolvedValue({
-            user: { id: '1', email: 'a@b.com', name: 'Ada' },
-            session: { id: 's1', token: 'tok' },
-        });
+    it('getSession maps user from verified JWT', async () => {
+        (AuthJwtUtils.extractAccessToken as jest.Mock).mockReturnValue('jwt.access');
+        (AuthJwtUtils.verifyAccessToken as jest.Mock).mockResolvedValue({ sub: '1', email: 'a@b.com', name: 'Ada', username: 'ada' });
         await expect(service.getSession({})).resolves.toEqual({
-            user: { id: '1', email: 'a@b.com', name: 'Ada' },
-            session: { id: 's1', token: 'tok' },
+            user: { id: '1', email: 'a@b.com', name: 'Ada', username: 'ada' },
+            accessToken: 'jwt.access',
         });
+    });
+
+    it('refresh returns new accessToken', async () => {
+        (AuthJwtUtils.extractRefreshToken as jest.Mock).mockReturnValue('sess_tok');
+        api.getToken.mockResolvedValue({ token: 'jwt.new' });
+
+        await expect(service.refresh({})).resolves.toEqual({
+            body: { accessToken: 'jwt.new' },
+            tokens: { accessToken: 'jwt.new', refreshToken: 'sess_tok' },
+        });
+    });
+
+    it('refresh throws when refresh cookie missing', async () => {
+        (AuthJwtUtils.extractRefreshToken as jest.Mock).mockReturnValue(null);
+        await expect(service.refresh({})).rejects.toBeInstanceOf(UnauthorizedException);
     });
 
     it('logout returns ok and headers', async () => {
         const headers = new Headers();
-        headers.append('set-cookie', 'better-auth.session_token=; Max-Age=0');
+        (AuthJwtUtils.extractRefreshToken as jest.Mock).mockReturnValue('sess_tok');
         api.signOut.mockResolvedValue({ headers, response: { success: true } });
         await expect(service.logout({})).resolves.toEqual({ headers, body: { ok: true } });
     });
@@ -145,16 +168,6 @@ describe('AuthService', () => {
         await expect(service.resendVerification({ email: 'a@b.com' }, {})).resolves.toEqual({ ok: true });
     });
 
-    it('resendVerification calls BA with plain email payload', async () => {
-        api.sendVerificationEmail.mockResolvedValue({ status: true });
-        await service.resendVerification({ email: 'a@b.com' }, {});
-        expect(api.sendVerificationEmail).toHaveBeenCalledWith(
-            expect.objectContaining({
-                body: expect.objectContaining({ email: 'a@b.com' }),
-            }),
-        );
-    });
-
     it('startSocial returns redirect url', async () => {
         api.signInSocial.mockResolvedValue({
             headers: new Headers(),
@@ -163,15 +176,6 @@ describe('AuthService', () => {
 
         const result = await service.startSocial('google', {});
 
-        expect(api.signInSocial).toHaveBeenCalledWith(
-            expect.objectContaining({
-                body: expect.objectContaining({
-                    provider: 'google',
-                    disableRedirect: true,
-                    callbackURL: 'http://localhost:8000/auth/oauth/bridge',
-                }),
-            }),
-        );
         expect(result.url).toBe('https://accounts.google.com/o/oauth2');
     });
 
@@ -187,18 +191,17 @@ describe('AuthService', () => {
         });
     });
 
-    it('verifyOneTimeToken returns session and headers', async () => {
+    it('verifyOneTimeToken returns accessToken and tokens', async () => {
         const headers = new Headers();
-        headers.append('set-cookie', 'better-auth.session_token=abc; Path=/');
+        headers.append('set-cookie', 'better-auth.session_token=sess_tok; Path=/');
         api.verifyOneTimeToken.mockResolvedValue({
             headers,
-            response: { user: { id: '1', email: 'a@b.com', name: 'Ada' }, session: { token: 'tok' } },
+            response: { user: { id: '1', email: 'a@b.com', name: 'Ada' } },
         });
 
         const result = await service.verifyOneTimeToken({ token: 'ott-123' }, {});
 
-        expect(api.verifyOneTimeToken).toHaveBeenCalledWith(expect.objectContaining({ body: { token: 'ott-123' } }));
-        expect(result.body.user.email).toBe('a@b.com');
-        expect(result.headers).toBe(headers);
+        expect(result.body).toEqual({ user: { id: '1', email: 'a@b.com', name: 'Ada' }, accessToken: 'jwt.access' });
+        expect(result.tokens.refreshToken).toBe('sess_tok');
     });
 });

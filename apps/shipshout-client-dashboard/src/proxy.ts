@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { SESSION_COOKIE_NAMES } from './lib/auth/cookies';
-
-function hasSession(request: NextRequest): boolean {
-    return SESSION_COOKIE_NAMES.some((name) => request.cookies.has(name));
-}
+import { hasAuthCookies } from './lib/auth/cookies';
 
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
-    const session = hasSession(request);
+    const session = hasAuthCookies(request);
     const isAuthPage = ['/login', '/register', '/forgot-password'].includes(pathname);
     const isProtected = pathname.startsWith('/dashboard');
 

@@ -1,4 +1,5 @@
-export const SESSION_COOKIE_NAMES = ['better-auth.session_token', '__Secure-better-auth.session_token'] as const;
+export const AUTH_TOKEN_COOKIE_NAMES = ['auth_token', '__Secure-auth_token'] as const;
+export const AUTH_REFRESH_COOKIE_NAMES = ['auth_refresh', '__Secure-auth_refresh'] as const;
 
 export type AuthActionResult = { ok: true } | { ok: false; error: string };
 
@@ -12,6 +13,10 @@ export type ParsedSetCookie = {
     maxAge?: number;
     expires?: Date;
 };
+
+export function hasAuthCookies(request: { cookies: { has: (name: string) => boolean } }): boolean {
+    return [...AUTH_TOKEN_COOKIE_NAMES, ...AUTH_REFRESH_COOKIE_NAMES].some((name) => request.cookies.has(name));
+}
 
 /** Parse a single Set-Cookie header value into name/value/attrs (Domain intentionally dropped). */
 export function parseSetCookie(header: string): ParsedSetCookie | null {

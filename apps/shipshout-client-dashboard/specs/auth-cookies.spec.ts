@@ -2,9 +2,9 @@ import { collectSetCookieHeaders, parseSetCookie } from '../src/lib/auth/cookies
 
 describe('parseSetCookie', () => {
     it('parses name value and attrs without Domain', () => {
-        const parsed = parseSetCookie('better-auth.session_token=abc; Path=/; HttpOnly; SameSite=Lax; Domain=api.example.com');
+        const parsed = parseSetCookie('auth_token=abc; Path=/; HttpOnly; SameSite=Lax; Domain=api.example.com');
         expect(parsed).toEqual({
-            name: 'better-auth.session_token',
+            name: 'auth_token',
             value: 'abc',
             path: '/',
             httpOnly: true,

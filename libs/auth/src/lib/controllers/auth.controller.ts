@@ -1,7 +1,10 @@
-import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AllowAnonymous } from '@thallesp/nestjs-better-auth';
 import type { Request as ExpressRequest, Response } from 'express';
+import { AUTH_OPTIONS } from '../constants/auth.constants';
+import { AuthOptions } from '../contracts/types/auth.types';
+import { AuthRefreshResponseDto } from '../dto/auth-refresh-response.dto';
 import { AuthSessionResponseDto } from '../dto/auth-session-response.dto';
 import { ForgotPasswordDto } from '../dto/forgot-password.dto';
 import { LoginDto } from '../dto/login.dto';
@@ -14,13 +17,16 @@ import { UsernameAvailableResponseDto } from '../dto/username-available-response
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { VerifyOneTimeTokenDto } from '../dto/verify-one-time-token.dto';
 import { AuthService } from '../services/auth.service';
-import { AuthUtils } from '../utils/auth-http';
+import { AuthJwtUtils } from '../utils/auth-jwt.utils';
 
 @ApiTags('auth')
 @AllowAnonymous()
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {}
+    constructor(
+        private readonly authService: AuthService,
+        @Inject(AUTH_OPTIONS) private readonly authOptions: AuthOptions,
+    ) {}
 
     @Post('register')
     @ApiOperation({ summary: 'Register with email, username, and password' })
@@ -30,7 +36,7 @@ export class AuthController {
     @ApiResponse({ status: 409, description: 'Email or username already exists' })
     async register(@Body() body: RegisterDto, @Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<AuthSessionResponseDto> {
         const result = await this.authService.register(body, req.headers);
-        AuthUtils.applyAuthCookies(res, result.headers);
+        AuthJwtUtils.applyAuthTokens(res, result.tokens, this.cookieOpts());
         return result.body;
     }
 
@@ -46,16 +52,26 @@ export class AuthController {
             res.redirect(result.redirectUrl);
             return;
         }
-        AuthUtils.applyAuthCookies(res, result.headers);
+        AuthJwtUtils.applyAuthTokens(res, result.tokens, this.cookieOpts());
         res.status(200).json(result.body);
     }
 
     @Get('session')
-    @ApiOperation({ summary: 'Current session' })
+    @ApiOperation({ summary: 'Current authenticated user from JWT' })
     @ApiResponse({ status: 200, type: AuthSessionResponseDto })
     @ApiResponse({ status: 200, description: 'Null when unauthenticated' })
     async session(@Req() req: ExpressRequest): Promise<AuthSessionResponseDto | null> {
         return this.authService.getSession(req.headers);
+    }
+
+    @Post('refresh')
+    @ApiOperation({ summary: 'Refresh access JWT using refresh cookie' })
+    @ApiResponse({ status: 200, type: AuthRefreshResponseDto })
+    @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
+    async refresh(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<AuthRefreshResponseDto> {
+        const result = await this.authService.refresh(req.headers);
+        AuthJwtUtils.applyAuthTokens(res, result.tokens, this.cookieOpts());
+        return result.body;
     }
 
     @Post('logout')
@@ -63,7 +79,7 @@ export class AuthController {
     @ApiResponse({ status: 200, type: OkResponseDto })
     async logout(@Req() req: ExpressRequest, @Res({ passthrough: true }) res: Response): Promise<OkResponseDto> {
         const result = await this.authService.logout(req.headers);
-        AuthUtils.applyAuthCookies(res, result.headers);
+        AuthJwtUtils.clearAuthTokens(res, this.cookieOpts());
         return result.body;
     }
 
@@ -118,7 +134,7 @@ export class AuthController {
     }
 
     @Post('one-time-token/verify')
-    @ApiOperation({ summary: 'Exchange a one-time token for a session cookie' })
+    @ApiOperation({ summary: 'Exchange a one-time token for JWT auth cookies' })
     @ApiBody({ type: VerifyOneTimeTokenDto })
     @ApiResponse({ status: 200, type: AuthSessionResponseDto })
     @ApiResponse({ status: 400, description: 'Invalid or expired token' })
@@ -128,7 +144,7 @@ export class AuthController {
         @Res({ passthrough: true }) res: Response,
     ): Promise<AuthSessionResponseDto> {
         const result = await this.authService.verifyOneTimeToken(body, req.headers);
-        AuthUtils.applyAuthCookies(res, result.headers);
+        AuthJwtUtils.applyAuthTokens(res, result.tokens, this.cookieOpts());
         return result.body;
     }
 
@@ -137,7 +153,6 @@ export class AuthController {
     @ApiResponse({ status: 302, description: 'Redirect to Google' })
     async google(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.startSocial('google', req.headers);
-        AuthUtils.applyAuthCookies(res, result.headers);
         res.redirect(result.url);
     }
 
@@ -146,7 +161,10 @@ export class AuthController {
     @ApiResponse({ status: 302, description: 'Redirect to GitHub' })
     async github(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.startSocial('github', req.headers);
-        AuthUtils.applyAuthCookies(res, result.headers);
         res.redirect(result.url);
+    }
+
+    private cookieOpts(): Pick<AuthOptions, 'cookieDomain' | 'baseUrl'> {
+        return { baseUrl: this.authOptions.baseUrl, cookieDomain: this.authOptions.cookieDomain };
     }
 }

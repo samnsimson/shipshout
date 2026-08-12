@@ -1,6 +1,9 @@
+jest.mock('@shipshout/auth/guard', () => ({
+    JwtAuthGuard: class JwtAuthGuard {},
+    JwtUser: () => () => undefined,
+}));
 jest.mock('@thallesp/nestjs-better-auth', () => ({
     AllowAnonymous: () => () => undefined,
-    Session: () => () => undefined,
 }));
 
 import { Test, TestingModule } from '@nestjs/testing';

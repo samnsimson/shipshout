@@ -1,6 +1,6 @@
 import { Pool } from 'pg';
 import { betterAuth } from 'better-auth';
-import { oneTimeToken, username } from 'better-auth/plugins';
+import { jwt, oneTimeToken, username } from 'better-auth/plugins';
 import { AuthOptions } from './contracts/types/auth.types';
 import { AuthUtils } from './utils/auth-http';
 import { EmailClient } from '@shipshout/email-client';
@@ -40,7 +40,25 @@ export function createAuth(opts: AuthOptions) {
             google: { clientId: opts.googleClientId ?? '', clientSecret: opts.googleClientSecret ?? '' },
             github: { clientId: opts.githubClientId ?? '', clientSecret: opts.githubClientSecret ?? '' },
         },
-        plugins: [username(), oneTimeToken({ expiresIn: 5 }), ...(stripePlugin ? [stripePlugin] : [])],
+        plugins: [
+            username(),
+            oneTimeToken({ expiresIn: 5 }),
+            jwt({
+                jwt: {
+                    expirationTime: '15m',
+                    issuer: opts.baseUrl,
+                    audience: opts.baseUrl,
+                    definePayload: ({ user }) => ({
+                        sub: user.id,
+                        email: user.email,
+                        name: user.name,
+                        username: user.username,
+                        stripeCustomerId: (user as { stripeCustomerId?: string | null }).stripeCustomerId ?? null,
+                    }),
+                },
+            }),
+            ...(stripePlugin ? [stripePlugin] : []),
+        ],
     });
 }
 

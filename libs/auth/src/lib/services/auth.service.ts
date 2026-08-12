@@ -1,4 +1,4 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import { isEmail } from 'class-validator';
@@ -10,7 +10,9 @@ import {
     AuthLoginResult,
     AuthLogoutResult,
     AuthRedirectResult,
+    AuthRefreshResult,
     AuthSessionResult,
+    AuthTokenIssueResult,
     SocialRedirectResult,
 } from '../contracts/types/auth-api.types';
 import { AuthOptions } from '../contracts/types/auth.types';
@@ -25,6 +27,7 @@ import { UsernameAvailableDto } from '../dto/username-available.dto';
 import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { VerifyOneTimeTokenDto } from '../dto/verify-one-time-token.dto';
+import { AuthJwtUtils } from '../utils/auth-jwt.utils';
 import { AuthUtils } from '../utils/auth-http';
 
 @Injectable()
@@ -38,7 +41,7 @@ export class AuthService {
         try {
             const payload = { email: body.email, password: body.password, name: body.name, username: body.username, displayUsername: body.displayUsername };
             const result = await this.betterAuth.api.signUpEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
-            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+            return this.toAuthTokenResponse(result.headers, result.response as AuthApiPayload);
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
@@ -52,7 +55,7 @@ export class AuthService {
         try {
             const payload = { username: body.login, password: body.password };
             const result = await this.betterAuth.api.signInUsername({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
-            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+            return this.toAuthTokenResponse(result.headers, result.response as AuthApiPayload);
         } catch (error) {
             if (AuthUtils.isEmailNotVerifiedError(error)) return { redirectUrl: this.verifyEmailRedirectUrl() };
             AuthUtils.mapAuthError(error);
@@ -63,7 +66,7 @@ export class AuthService {
         try {
             const payload = { email: body.login, password: body.password };
             const result = await this.betterAuth.api.signInEmail({ body: payload, headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
-            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+            return this.toAuthTokenResponse(result.headers, result.response as AuthApiPayload);
         } catch (error) {
             if (AuthUtils.isEmailNotVerifiedError(error)) return { redirectUrl: this.verifyEmailRedirectUrl(body.login) };
             AuthUtils.mapAuthError(error);
@@ -71,21 +74,39 @@ export class AuthService {
     }
 
     async getSession(requestHeaders: IncomingHttpHeaders): Promise<AuthSessionResponseDto | null> {
+        const accessToken = AuthJwtUtils.extractAccessToken({ headers: requestHeaders });
+        if (!accessToken) return null;
         try {
-            const session = await this.betterAuth.api.getSession({ headers: fromNodeHeaders(requestHeaders) });
-            if (!session?.user) return null;
-            return {
-                user: session.user as AuthSessionResponseDto['user'],
-                session: (session.session as AuthSessionResponseDto['session']) ?? {},
-            };
+            const user = await this.verifyAccessToken(accessToken);
+            return { user, accessToken };
+        } catch {
+            return null;
+        }
+    }
+
+    async refresh(requestHeaders: IncomingHttpHeaders): Promise<AuthRefreshResult> {
+        const refreshToken = AuthJwtUtils.extractRefreshToken({ headers: requestHeaders });
+        if (!refreshToken) throw new UnauthorizedException('Missing refresh token');
+
+        try {
+            const sessionHeaders = fromNodeHeaders({ cookie: AuthJwtUtils.refreshCookieHeader(refreshToken, this.cookieOpts()) });
+            const tokenResult = await this.betterAuth.api.getToken({ headers: sessionHeaders });
+            const accessToken = (tokenResult as { token: string }).token;
+            if (!accessToken) throw new UnauthorizedException('Unable to refresh access token');
+            return { body: { accessToken }, tokens: { accessToken, refreshToken } };
         } catch (error) {
+            if (error instanceof UnauthorizedException) throw error;
             AuthUtils.mapAuthError(error);
         }
     }
 
     async logout(requestHeaders: IncomingHttpHeaders): Promise<AuthLogoutResult> {
         try {
-            const result = await this.betterAuth.api.signOut({ headers: fromNodeHeaders(requestHeaders), returnHeaders: true });
+            const refreshToken = AuthJwtUtils.extractRefreshToken({ headers: requestHeaders });
+            const headers = refreshToken
+                ? fromNodeHeaders({ cookie: AuthJwtUtils.refreshCookieHeader(refreshToken, this.cookieOpts()) })
+                : fromNodeHeaders(requestHeaders);
+            const result = await this.betterAuth.api.signOut({ headers, returnHeaders: true });
             return { headers: result.headers ?? new Headers(), body: { ok: true } };
         } catch (error) {
             AuthUtils.mapAuthError(error);
@@ -172,10 +193,40 @@ export class AuthService {
                 headers: fromNodeHeaders(requestHeaders),
                 returnHeaders: true,
             });
-            return { headers: result.headers, body: this.toSessionResponse(result.response as AuthApiPayload) };
+            return this.toAuthTokenResponse(result.headers, result.response as AuthApiPayload);
         } catch (error) {
             AuthUtils.mapAuthError(error);
         }
+    }
+
+    cookieOpts(): Pick<AuthOptions, 'cookieDomain' | 'baseUrl'> {
+        return { baseUrl: this.authOptions.baseUrl, cookieDomain: this.authOptions.cookieDomain };
+    }
+
+    private async toAuthTokenResponse(baHeaders: Headers, payload: AuthApiPayload): Promise<AuthTokenIssueResult> {
+        const user = payload.user;
+        if (!user) throw new BadRequestException('Missing user in auth response');
+
+        const refreshToken = AuthJwtUtils.parseSessionTokenFromHeaders(baHeaders);
+        if (!refreshToken) throw new BadRequestException('Missing session after sign-in');
+
+        const sessionHeaders = fromNodeHeaders({ cookie: `better-auth.session_token=${refreshToken}` });
+        const tokenResult = await this.betterAuth.api.getToken({ headers: sessionHeaders });
+        const accessToken = (tokenResult as { token: string }).token;
+        if (!accessToken) throw new BadRequestException('Missing JWT from token endpoint');
+
+        return {
+            headers: baHeaders,
+            tokens: { accessToken, refreshToken },
+            body: { user, accessToken },
+        };
+    }
+
+    private async verifyAccessToken(accessToken: string): Promise<AuthSessionResponseDto['user']> {
+        const baseUrl = (this.authOptions.baseUrl ?? '').replace(/\/$/, '');
+        const jwksUrl = `${baseUrl}/auth-service/jwks`;
+        const payload = await AuthJwtUtils.verifyAccessToken(accessToken, jwksUrl, baseUrl, baseUrl);
+        return { id: payload.sub, email: payload.email, name: payload.name, username: payload.username ?? null };
     }
 
     private clientAppBaseUrl(): string {
@@ -194,10 +245,5 @@ export class AuthService {
         const base = this.clientAppBaseUrl();
         if (email) return `${base}/verify-email?email=${encodeURIComponent(email)}`;
         return `${base}/verify-email`;
-    }
-
-    private toSessionResponse(payload: AuthApiPayload): AuthSessionResponseDto {
-        if (!payload.user) throw new BadRequestException('Missing user in auth response');
-        return { user: payload.user, session: payload.session ?? { token: payload.token } };
     }
 }

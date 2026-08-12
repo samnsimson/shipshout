@@ -46,8 +46,8 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
     });
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
 
-    const payload = (await response.json()) as { session?: { token?: string | null } };
-    if (payload.session?.token) {
+    const payload = (await response.json()) as { accessToken?: string | null };
+    if (payload.accessToken) {
         await AuthCookieUtils.applyToCookieStore(response);
         redirect('/dashboard');
     }
@@ -109,16 +109,24 @@ export async function checkUsernameAction(username: string): Promise<{ available
 
 export async function getSessionAction(): Promise<{
     user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
-    session: Record<string, unknown>;
+    accessToken?: string;
 } | null> {
     const response = await authFetch('/auth/session', { method: 'GET' });
     if (!response.ok) return null;
     const body = (await response.json()) as {
         user?: { id: string; email: string; name: string; username?: string | null; image?: string | null };
-        session?: Record<string, unknown>;
+        accessToken?: string;
     } | null;
     if (!body?.user) return null;
-    return { user: body.user, session: body.session ?? {} };
+    return { user: body.user, accessToken: body.accessToken };
+}
+
+export async function refreshAccessTokenAction(): Promise<string | null> {
+    const response = await authFetch('/auth/refresh', { method: 'POST', body: '{}' });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { accessToken?: string };
+    if (body.accessToken) await AuthCookieUtils.applyToCookieStore(response);
+    return body.accessToken ?? null;
 }
 
 export async function logoutAction(): Promise<void> {
