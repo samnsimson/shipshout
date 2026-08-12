@@ -21,7 +21,7 @@
     ],
     "references": [
         {
-            "path": "../../libs/auth/tsconfig.lib.json"
+            "path": "../../libs/email-client/tsconfig.lib.json"
         },
         {
             "path": "../../libs/swagger/tsconfig.lib.json"
@@ -30,10 +30,13 @@
             "path": "../../libs/logger/tsconfig.lib.json"
         },
         {
+            "path": "../../libs/database/tsconfig.lib.json"
+        },
+        {
             "path": "../../libs/core/tsconfig.lib.json"
         },
         {
-            "path": "../../libs/database/tsconfig.lib.json"
+            "path": "../../libs/auth/tsconfig.lib.json"
         }
     ]
 }

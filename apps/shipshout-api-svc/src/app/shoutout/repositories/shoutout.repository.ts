@@ -13,6 +13,10 @@ export class ShoutoutRepository extends BaseRepository<ShoutoutEntity> {
         return this.find({ where: { userId }, order: { createdAt: 'DESC' }, relations: { linkedRepository: true, triggerEvent: true } });
     }
 
+    findById(id: string): Promise<ShoutoutEntity | null> {
+        return this.findOne({ where: { id }, relations: { linkedRepository: true, triggerEvent: true } });
+    }
+
     findByIdAndUserId(id: string, userId: string): Promise<ShoutoutEntity | null> {
         return this.findOne({ where: { id, userId }, relations: { linkedRepository: true, triggerEvent: true } });
     }

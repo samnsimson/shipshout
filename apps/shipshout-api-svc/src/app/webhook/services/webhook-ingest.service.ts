@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { TriggerEventStatus } from '@shipshout/database';
 import { ShoutoutRepository } from '../../shoutout/repositories/shoutout.repository';
 import { ShoutoutLimitService } from '../../shoutout/services/shoutout-limit.service';
+import { ShoutoutQueueService } from '../../shoutout/services/shoutout-queue.service';
 import { ShoutoutLimitUtils } from '../../shoutout/utils/shoutout-limit.utils';
 import { ShoutoutTitleUtils } from '../../shoutout/utils/shoutout-title.utils';
 import { TriggerEventRepository } from '../../trigger/repositories/trigger-event.repository';
@@ -19,6 +20,7 @@ export class WebhookIngestService {
         private readonly triggerEvents: TriggerEventRepository,
         private readonly shoutouts: ShoutoutRepository,
         private readonly shoutoutLimits: ShoutoutLimitService,
+        private readonly shoutoutQueue: ShoutoutQueueService,
         private readonly triggerService: TriggerService,
     ) {}
 
@@ -81,10 +83,11 @@ export class WebhookIngestService {
                 linkedRepositoryId: repo.id,
                 triggerEventId: event.id,
                 title: ShoutoutTitleUtils.deriveTitle(triggerType, payload, repo.fullName),
-                status: 'pending_ai',
+                status: 'generating',
                 sourceSummary: ShoutoutTitleUtils.buildSourceSummary(triggerType, payload),
             });
             await this.triggerEvents.save({ ...event, shoutoutId: shoutout.id });
+            await this.shoutoutQueue.addGenerationJob({ shoutoutId: shoutout.id });
         }
 
         await this.repositoryWebhooks.save({ ...webhook, lastDeliveryAt: new Date() });
