@@ -1,0 +1,46 @@
+import { Box, Stack } from '@chakra-ui/react';
+import { Radio } from 'lucide-react';
+import type { Metadata } from 'next';
+import { PageHeader } from '../../../../components/dashboard/page-header';
+import { ChannelsClient } from '../../../../components/channels/channels-client';
+import { fetchChannelCatalog, fetchRepositoryChannels } from '../../../../lib/channels/api';
+import { getRepositoriesApi } from '../../../../lib/repositories/api';
+
+export const metadata: Metadata = {
+    title: 'Channels',
+};
+
+export default async function ChannelsPage({ searchParams }: { searchParams: Promise<{ repo?: string }> }) {
+    const params = await searchParams;
+    const initialRepoId = typeof params.repo === 'string' ? params.repo : undefined;
+
+    const { api, requestOptions } = await getRepositoriesApi();
+    const [catalogRes, linkedRes] = await Promise.all([fetchChannelCatalog(), api.listLinkedRepos(requestOptions)]);
+
+    if (!catalogRes.data) throw new Error('Failed to load channel catalog');
+
+    const catalog = catalogRes.data.channels;
+    const linkedRepos = (linkedRes.data?.repositories ?? []).map((repo) => ({ id: repo.id, fullName: repo.fullName }));
+
+    const channelsByRepoEntries = await Promise.all(
+        linkedRepos.map(async (repo) => {
+            const result = await fetchRepositoryChannels(repo.id);
+            return [repo.id, result.data?.channels ?? []] as const;
+        }),
+    );
+    const channelsByRepo = Object.fromEntries(channelsByRepoEntries);
+
+    return (
+        <Box>
+            <Stack maxW="1080px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
+                <PageHeader
+                    icon={Radio}
+                    eyebrow="Channels"
+                    title="Channel marketplace"
+                    description="Browse delivery channels and configure where shoutouts go for each repository. Notification channels alert you; publish channels reach your audience when you publish."
+                />
+                <ChannelsClient catalog={catalog} linkedRepos={linkedRepos} channelsByRepo={channelsByRepo} initialRepoId={initialRepoId} />
+            </Stack>
+        </Box>
+    );
+}

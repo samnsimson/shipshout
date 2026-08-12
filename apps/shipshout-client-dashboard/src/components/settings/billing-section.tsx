@@ -3,9 +3,10 @@
 import { Box, Button, Flex, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
 import { CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { createBillingPortalAction, upgradeSubscriptionAction } from '../../lib/billing/actions';
 import { BillingUtils } from '../../lib/billing/billing.utils';
+import { Toaster } from '../../lib/feedback/toaster.utils';
 
 export type BillingPlan = {
     name: string;
@@ -39,14 +40,13 @@ export function BillingSection(props: {
     billingStatus?: string | null;
 }) {
     const router = useRouter();
-    const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
     const billablePlans = props.plans.filter((plan) => plan.isBillable);
 
     function redirectTo(result: { url: string } | { error: string }) {
         if ('error' in result) {
-            setError(result.error);
+            Toaster.error({ title: 'Billing request failed', description: result.error });
             return;
         }
         window.location.href = result.url;
@@ -106,12 +106,6 @@ export function BillingSection(props: {
                     Starter includes a one-time trial. Each account can use a trial once.
                 </Text>
 
-                {error ? (
-                    <Text fontSize="sm" color="red.500">
-                        {error}
-                    </Text>
-                ) : null}
-
                 <Flex gap="sm" flexWrap="wrap">
                     {billablePlans.map((plan) => {
                         if (plan.name === props.subscription.plan) return null;
@@ -122,7 +116,6 @@ export function BillingSection(props: {
                                 borderRadius="md"
                                 disabled={pending}
                                 onClick={() => {
-                                    setError(null);
                                     startTransition(async () => {
                                         redirectTo(await upgradeSubscriptionAction(plan.name as 'starter' | 'pro'));
                                         router.refresh();
@@ -140,7 +133,6 @@ export function BillingSection(props: {
                         borderRadius="md"
                         disabled={pending}
                         onClick={() => {
-                            setError(null);
                             startTransition(async () => {
                                 redirectTo(await createBillingPortalAction());
                             });

@@ -25,5 +25,7 @@ export async function updateRepositoryChannelsAction(
     }
 
     revalidatePath(`/dashboard/repositories/${repositoryId}`);
+    revalidatePath('/dashboard/channels');
+    for (const patch of channels) revalidatePath(`/dashboard/channels/${patch.channelKey}`);
     return { ok: true };
 }

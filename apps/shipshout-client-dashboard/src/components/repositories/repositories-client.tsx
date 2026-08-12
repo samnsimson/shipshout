@@ -1,9 +1,10 @@
 'use client';
 
-import { Alert, Badge, Box, Button, Checkbox, Flex, Input, InputGroup, Link as ChakraLink, NativeSelect, Stack, Table, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Checkbox, Flex, Input, InputGroup, Link as ChakraLink, NativeSelect, Stack, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useDeferredValue, useMemo, useState, useTransition } from 'react';
 import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Settings2, Unlink } from 'lucide-react';
+import { Toaster } from '../../lib/feedback/toaster.utils';
 import { disconnectGithubAction, linkRepositoriesAction, unlinkRepositoryAction } from '../../lib/repositories/actions';
 import { QueryBanner } from './query-banner';
 import type { GithubConnectionResponseDto, GithubRepoDto, LinkedRepositoryResponseDto } from '@shipshout/api-client';
@@ -28,7 +29,6 @@ export function RepositoriesClient(props: {
     githubReason?: string;
 }) {
     const [selected, setSelected] = useState<number[]>([]);
-    const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
     const [search, setSearch] = useState('');
     const [ownerFilter, setOwnerFilter] = useState('all');
@@ -142,13 +142,6 @@ export function RepositoriesClient(props: {
         <Stack gap="lg">
             <QueryBanner githubQuery={props.githubQuery} githubReason={props.githubReason} />
 
-            {error ? (
-                <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator />
-                    <Alert.Title>{error}</Alert.Title>
-                </Alert.Root>
-            ) : null}
-
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">
                     <Text fontSize="xs" fontWeight="600" color="fg.muted" letterSpacing="0.125px" textTransform="uppercase">
@@ -197,7 +190,7 @@ export function RepositoriesClient(props: {
                             onClick={() =>
                                 startTransition(() => {
                                     disconnectGithubAction().then((res) => {
-                                        if (!res.ok) setError(res.error);
+                                        if (!res.ok) Toaster.error({ title: 'Could not disconnect GitHub', description: res.error });
                                     });
                                 })
                             }
@@ -262,7 +255,7 @@ export function RepositoriesClient(props: {
                                                     onClick={() =>
                                                         startTransition(() => {
                                                             unlinkRepositoryAction(repo.id).then((res) => {
-                                                                if (!res.ok) setError(res.error);
+                                                                if (!res.ok) Toaster.error({ title: 'Could not unlink repository', description: res.error });
                                                             });
                                                         })
                                                     }
@@ -430,7 +423,7 @@ export function RepositoriesClient(props: {
                                 onClick={() =>
                                     startTransition(() => {
                                         linkRepositoriesAction(selected).then((res) => {
-                                            if (!res.ok) setError(res.error);
+                                            if (!res.ok) Toaster.error({ title: 'Could not link repositories', description: res.error });
                                             else setSelected([]);
                                         });
                                     })

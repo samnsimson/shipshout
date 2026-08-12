@@ -1,7 +1,7 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ChannelTypeEntity, RepositoryChannelEntity, RepositoryChannelTone } from '@shipshout/database';
 import { LinkedRepositoryRepository } from '../../repository/repositories/linked-repository.repository';
-import { ShoutoutLimitService } from '../../shoutout/services/shoutout-limit.service';
+import { SubscriptionEntitlementService } from '../../subscription/services/subscription-entitlement.service';
 import { PatchRepositoryChannelDto, PatchRepositoryChannelsDto, RepositoryChannelDto, RepositoryChannelListResponseDto } from '../dto/channel.dto';
 import { ChannelTypeRepository } from '../repositories/channel-type.repository';
 import { RepositoryChannelRepository } from '../repositories/repository-channel.repository';
@@ -14,7 +14,7 @@ export class RepositoryChannelService {
         private readonly channelTypes: ChannelTypeRepository,
         private readonly repositoryChannels: RepositoryChannelRepository,
         private readonly linkedRepositories: LinkedRepositoryRepository,
-        private readonly shoutoutLimits: ShoutoutLimitService,
+        private readonly entitlements: SubscriptionEntitlementService,
     ) {}
 
     async ensureForLinkedRepository(linkedRepositoryId: string): Promise<void> {
@@ -38,7 +38,7 @@ export class RepositoryChannelService {
         const [catalog, rows, limits] = await Promise.all([
             this.channelTypes.findAllActive(),
             this.repositoryChannels.findByLinkedRepositoryId(repo.id),
-            this.shoutoutLimits.getLimitsForUser(userId),
+            this.entitlements.getLimitsForUser(userId),
         ]);
         const planChannels = limits.channels ?? [];
         const rowByKey = new Map(rows.map((row) => [row.channelKey, row]));
@@ -48,7 +48,7 @@ export class RepositoryChannelService {
     async updateForRepo(userId: string, repositoryId: string, body: PatchRepositoryChannelsDto): Promise<RepositoryChannelListResponseDto> {
         const repo = await this.requireLinkedRepository(userId, repositoryId);
         await this.ensureForLinkedRepository(repo.id);
-        const [catalog, limits] = await Promise.all([this.channelTypes.findAllActive(), this.shoutoutLimits.getLimitsForUser(userId)]);
+        const [catalog, limits] = await Promise.all([this.channelTypes.findAllActive(), this.entitlements.getLimitsForUser(userId)]);
         const catalogByKey = new Map(catalog.map((type) => [type.key, type]));
         const planChannels = limits.channels ?? [];
 

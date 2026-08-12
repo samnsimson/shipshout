@@ -1,7 +1,7 @@
 import { ForbiddenException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LinkedRepositoryRepository } from '../repository/repositories/linked-repository.repository';
-import { ShoutoutLimitService } from '../shoutout/services/shoutout-limit.service';
+import { SubscriptionEntitlementService } from '../subscription/services/subscription-entitlement.service';
 import { ChannelTypeRepository } from './repositories/channel-type.repository';
 import { RepositoryChannelRepository } from './repositories/repository-channel.repository';
 import { RepositoryChannelService } from './services/repository-channel.service';
@@ -15,7 +15,7 @@ describe('RepositoryChannelService', () => {
         save: jest.Mock;
     };
     let linkedRepositories: { findOne: jest.Mock };
-    let shoutoutLimits: { getLimitsForUser: jest.Mock };
+    let entitlements: { getLimitsForUser: jest.Mock };
 
     beforeEach(async () => {
         channelTypes = { findAllActive: jest.fn() };
@@ -25,7 +25,7 @@ describe('RepositoryChannelService', () => {
             save: jest.fn(),
         };
         linkedRepositories = { findOne: jest.fn() };
-        shoutoutLimits = { getLimitsForUser: jest.fn() };
+        entitlements = { getLimitsForUser: jest.fn() };
 
         const module: TestingModule = await Test.createTestingModule({
             providers: [
@@ -33,7 +33,7 @@ describe('RepositoryChannelService', () => {
                 { provide: ChannelTypeRepository, useValue: channelTypes },
                 { provide: RepositoryChannelRepository, useValue: repositoryChannels },
                 { provide: LinkedRepositoryRepository, useValue: linkedRepositories },
-                { provide: ShoutoutLimitService, useValue: shoutoutLimits },
+                { provide: SubscriptionEntitlementService, useValue: entitlements },
             ],
         }).compile();
 
@@ -46,7 +46,7 @@ describe('RepositoryChannelService', () => {
             { key: 'email_alert', displayName: 'Email alert', description: '', kind: 'notify', configSchema: {}, sortOrder: 1 },
             { key: 'email_newsletter', displayName: 'Email newsletter', description: '', kind: 'publish', configSchema: {}, sortOrder: 2 },
         ]);
-        shoutoutLimits.getLimitsForUser.mockResolvedValue({ repos: 1, releasesPerMonth: 10, channels: ['email_alert'] });
+        entitlements.getLimitsForUser.mockResolvedValue({ repos: 1, releasesPerMonth: 10, channels: ['email_alert'] });
         repositoryChannels.findByLinkedRepositoryAndKey.mockImplementation((_repoId: string, key: string) =>
             Promise.resolve({ id: `row-${key}`, linkedRepositoryId: 'repo-1', channelKey: key, enabled: false, tone: 'professional', config: {} }),
         );

@@ -1,7 +1,7 @@
 import { BullModule } from '@nestjs/bullmq';
 import { forwardRef, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { SubscriptionPlanRepository } from '@shipshout/database';
+import { SubscriptionModule } from '../subscription/subscription.module';
 import { EmailClient } from '@shipshout/email-client';
 import { AiModule } from '../ai/ai.module';
 import { ChannelModule } from '../channels/channel.module';
@@ -25,6 +25,7 @@ import { UserEmailLookup } from './services/user-email-lookup.service';
     imports: [
         BullModule.registerQueue({ name: 'shoutout-generation' }, { name: 'shoutout-dispatch' }),
         forwardRef(() => ChannelModule),
+        SubscriptionModule,
         AiModule,
         RepositoryModule,
         TriggerModule,
@@ -43,7 +44,6 @@ import { UserEmailLookup } from './services/user-email-lookup.service';
         ShoutoutDispatchProcessor,
         ShoutoutEventsService,
         UserEmailLookup,
-        SubscriptionPlanRepository,
         {
             provide: EmailClient,
             inject: [ConfigService],

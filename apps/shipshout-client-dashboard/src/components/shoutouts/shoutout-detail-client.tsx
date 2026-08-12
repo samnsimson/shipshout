@@ -1,10 +1,11 @@
 'use client';
 
-import { Alert, Badge, Box, Button, Field, Link as ChakraLink, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
+import { Badge, Box, Button, Field, Link as ChakraLink, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState, useTransition } from 'react';
+import { Toaster } from '../../lib/feedback/toaster.utils';
 import { publishShoutoutAction, retryShoutoutGenerationAction, updateShoutoutDraftAction } from '../../lib/shoutouts/actions';
 import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '../../lib/shoutouts/api';
 import { ShoutoutStatusUtils } from '../../lib/shoutouts/shoutout-status.utils';
@@ -113,7 +114,6 @@ function DraftEditor(props: {
 }) {
     const [draftState, setDraftState] = useState(() => draftsToState(props.drafts));
     const [activeTab, setActiveTab] = useState<string | null>(props.drafts[0]?.channelKey ?? null);
-    const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
     useEffect(() => {
@@ -130,12 +130,12 @@ function DraftEditor(props: {
         if (!draft) return;
 
         startTransition(async () => {
-            setError(null);
             const result = await updateShoutoutDraftAction(props.shoutoutId, channelKey, draft);
             if (!result.ok) {
-                setError(result.error);
+                Toaster.error({ title: 'Could not save draft', description: result.error });
                 return;
             }
+            Toaster.success({ title: 'Draft saved' });
             props.onSaved(result.shoutout);
         });
     };
@@ -150,12 +150,6 @@ function DraftEditor(props: {
 
     return (
         <Stack gap="md">
-            {error ? (
-                <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator />
-                    <Alert.Title>{error}</Alert.Title>
-                </Alert.Root>
-            ) : null}
             <Tabs.Root value={activeTab} onValueChange={(details) => setActiveTab(details.value)}>
                 <Tabs.List flexWrap="wrap">
                     {props.drafts.map((draft) => (
@@ -214,7 +208,6 @@ function DraftEditor(props: {
 export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
     const router = useRouter();
     const [shoutout, setShoutout] = useState(props.shoutout);
-    const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
     useEffect(() => {
@@ -237,24 +230,24 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
 
     const publish = () => {
         startTransition(async () => {
-            setError(null);
             const result = await publishShoutoutAction(shoutout.id);
             if (!result.ok) {
-                setError(result.error);
+                Toaster.error({ title: 'Could not publish shoutout', description: result.error });
                 return;
             }
+            Toaster.success({ title: 'Shoutout published' });
             router.refresh();
         });
     };
 
     const retry = () => {
         startTransition(async () => {
-            setError(null);
             const result = await retryShoutoutGenerationAction(shoutout.id);
             if (!result.ok) {
-                setError(result.error);
+                Toaster.error({ title: 'Could not retry generation', description: result.error });
                 return;
             }
+            Toaster.info({ title: 'Regenerating shoutout drafts' });
             router.refresh();
         });
     };
@@ -269,13 +262,6 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                     </Stack>
                 </Link>
             </ChakraLink>
-
-            {error ? (
-                <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator />
-                    <Alert.Title>{error}</Alert.Title>
-                </Alert.Root>
-            ) : null}
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">

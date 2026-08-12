@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ChannelTypeEntity } from '@shipshout/database';
-import { ShoutoutLimitService } from '../../shoutout/services/shoutout-limit.service';
+import { SubscriptionEntitlementService } from '../../subscription/services/subscription-entitlement.service';
 import { ChannelCatalogItemDto, ChannelCatalogListResponseDto } from '../dto/channel.dto';
 import { ChannelTypeRepository } from '../repositories/channel-type.repository';
 
@@ -8,11 +8,11 @@ import { ChannelTypeRepository } from '../repositories/channel-type.repository';
 export class ChannelCatalogService {
     constructor(
         private readonly channelTypes: ChannelTypeRepository,
-        private readonly shoutoutLimits: ShoutoutLimitService,
+        private readonly entitlements: SubscriptionEntitlementService,
     ) {}
 
     async listForUser(userId: string): Promise<ChannelCatalogListResponseDto> {
-        const [catalog, limits] = await Promise.all([this.channelTypes.findAllActive(), this.shoutoutLimits.getLimitsForUser(userId)]);
+        const [catalog, limits] = await Promise.all([this.channelTypes.findAllActive(), this.entitlements.getLimitsForUser(userId)]);
         const planChannels = limits.channels ?? [];
         return { channels: catalog.map((type) => this.toCatalogItem(type, planChannels)) };
     }

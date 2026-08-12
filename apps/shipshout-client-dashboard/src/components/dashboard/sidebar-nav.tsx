@@ -2,12 +2,13 @@
 
 import NextLink from 'next/link';
 import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
-import { FolderGit2, Home, Megaphone, Settings, Users, type LucideIcon } from 'lucide-react';
+import { FolderGit2, Home, Megaphone, Radio, Settings, Users, type LucideIcon } from 'lucide-react';
 
 const NAV: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
     { href: '/dashboard', label: 'Home', icon: Home },
     { href: '/dashboard/repositories', label: 'Repositories', icon: FolderGit2 },
     { href: '/dashboard/shoutouts', label: 'Shoutouts', icon: Megaphone },
+    { href: '/dashboard/channels', label: 'Channels', icon: Radio },
     { href: '/dashboard/team', label: 'Team', icon: Users },
     { href: '/dashboard/settings', label: 'Settings', icon: Settings },
 ];

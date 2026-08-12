@@ -1,13 +1,12 @@
 'use client';
 
-import { Alert, Badge, Box, Button, Checkbox, Flex, Link as ChakraLink, Stack, Table, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Checkbox, Flex, Link as ChakraLink, Stack, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { ArrowLeft, Copy, ExternalLink, Webhook } from 'lucide-react';
 import { useState, useTransition } from 'react';
-import type { RepositoryChannelDto } from '../../lib/channels/api';
+import { Toaster } from '../../lib/feedback/toaster.utils';
 import { updateRepositoryTriggersAction } from '../../lib/triggers/actions';
 import type { LinkedRepositoryDetailDto, TriggerEventDto } from '../../lib/triggers/api';
-import { RepositoryChannelsSection } from './repository-channels-section';
 
 const triggerLabels = {
     release: 'Release published',
@@ -34,9 +33,8 @@ async function copyText(value: string) {
     await navigator.clipboard.writeText(value);
 }
 
-export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[]; channels: RepositoryChannelDto[] }) {
+export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[] }) {
     const [triggers, setTriggers] = useState(props.repository.triggers);
-    const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
 
     const status = webhookStatusBadge(props.repository.webhook.status);
@@ -44,12 +42,12 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
 
     const save = () => {
         startTransition(async () => {
-            setError(null);
             const result = await updateRepositoryTriggersAction(props.repository.id, triggers);
             if (!result.ok) {
-                setError(result.error);
+                Toaster.error({ title: 'Could not save triggers', description: result.error });
                 return;
             }
+            Toaster.success({ title: 'Triggers saved' });
             window.location.reload();
         });
     };
@@ -91,13 +89,6 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                 </Stack>
             </Box>
 
-            {error ? (
-                <Alert.Root status="error" borderRadius="lg">
-                    <Alert.Indicator />
-                    <Alert.Title>{error}</Alert.Title>
-                </Alert.Root>
-            ) : null}
-
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">
                     <Text fontSize="sm" fontWeight="600">
@@ -125,7 +116,23 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                 </Stack>
             </Box>
 
-            <RepositoryChannelsSection repositoryId={props.repository.id} channels={props.channels} />
+            <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
+                <Stack gap="sm">
+                    <Text fontSize="sm" fontWeight="600">
+                        Delivery channels
+                    </Text>
+                    <Text color="fg.muted" fontSize="sm">
+                        Configure where shoutouts are delivered for this repository.
+                    </Text>
+                    <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
+                        <Link href={`/dashboard/channels?repo=${props.repository.id}`}>
+                            <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
+                                Configure channels
+                            </Button>
+                        </Link>
+                    </ChakraLink>
+                </Stack>
+            </Box>
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">
