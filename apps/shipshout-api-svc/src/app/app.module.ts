@@ -7,6 +7,7 @@ import { HealthController } from './health/health.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HttpModule } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { BullModule } from '@nestjs/bullmq';
 import { AuthModule } from '@shipshout/auth';
 import { RepositoryModule } from './repository/repository.module';
 import { ShoutoutModule } from './shoutout/shoutout.module';
@@ -15,10 +16,17 @@ import { WebhookModule } from './webhook/webhook.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
+import { ChannelModule } from './channels/channel.module';
 
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+        BullModule.forRootAsync({
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+                connection: { url: config.getOrThrow('REDIS_URL') },
+            }),
+        }),
         DatabaseModule.forRootAsync({
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
@@ -56,6 +64,7 @@ import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils'
         ShoutoutModule,
         SubscriptionModule,
         PaymentsModule,
+        ChannelModule,
     ],
     controllers: [AppController, HealthController],
     providers: [AppService],
