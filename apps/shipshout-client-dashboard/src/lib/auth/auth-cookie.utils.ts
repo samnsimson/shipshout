@@ -22,7 +22,12 @@ export class AuthCookieUtils {
         }
     }
 
-    /** Clear auth cookies from the Next.js cookie store (e.g. stale session). */
+    /** Clear auth cookies from a NextResponse (Route Handlers). */
+    static clearFromNextResponse(target: NextResponse): void {
+        for (const name of [...AUTH_TOKEN_COOKIE_NAMES, ...AUTH_REFRESH_COOKIE_NAMES]) target.cookies.delete(name);
+    }
+
+    /** Clear auth cookies from the Next.js cookie store (Server Action / Route Handler only). */
     static async clearFromCookieStore(): Promise<void> {
         const cookieStore = await cookies();
         for (const name of [...AUTH_TOKEN_COOKIE_NAMES, ...AUTH_REFRESH_COOKIE_NAMES]) cookieStore.delete(name);

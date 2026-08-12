@@ -1,8 +1,9 @@
 'use client';
 
-import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { Button, Flex, Text } from '@chakra-ui/react';
 import { Menu, ShipWheel } from 'lucide-react';
 import { LogoutButton } from '../auth/logout-button';
+import { ColorModeButton } from '../ui/color-mode';
 
 export function TopBar(props: {
     user: { email: string; name: string; username?: string | null; image?: string | null };
@@ -39,9 +40,10 @@ export function TopBar(props: {
                 </Flex>
             </Flex>
 
-            <Box>
+            <Flex align="center" gap="xs">
+                <ColorModeButton borderRadius="full" />
                 <LogoutButton />
-            </Box>
+            </Flex>
         </Flex>
     );
 }
