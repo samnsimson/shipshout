@@ -2,7 +2,6 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule as BetterAuthModule } from '@thallesp/nestjs-better-auth';
-import { AUTH_OPTIONS } from './auth-options.token';
 import { AuthModuleAsyncOptions } from './auth.options';
 import { authOptionsSchema } from './contracts/schema/auth.schema';
 import { AuthOptions } from './contracts/types/auth.types';
@@ -11,6 +10,7 @@ import { AuthController } from './controllers/auth.controller';
 import { AuthEmailBootstrap } from './email/auth-email.bootstrap';
 import { EmailAdapter } from './email/email-adapter';
 import { AuthService } from './services/auth.service';
+import { AUTH_OPTIONS } from './constants/auth.constants';
 
 @Module({})
 export class AuthModule {

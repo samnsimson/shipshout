@@ -1,8 +1,8 @@
 import { ArgumentsHost, BadRequestException, HttpException, HttpStatus, Logger, UnauthorizedException } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { GlobalExceptionFilter } from '../filters/global-exception.filter';
-import { HttpErrorResponse } from '../filters/http-error-response';
-import { RequestContext } from '../request-context';
+import { HttpErrorResponse } from '../types';
+import { RequestContext } from '../context/request-context';
 
 function createHost(path = '/auth/login'): { host: ArgumentsHost; status: jest.Mock; json: jest.Mock } {
     const json = jest.fn();

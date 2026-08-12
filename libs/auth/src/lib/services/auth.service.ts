@@ -3,7 +3,7 @@ import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { fromNodeHeaders } from 'better-auth/node';
 import { isEmail } from 'class-validator';
 import { IncomingHttpHeaders } from 'node:http';
-import { AUTH_OPTIONS } from '../auth-options.token';
+import { AUTH_OPTIONS } from '../constants/auth.constants';
 import { auth } from '../auth.config';
 import {
     AuthApiPayload,

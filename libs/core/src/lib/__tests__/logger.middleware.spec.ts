@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TRANSACTION_ID_HEADER } from '../constants/transaction-id';
 import { LoggerMiddleware, RequestWithTransactionId } from '../middlewares/logger.middleware';
-import { RequestContext } from '../request-context';
+import { RequestContext } from '../context/request-context';
 
 function mockReq(headers: Record<string, string | undefined> = {}): Request {
     return {

@@ -28,7 +28,7 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
 }));
 
 import { AuthModule } from '../auth.module';
-import { AUTH_OPTIONS } from '../auth-options.token';
+import { AUTH_OPTIONS } from '../constants/auth.constants';
 import { AuthController } from '../controllers/auth.controller';
 import { EmailAdapter } from '../email/email-adapter';
 

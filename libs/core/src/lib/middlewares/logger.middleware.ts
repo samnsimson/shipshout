@@ -2,7 +2,7 @@ import { Injectable, Logger, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { TRANSACTION_ID_HEADER } from '../constants/transaction-id';
-import { RequestContext } from '../request-context';
+import { RequestContext } from '../context/request-context';
 
 export type RequestWithTransactionId = Request & { transactionId: string };
 

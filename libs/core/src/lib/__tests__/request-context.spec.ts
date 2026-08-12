@@ -1,4 +1,4 @@
-import { RequestContext } from '../request-context';
+import { RequestContext } from '../context/request-context';
 
 describe('RequestContext', () => {
     it('exposes transactionId inside run and clears after exit', () => {
