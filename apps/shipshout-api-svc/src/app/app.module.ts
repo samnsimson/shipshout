@@ -16,7 +16,6 @@ import { WebhookModule } from './webhook/webhook.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
-import { ChannelModule } from './channels/channel.module';
 
 @Module({
     imports: [
@@ -64,7 +63,6 @@ import { ChannelModule } from './channels/channel.module';
         ShoutoutModule,
         SubscriptionModule,
         PaymentsModule,
-        ChannelModule,
     ],
     controllers: [AppController, HealthController],
     providers: [AppService],
