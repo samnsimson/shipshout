@@ -4,8 +4,10 @@ import { Alert, Badge, Box, Button, Checkbox, Flex, Link as ChakraLink, Stack, T
 import Link from 'next/link';
 import { ArrowLeft, Copy, ExternalLink, Webhook } from 'lucide-react';
 import { useState, useTransition } from 'react';
+import type { RepositoryChannelDto } from '../../lib/channels/api';
 import { updateRepositoryTriggersAction } from '../../lib/triggers/actions';
 import type { LinkedRepositoryDetailDto, TriggerEventDto } from '../../lib/triggers/api';
+import { RepositoryChannelsSection } from './repository-channels-section';
 
 const triggerLabels = {
     release: 'Release published',
@@ -32,7 +34,7 @@ async function copyText(value: string) {
     await navigator.clipboard.writeText(value);
 }
 
-export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[] }) {
+export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[]; channels: RepositoryChannelDto[] }) {
     const [triggers, setTriggers] = useState(props.repository.triggers);
     const [error, setError] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
@@ -122,6 +124,8 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                     </Button>
                 </Stack>
             </Box>
+
+            <RepositoryChannelsSection repositoryId={props.repository.id} channels={props.channels} />
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
                 <Stack gap="md">
