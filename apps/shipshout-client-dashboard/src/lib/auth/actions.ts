@@ -1,7 +1,8 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { applySetCookies, authFetch, getApiBaseUrl, readErrorMessage } from './api';
+import { authFetch, getApiBaseUrl, readErrorMessage } from './api';
+import { AuthCookieUtils } from './auth-cookie.utils';
 import type { AuthActionResult } from './cookies';
 
 function field(formData: FormData, key: string): string {
@@ -27,7 +28,7 @@ export async function loginAction(formData: FormData): Promise<AuthActionResult>
         }
     }
     if (!response.ok) return { ok: false, error: await readErrorMessage(response) };
-    await applySetCookies(response);
+    await AuthCookieUtils.applyToCookieStore(response);
     redirect('/dashboard');
 }
 
@@ -47,7 +48,7 @@ export async function registerAction(formData: FormData): Promise<AuthActionResu
 
     const payload = (await response.json()) as { session?: { token?: string | null } };
     if (payload.session?.token) {
-        await applySetCookies(response);
+        await AuthCookieUtils.applyToCookieStore(response);
         redirect('/dashboard');
     }
     redirect(`/verify-email?email=${encodeURIComponent(email)}`);
@@ -122,6 +123,6 @@ export async function getSessionAction(): Promise<{
 
 export async function logoutAction(): Promise<void> {
     const response = await authFetch('/auth/logout', { method: 'POST', body: '{}' });
-    if (response.ok) await applySetCookies(response);
+    if (response.ok) await AuthCookieUtils.applyToCookieStore(response);
     redirect('/login');
 }

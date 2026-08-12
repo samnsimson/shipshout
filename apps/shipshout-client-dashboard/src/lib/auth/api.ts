@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { collectSetCookieHeaders, parseSetCookie } from './cookies';
+import { AuthCookieUtils } from './auth-cookie.utils';
 
 export function getApiBaseUrl(): string {
     const url = process.env.SHIPSHOUT_API_URL;
@@ -13,6 +13,10 @@ export function getPublicApiBaseUrl(): string {
     return url.replace(/\/$/, '');
 }
 
+function getClientAppUrl(): string {
+    return (process.env.CLIENT_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+}
+
 export async function authFetch(path: string, init?: RequestInit): Promise<Response> {
     const cookieStore = await cookies();
     const cookieHeader = cookieStore
@@ -20,10 +24,15 @@ export async function authFetch(path: string, init?: RequestInit): Promise<Respo
         .map((c) => `${c.name}=${c.value}`)
         .join('; ');
 
+    // Better Auth originCheck requires Origin/Referer when cookies are present (server actions omit them by default).
+    const clientAppUrl = getClientAppUrl();
+
     return fetch(`${getApiBaseUrl()}${path}`, {
         ...init,
         headers: {
             'content-type': 'application/json',
+            origin: clientAppUrl,
+            referer: clientAppUrl,
             ...(cookieHeader ? { cookie: cookieHeader } : {}),
             ...(init?.headers ?? {}),
         },
@@ -32,21 +41,7 @@ export async function authFetch(path: string, init?: RequestInit): Promise<Respo
 }
 
 export async function applySetCookies(response: Response): Promise<void> {
-    const cookieStore = await cookies();
-    for (const header of collectSetCookieHeaders(response)) {
-        const parsed = parseSetCookie(header);
-        if (!parsed) continue;
-        cookieStore.set({
-            name: parsed.name,
-            value: parsed.value,
-            path: parsed.path ?? '/',
-            httpOnly: parsed.httpOnly,
-            secure: parsed.secure,
-            sameSite: parsed.sameSite,
-            maxAge: parsed.maxAge,
-            expires: parsed.expires,
-        });
-    }
+    await AuthCookieUtils.applyToCookieStore(response);
 }
 
 export async function readErrorMessage(response: Response): Promise<string> {

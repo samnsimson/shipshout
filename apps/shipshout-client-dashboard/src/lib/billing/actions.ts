@@ -1,15 +1,12 @@
 'use server';
 
 import { authFetch, readErrorMessage } from '../auth/api';
-
-function clientAppUrl(): string {
-    return (process.env.CLIENT_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
-}
+import { BillingUtils } from './billing.utils';
 
 type UrlResult = { url: string } | { error: string };
 
 export async function upgradeSubscriptionAction(plan: 'starter' | 'pro'): Promise<UrlResult> {
-    const app = clientAppUrl();
+    const app = BillingUtils.clientAppUrl();
     const response = await authFetch('/auth-service/subscription/upgrade', {
         method: 'POST',
         body: JSON.stringify({
@@ -29,7 +26,7 @@ export async function upgradeSubscriptionAction(plan: 'starter' | 'pro'): Promis
 }
 
 export async function createBillingPortalAction(): Promise<UrlResult> {
-    const app = clientAppUrl();
+    const app = BillingUtils.clientAppUrl();
     const response = await authFetch('/auth-service/subscription/billing-portal', {
         method: 'POST',
         body: JSON.stringify({

@@ -1,6 +1,10 @@
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
-import type { Response } from 'express';
+import { stripe } from '@better-auth/stripe';
 import { APIError } from 'better-auth/api';
+import type { Response } from 'express';
+import Stripe from 'stripe';
+import { BillingUtils } from '../billing/billing.utils';
+import { AuthOptions } from '../contracts/types/auth.types';
 import { EmailAdapter } from '../email/email-adapter';
 
 export class AuthUtils {
@@ -9,6 +13,26 @@ export class AuthUtils {
     static configureEmailAdapter(adapter: EmailAdapter): void {
         this.emailAdapter = adapter;
     }
+
+    static buildStripePlugin(opts: AuthOptions) {
+        const hasSecret = Boolean(opts.stripeSecretKey);
+        const hasWebhook = Boolean(opts.stripeWebhookSecret);
+        if (hasSecret !== hasWebhook) throw new Error('STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET are both required when enabling Stripe');
+        if (!opts.stripeSecretKey || !opts.stripeWebhookSecret) return null;
+
+        const stripeClient = new Stripe(opts.stripeSecretKey, { apiVersion: '2026-07-29.dahlia' });
+        return stripe({
+            // Stripe CJS/ESM typings diverge under bun+tsc; runtime client is fine for the plugin.
+            stripeClient: stripeClient as never,
+            stripeWebhookSecret: opts.stripeWebhookSecret,
+            createCustomerOnSignUp: true,
+            subscription: {
+                enabled: true,
+                plans: async () => BillingUtils.mapPlansForStripe(await (opts.getSubscriptionPlans?.() ?? [])),
+            },
+        });
+    }
+
 
     static applyAuthCookies(res: Response, headers: Headers): void {
         const cookies = headers.getSetCookie?.() ?? [];

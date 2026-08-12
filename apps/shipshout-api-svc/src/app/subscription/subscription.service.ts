@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpHeadersUtils } from '../common/http-headers.utils';
 import { SubscriptionPlanLimits, SubscriptionPlanRepository } from '@shipshout/database';
 import { AuthService as BetterAuthService } from '@thallesp/nestjs-better-auth';
 import { IncomingHttpHeaders } from 'node:http';
@@ -18,18 +19,6 @@ type BetterAuthApi = {
     };
 };
 
-function toWebHeaders(incoming: IncomingHttpHeaders): Headers {
-    const headers = new Headers();
-    for (const [key, value] of Object.entries(incoming)) {
-        if (value === undefined) continue;
-        if (Array.isArray(value)) {
-            for (const item of value) headers.append(key, item);
-            continue;
-        }
-        headers.set(key, value);
-    }
-    return headers;
-}
 
 @Injectable()
 export class SubscriptionService {
@@ -53,7 +42,7 @@ export class SubscriptionService {
 
     async getMe(_userId: string, headers: IncomingHttpHeaders): Promise<SubscriptionMeResponseDto> {
         const listed = await (this.betterAuth as unknown as BetterAuthApi).api.listActiveSubscriptions({
-            headers: toWebHeaders(headers),
+            headers: HttpHeadersUtils.toWebHeaders(headers),
             query: {},
         });
 

@@ -1,0 +1,46 @@
+---
+description: Prefer utility classes with static methods over standalone helper functions
+alwaysApply: true
+---
+
+# Helper functions → static utility classes
+
+When extracting reusable helpers (mappers, validators, HTTP utilities, plugin builders, etc.), put them on a class as **static methods** — not as exported plain functions.
+
+Match existing patterns such as `AuthUtils` in `libs/auth`.
+
+## Do
+
+```typescript
+export class AuthUtils {
+    static buildStripePlugin(opts: AuthOptions) {
+        // ...
+    }
+
+    static mapAuthError(error: unknown): never {
+        // ...
+    }
+}
+
+// call site
+AuthUtils.buildStripePlugin(opts);
+```
+
+## Don't
+
+```typescript
+export function buildStripePlugin(opts: AuthOptions) {
+    // ...
+}
+
+export function mapAuthError(error: unknown): never {
+    // ...
+}
+```
+
+## Notes
+
+- Name the class for the domain (`AuthUtils`, `BillingUtils`, `RepositoryUtils`), not a generic `Helpers`.
+- Keep related helpers on the same class; split into a new class only when the domain diverges.
+- Framework entrypoints that must be plain functions (e.g. Nest factories, Better Auth `createAuth`, React components) stay as functions — this rule applies to **helper/utility** logic those entrypoints call.
+- Module-local one-liners used once in the same file may stay private; once shared or exported, use a static utility class.

@@ -1,3 +1,5 @@
+jest.mock('@better-auth/stripe', () => ({ stripe: jest.fn(() => ({ id: 'stripe-plugin' })) }));
+jest.mock('stripe', () => jest.fn().mockImplementation(() => ({})));
 jest.mock('better-auth/api', () => {
     class APIError extends Error {
         status: string;

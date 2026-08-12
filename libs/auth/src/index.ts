@@ -7,5 +7,4 @@ export * from './lib/email/email-adapter';
 export * from './lib/controllers/auth.controller';
 export * from './lib/services/auth.service';
 export * from './lib/billing/subscription-plan.types';
-export * from './lib/billing/map-plans-for-stripe';
-
+export * from './lib/billing/billing.utils';

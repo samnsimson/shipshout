@@ -11,7 +11,7 @@ import { AuthModule } from '@shipshout/auth';
 import { RepositoryModule } from './repository/repository.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
-import { createGetSubscriptionPlans } from './subscription/get-subscription-plans';
+import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
 
 @Module({
     imports: [
@@ -38,7 +38,7 @@ import { createGetSubscriptionPlans } from './subscription/get-subscription-plan
                     githubClientSecret: configService.get<string>('GITHUB_CLIENT_SECRET'),
                     stripeSecretKey: configService.get<string>('STRIPE_SECRET_KEY'),
                     stripeWebhookSecret: configService.get<string>('STRIPE_WEBHOOK_SECRET'),
-                    getSubscriptionPlans: createGetSubscriptionPlans(databaseUrl),
+                    getSubscriptionPlans: SubscriptionPlansUtils.createGetSubscriptionPlans(databaseUrl),
                 };
             },
         }),

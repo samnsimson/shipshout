@@ -5,6 +5,7 @@ import { CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { createBillingPortalAction, upgradeSubscriptionAction } from '../../lib/billing/actions';
+import { BillingUtils } from '../../lib/billing/billing.utils';
 
 export type BillingPlan = {
     name: string;
@@ -30,14 +31,6 @@ export type BillingInvoice = {
     hostedInvoiceUrl: string | null;
 };
 
-function formatLimit(value: number | null): string {
-    if (value === null) return 'Unlimited';
-    return String(value);
-}
-
-function formatMoney(amountDue: number, currency: string): string {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency.toUpperCase() }).format(amountDue / 100);
-}
 
 export function BillingSection(props: {
     subscription: BillingSubscription;
@@ -91,11 +84,11 @@ export function BillingSection(props: {
                     </Flex>
                     <Flex justify="space-between" gap="md">
                         <Text color="fg.muted">Repos</Text>
-                        <Text>{formatLimit(props.subscription.limits.repos)}</Text>
+                        <Text>{BillingUtils.formatLimit(props.subscription.limits.repos)}</Text>
                     </Flex>
                     <Flex justify="space-between" gap="md">
                         <Text color="fg.muted">Releases / mo</Text>
-                        <Text>{formatLimit(props.subscription.limits.releasesPerMonth)}</Text>
+                        <Text>{BillingUtils.formatLimit(props.subscription.limits.releasesPerMonth)}</Text>
                     </Flex>
                     {props.subscription.periodEnd ? (
                         <Flex justify="space-between" gap="md">
@@ -166,7 +159,7 @@ export function BillingSection(props: {
                             <Flex key={invoice.id} justify="space-between" gap="md" fontSize="sm">
                                 <Text color="fg.muted">{new Date(invoice.createdAt).toLocaleDateString()}</Text>
                                 <Text>
-                                    {formatMoney(invoice.amountDue, invoice.currency)}
+                                    {BillingUtils.formatMoney(invoice.amountDue, invoice.currency)}
                                     {invoice.status ? ` · ${invoice.status}` : ''}
                                 </Text>
                                 {invoice.hostedInvoiceUrl ? (

@@ -4,14 +4,7 @@ import { PageHeader } from '../../../../components/dashboard/page-header';
 import { BillingSection } from '../../../../components/settings/billing-section';
 import { getSessionAction } from '../../../../lib/auth/actions';
 import { getBillingApi } from '../../../../lib/billing/api';
-
-function asString(value: unknown): string | null {
-    return typeof value === 'string' ? value : null;
-}
-
-function asNumber(value: unknown): number | null {
-    return typeof value === 'number' ? value : null;
-}
+import { BillingUtils } from '../../../../lib/billing/billing.utils';
 
 export default async function SettingsPage({
     searchParams,
@@ -37,11 +30,11 @@ export default async function SettingsPage({
 
     const subscription = {
         plan: me?.plan ?? 'free',
-        status: asString(me?.status),
-        periodEnd: asString(me?.periodEnd),
+        status: BillingUtils.asString(me?.status),
+        periodEnd: BillingUtils.asString(me?.periodEnd),
         limits: {
             repos: me?.limits?.repos ?? 0,
-            releasesPerMonth: asNumber(me?.limits?.releasesPerMonth),
+            releasesPerMonth: BillingUtils.asNumber(me?.limits?.releasesPerMonth),
         },
     };
 
@@ -81,10 +74,10 @@ export default async function SettingsPage({
                 plans={plans.map((plan) => ({
                     name: plan.name,
                     displayName: plan.displayName,
-                    trialDays: asNumber(plan.trialDays),
+                    trialDays: BillingUtils.asNumber(plan.trialDays),
                     limits: {
                         repos: plan.limits.repos,
-                        releasesPerMonth: asNumber(plan.limits.releasesPerMonth),
+                        releasesPerMonth: BillingUtils.asNumber(plan.limits.releasesPerMonth),
                     },
                     isBillable: plan.isBillable,
                 }))}
@@ -92,9 +85,9 @@ export default async function SettingsPage({
                     id: invoice.id,
                     amountDue: invoice.amountDue,
                     currency: invoice.currency,
-                    status: asString(invoice.status),
+                    status: BillingUtils.asString(invoice.status),
                     createdAt: invoice.createdAt,
-                    hostedInvoiceUrl: asString(invoice.hostedInvoiceUrl),
+                    hostedInvoiceUrl: BillingUtils.asString(invoice.hostedInvoiceUrl),
                 }))}
                 billingStatus={params.billing ?? null}
             />
