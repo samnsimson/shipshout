@@ -13,7 +13,7 @@ export class ShoutoutLimitService {
     async getLimitsForUser(userId: string): Promise<SubscriptionPlanLimits> {
         const planName = await this.findActivePlanName(userId);
         const plan = await this.subscriptionPlans.findActiveByName(planName);
-        return plan?.limits ?? { repos: 0, releasesPerMonth: 0 };
+        return plan?.limits ?? { repos: 0, releasesPerMonth: 0, channels: [] };
     }
 
     private async findActivePlanName(userId: string): Promise<string> {

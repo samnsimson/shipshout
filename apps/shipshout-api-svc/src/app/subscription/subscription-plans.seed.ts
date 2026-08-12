@@ -15,11 +15,19 @@ export class SubscriptionPlansSeed implements OnModuleInit {
         const starterPrice = this.config.get<string>('STRIPE_PRICE_STARTER');
         const proPrice = this.config.get<string>('STRIPE_PRICE_PRO');
         await this.upsert({
+            name: 'free',
+            displayName: 'Free',
+            stripePriceId: null,
+            trialDays: null,
+            limits: { repos: 0, releasesPerMonth: 0, channels: [] },
+            sortOrder: 0,
+        });
+        await this.upsert({
             name: 'starter',
             displayName: 'Starter',
             stripePriceId: starterPrice ?? null,
             trialDays: 14,
-            limits: { repos: 1, releasesPerMonth: 10 },
+            limits: { repos: 1, releasesPerMonth: 10, channels: ['email_alert'] },
             sortOrder: 1,
         });
         await this.upsert({
@@ -27,7 +35,7 @@ export class SubscriptionPlansSeed implements OnModuleInit {
             displayName: 'Pro',
             stripePriceId: proPrice ?? null,
             trialDays: null,
-            limits: { repos: 3, releasesPerMonth: null },
+            limits: { repos: 3, releasesPerMonth: null, channels: ['email_alert', 'email_newsletter'] },
             sortOrder: 2,
         });
         if (!starterPrice || !proPrice) this.logger.warn('STRIPE_PRICE_STARTER/PRO missing; billable plans seeded without price ids');
@@ -38,7 +46,7 @@ export class SubscriptionPlansSeed implements OnModuleInit {
         displayName: string;
         stripePriceId: string | null;
         trialDays: number | null;
-        limits: { repos: number; releasesPerMonth: number | null };
+        limits: { repos: number; releasesPerMonth: number | null; channels: string[] };
         sortOrder: number;
     }): Promise<void> {
         const existing = await this.plans.findOne({ where: { name: input.name } });

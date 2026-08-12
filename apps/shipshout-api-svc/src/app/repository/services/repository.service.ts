@@ -12,6 +12,7 @@ import { GithubApiService } from './github-api.service';
 import { GithubOAuthService } from './github-oauth.service';
 import { TriggerLifecycleService } from '../../trigger/services/trigger-lifecycle.service';
 import { TriggerService } from '../../trigger/services/trigger.service';
+import { RepositoryChannelService } from '../../channels/services/repository-channel.service';
 
 @Injectable()
 export class RepositoryService {
@@ -105,6 +106,8 @@ export class RepositoryService {
             });
             const triggerService = this.getTriggerService();
             if (triggerService) await triggerService.seedForLinkedRepository(saved.id);
+            const repositoryChannelService = this.getRepositoryChannelService();
+            if (repositoryChannelService) await repositoryChannelService.ensureForLinkedRepository(saved.id);
             linked.push(this.toLinkedRepositoryDto(saved));
         }
 
@@ -116,6 +119,14 @@ export class RepositoryService {
         if (lifecycle) await lifecycle.cleanupLinkedRepository(userId, repositoryId);
         const result = await this.linkedRepositories.deleteByIdAndUserId(repositoryId, userId);
         if (!result.affected) throw new NotFoundException('Linked repository not found');
+    }
+
+    private getRepositoryChannelService(): RepositoryChannelService | null {
+        try {
+            return this.moduleRef.get(RepositoryChannelService, { strict: false });
+        } catch {
+            return null;
+        }
     }
 
     private getTriggerService(): TriggerService | null {

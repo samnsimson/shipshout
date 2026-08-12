@@ -15,6 +15,7 @@ import { TriggerModule } from './trigger/trigger.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
+import { ChannelModule } from './channels/channel.module';
 import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
 
 @Module({
@@ -61,6 +62,7 @@ import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils'
         TriggerModule,
         WebhookModule,
         ShoutoutModule,
+        ChannelModule,
         SubscriptionModule,
         PaymentsModule,
     ],
