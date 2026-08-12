@@ -1,12 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { MessageEvent } from '@nestjs/common';
 import { ShoutoutChannelDraftEntity, ShoutoutDispatchLogEntity, ShoutoutEntity } from '@shipshout/database';
 import { Observable } from 'rxjs';
-import { ShoutoutDetailResponseDto, ShoutoutListResponseDto, ShoutoutResponseDto } from '../dto/shoutout.dto';
+import { ShoutoutDetailResponseDto, ShoutoutListResponseDto, ShoutoutResponseDto, ShoutoutStatusResponseDto } from '../dto/shoutout.dto';
+import { UpdateShoutoutDraftDto } from '../dto/update-shoutout-draft.dto';
 import { ShoutoutChannelDraftRepository } from '../repositories/shoutout-channel-draft.repository';
 import { ShoutoutDispatchLogRepository } from '../repositories/shoutout-dispatch-log.repository';
 import { ShoutoutRepository } from '../repositories/shoutout.repository';
+import { ShoutoutStatusUtils } from '../utils/shoutout-status.utils';
 import { ShoutoutEventsService } from './shoutout-events.service';
+import { ShoutoutQueueService } from './shoutout-queue.service';
 
 @Injectable()
 export class ShoutoutService {
@@ -15,6 +18,7 @@ export class ShoutoutService {
         private readonly drafts: ShoutoutChannelDraftRepository,
         private readonly dispatchLogs: ShoutoutDispatchLogRepository,
         private readonly events: ShoutoutEventsService,
+        private readonly queue: ShoutoutQueueService,
     ) {}
 
     async listForUser(userId: string): Promise<ShoutoutListResponseDto> {
@@ -28,6 +32,41 @@ export class ShoutoutService {
 
         const [draftRows, logRows] = await Promise.all([this.drafts.findByShoutoutId(shoutoutId), this.dispatchLogs.findByShoutoutId(shoutoutId)]);
         return this.toDetailDto(shoutout, draftRows, logRows);
+    }
+
+    async updateDraft(userId: string, shoutoutId: string, channelKey: string, body: UpdateShoutoutDraftDto): Promise<ShoutoutDetailResponseDto> {
+        const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
+        if (!shoutout) throw new NotFoundException('Shoutout not found');
+        if (shoutout.status !== 'ready_for_review') throw new ConflictException(`Cannot edit drafts while shoutout status is ${shoutout.status}`);
+
+        const updated = await this.drafts.updateDraft({ shoutoutId, channelKey, title: body.title, body: body.body });
+        if (!updated) throw new NotFoundException('Draft not found');
+
+        return this.getById(userId, shoutoutId);
+    }
+
+    async publish(userId: string, shoutoutId: string): Promise<ShoutoutStatusResponseDto> {
+        const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
+        if (!shoutout) throw new NotFoundException('Shoutout not found');
+        if (!ShoutoutStatusUtils.canTransition(shoutout.status, 'publishing'))
+            throw new ConflictException(`Cannot publish shoutout while status is ${shoutout.status}`);
+
+        await this.shoutouts.save({ ...shoutout, status: 'publishing' });
+        await this.events.publish(shoutoutId, { status: 'publishing' });
+        await this.queue.addDispatchJob({ shoutoutId });
+        return { status: 'publishing' };
+    }
+
+    async retryGeneration(userId: string, shoutoutId: string): Promise<ShoutoutStatusResponseDto> {
+        const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
+        if (!shoutout) throw new NotFoundException('Shoutout not found');
+        if (!ShoutoutStatusUtils.canTransition(shoutout.status, 'generating'))
+            throw new ConflictException(`Cannot retry generation while shoutout status is ${shoutout.status}`);
+
+        await this.shoutouts.save({ ...shoutout, status: 'generating' });
+        await this.events.publish(shoutoutId, { status: 'generating' });
+        await this.queue.addGenerationJob({ shoutoutId });
+        return { status: 'generating' };
     }
 
     streamEvents(userId: string, shoutoutId: string): Observable<MessageEvent> {

@@ -69,3 +69,8 @@ export class ShoutoutListResponseDto {
     @ApiProperty({ type: [ShoutoutResponseDto] })
     shoutouts!: ShoutoutResponseDto[];
 }
+
+export class ShoutoutStatusResponseDto {
+    @ApiProperty()
+    status!: string;
+}

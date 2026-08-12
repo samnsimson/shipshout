@@ -18,4 +18,13 @@ export class ShoutoutChannelDraftRepository extends BaseRepository<ShoutoutChann
         if (existing) await this.save({ ...existing, title: params.title, body: params.body });
         else await this.save({ ...params, editedAt: null });
     }
+
+    async updateDraft(params: { shoutoutId: string; channelKey: string; title?: string; body?: string }): Promise<ShoutoutChannelDraftEntity | null> {
+        const existing = await this.findOne({ where: { shoutoutId: params.shoutoutId, channelKey: params.channelKey } });
+        if (!existing) return null;
+        if (params.title !== undefined) existing.title = params.title;
+        if (params.body !== undefined) existing.body = params.body;
+        existing.editedAt = new Date();
+        return this.save(existing);
+    }
 }
