@@ -1,7 +1,6 @@
 import { Box, Stack } from '@chakra-ui/react';
 import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
-import type { SearchParams } from 'next/dist/server/request/search-params';
 import { PageHeader } from '../../../../components/dashboard/page-header';
 import { RepositoriesClient } from '../../../../components/repositories/repositories-client';
 import { getRepositoriesApi } from '../../../../lib/repositories/api';
@@ -14,14 +13,15 @@ export const metadata: Metadata = {
     title: 'Repositories',
 };
 
-export default async function RepositoriesPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function RepositoriesPage({ searchParams }: { searchParams: Promise<{ github?: string; reason?: string }> }) {
     const publicApiBaseUrl = process.env.NEXT_PUBLIC_SHIPSHOUT_API_URL ?? process.env.SHIPSHOUT_API_URL;
     if (!publicApiBaseUrl) throw new Error('NEXT_PUBLIC_SHIPSHOUT_API_URL is not set');
 
     const connectUrl = `${normalizeBaseUrl(publicApiBaseUrl)}/repositories/github/connect`;
 
-    const githubQuery = typeof searchParams.github === 'string' ? searchParams.github : undefined;
-    const githubReason = typeof searchParams.reason === 'string' ? searchParams.reason : undefined;
+    const params = await searchParams;
+    const githubQuery = typeof params.github === 'string' ? params.github : undefined;
+    const githubReason = typeof params.reason === 'string' ? params.reason : undefined;
 
     const { api, requestOptions } = await getRepositoriesApi();
 
