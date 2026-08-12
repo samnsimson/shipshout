@@ -1,6 +1,10 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-export type SubscriptionPlanLimits = { repos: number; releasesPerMonth: number | null };
+export type SubscriptionPlanLimits = {
+    repos: number;
+    releasesPerMonth: number | null;
+    channels: string[];
+};
 
 @Entity('subscription_plans')
 export class SubscriptionPlanEntity {

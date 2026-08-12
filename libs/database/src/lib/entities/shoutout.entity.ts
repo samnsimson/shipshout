@@ -2,7 +2,14 @@ import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, OneToOn
 import { LinkedRepositoryEntity } from './linked-repository.entity';
 import { TriggerEventEntity } from './trigger-event.entity';
 
-export type ShoutoutStatus = 'pending_ai';
+export type ShoutoutStatus =
+    | 'generating'
+    | 'ready_for_review'
+    | 'publishing'
+    | 'published'
+    | 'partially_published'
+    | 'failed'
+    | 'generation_failed';
 
 @Entity('shoutouts')
 @Index('uq_shoutouts_trigger_event', ['triggerEventId'], { unique: true })
@@ -30,7 +37,7 @@ export class ShoutoutEntity {
     @Column({ type: 'varchar', length: 512 })
     title!: string;
 
-    @Column({ type: 'varchar', length: 32, default: 'pending_ai' })
+    @Column({ type: 'varchar', length: 32, default: 'generating' })
     status!: ShoutoutStatus;
 
     @Column({ type: 'jsonb' })
