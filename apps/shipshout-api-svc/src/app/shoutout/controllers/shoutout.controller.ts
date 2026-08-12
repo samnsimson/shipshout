@@ -1,7 +1,8 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, MessageEvent, Param, Sse, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard, JwtUser, type JwtUserPayload } from '@shipshout/auth/guard';
 import { ApiResource } from '@shipshout/swagger';
+import { Observable } from 'rxjs';
 import { ShoutoutDetailResponseDto, ShoutoutListResponseDto } from '../dto/shoutout.dto';
 import { ShoutoutService } from '../services/shoutout.service';
 
@@ -28,5 +29,12 @@ export class ShoutoutController {
     })
     getShoutout(@JwtUser() user: JwtUserPayload, @Param('id') id: string): Promise<ShoutoutDetailResponseDto> {
         return this.shoutoutService.getById(user.sub, id);
+    }
+
+    @Get(':id/events')
+    @UseGuards(JwtAuthGuard)
+    @Sse()
+    streamEvents(@JwtUser() user: JwtUserPayload, @Param('id') id: string): Observable<MessageEvent> {
+        return this.shoutoutService.streamEvents(user.sub, id);
     }
 }

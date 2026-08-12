@@ -11,6 +11,6 @@ import { RepositoryChannelService } from './services/repository-channel.service'
     imports: [RepositoryModule, forwardRef(() => ShoutoutModule)],
     controllers: [ChannelController],
     providers: [ChannelTypeRepository, RepositoryChannelRepository, ChannelCatalogService, RepositoryChannelService],
-    exports: [RepositoryChannelService, RepositoryChannelRepository],
+    exports: [RepositoryChannelService, RepositoryChannelRepository, ChannelTypeRepository],
 })
 export class ChannelModule {}

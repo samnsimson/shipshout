@@ -8,9 +8,12 @@ import { ChannelModule } from '../channels/channel.module';
 import { RepositoryModule } from '../repository/repository.module';
 import { TriggerModule } from '../trigger/trigger.module';
 import { ShoutoutController } from './controllers/shoutout.controller';
+import { ShoutoutDispatchProcessor } from './processors/shoutout-dispatch.processor';
 import { ShoutoutGenerationProcessor } from './processors/shoutout-generation.processor';
 import { ShoutoutChannelDraftRepository } from './repositories/shoutout-channel-draft.repository';
+import { ShoutoutDispatchLogRepository } from './repositories/shoutout-dispatch-log.repository';
 import { ShoutoutRepository } from './repositories/shoutout.repository';
+import { ShoutoutDispatchService } from './services/shoutout-dispatch.service';
 import { ShoutoutEventsService } from './services/shoutout-events.service';
 import { ShoutoutGenerationService } from './services/shoutout-generation.service';
 import { ShoutoutLimitService } from './services/shoutout-limit.service';
@@ -30,11 +33,14 @@ import { UserEmailLookup } from './services/user-email-lookup.service';
     providers: [
         ShoutoutRepository,
         ShoutoutChannelDraftRepository,
+        ShoutoutDispatchLogRepository,
         ShoutoutService,
         ShoutoutLimitService,
         ShoutoutQueueService,
         ShoutoutGenerationService,
+        ShoutoutDispatchService,
         ShoutoutGenerationProcessor,
+        ShoutoutDispatchProcessor,
         ShoutoutEventsService,
         UserEmailLookup,
         SubscriptionPlanRepository,
