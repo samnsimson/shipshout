@@ -18,6 +18,7 @@ import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { VerifyOneTimeTokenDto } from '../dto/verify-one-time-token.dto';
 import { AuthService } from '../services/auth.service';
 import { AuthJwtUtils } from '../utils/auth-jwt.utils';
+import { AuthUtils } from '../utils/auth-http';
 
 @ApiTags('auth')
 @AllowAnonymous()
@@ -48,10 +49,7 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Invalid credentials' })
     async login(@Body() body: LoginDto, @Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.login(body, req.headers);
-        if ('redirectUrl' in result) {
-            res.redirect(result.redirectUrl);
-            return;
-        }
+        if ('redirectUrl' in result) return res.redirect(result.redirectUrl);
         AuthJwtUtils.applyAuthTokens(res, result.tokens, this.cookieOpts());
         res.status(200).json(result.body);
     }
@@ -153,6 +151,7 @@ export class AuthController {
     @ApiResponse({ status: 302, description: 'Redirect to Google' })
     async google(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.startSocial('google', req.headers);
+        AuthUtils.applyAuthCookies(res, result.headers);
         res.redirect(result.url);
     }
 
@@ -161,6 +160,7 @@ export class AuthController {
     @ApiResponse({ status: 302, description: 'Redirect to GitHub' })
     async github(@Req() req: ExpressRequest, @Res() res: Response): Promise<void> {
         const result = await this.authService.startSocial('github', req.headers);
+        AuthUtils.applyAuthCookies(res, result.headers);
         res.redirect(result.url);
     }
 

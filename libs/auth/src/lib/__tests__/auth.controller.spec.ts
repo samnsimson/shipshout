@@ -25,11 +25,17 @@ jest.mock('../utils/auth-jwt.utils', () => ({
         clearAuthTokens: jest.fn(),
     },
 }));
+jest.mock('../utils/auth-http', () => ({
+    AuthUtils: {
+        applyAuthCookies: jest.fn(),
+    },
+}));
 
 import { AUTH_OPTIONS } from '../constants/auth.constants';
 import { AuthController } from '../controllers/auth.controller';
 import { AuthService } from '../services/auth.service';
 import { AuthJwtUtils } from '../utils/auth-jwt.utils';
+import { AuthUtils } from '../utils/auth-http';
 
 describe('AuthController', () => {
     const authService = {
@@ -100,15 +106,18 @@ describe('AuthController', () => {
         await expect(controller.forgotPassword({ email: 'a@b.com' }, req)).resolves.toEqual({ ok: true });
     });
 
-    it('google redirects using service result', async () => {
+    it('google forwards OAuth state cookies and redirects', async () => {
+        const headers = new Headers();
+        headers.append('set-cookie', 'better-auth.state=abc; Path=/; HttpOnly');
         authService.startSocial.mockResolvedValue({
-            headers: new Headers(),
+            headers,
             url: 'https://accounts.google.com/o/oauth2',
         });
-        const res = { redirect: jest.fn() };
+        const res = { redirect: jest.fn(), append: jest.fn() };
 
         await controller.google(req, res as never);
 
+        expect(AuthUtils.applyAuthCookies).toHaveBeenCalledWith(res, headers);
         expect(res.redirect).toHaveBeenCalledWith('https://accounts.google.com/o/oauth2');
     });
 });
