@@ -16,6 +16,7 @@ import { WebhookModule } from './webhook/webhook.module';
 import { SubscriptionModule } from './subscription/subscription.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ChannelModule } from './channels/channel.module';
+import { AiModule } from './ai/ai.module';
 import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils';
 
 @Module({
@@ -63,6 +64,7 @@ import { SubscriptionPlansUtils } from './subscription/subscription-plans.utils'
         WebhookModule,
         ShoutoutModule,
         ChannelModule,
+        AiModule,
         SubscriptionModule,
         PaymentsModule,
     ],
