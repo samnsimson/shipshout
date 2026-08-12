@@ -10,7 +10,7 @@ export default async function ShoutoutsPage() {
 
     return (
         <Stack maxW="960px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-            <PageHeader icon={Megaphone} eyebrow="Shoutouts" title="Shoutouts" description="Placeholder drafts created when GitHub triggers fire on your linked repositories." />
+            <PageHeader icon={Megaphone} eyebrow="Shoutouts" title="Shoutouts" description="Review AI-generated drafts and publish them to your configured channels when GitHub triggers fire." />
             <ShoutoutsClient shoutouts={shoutouts} />
         </Stack>
     );
