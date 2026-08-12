@@ -1,35 +1,18 @@
-import { shipshoutFetch } from '../shipshout-api';
+import { cookies } from 'next/headers';
+import {
+    ApiClient,
+    type ShoutoutDetailResponseDto,
+    type ShoutoutDispatchLogDto,
+    type ShoutoutDraftDto,
+    type ShoutoutResponseDto,
+    type ShoutoutStatusResponseDto,
+} from '@shipshout/api-client';
 
-export type ShoutoutDto = {
-    id: string;
-    title: string;
-    status: string;
-    linkedRepositoryId: string;
-    repositoryFullName: string;
-    triggerType: string;
-    createdAt: string;
-};
+export type ShoutoutDto = ShoutoutResponseDto;
 
-export type ShoutoutDraftDto = {
-    channelKey: string;
-    title: string;
-    body: string;
-    editedAt: string | null;
-};
+export type ShoutoutDetailDto = ShoutoutDetailResponseDto;
 
-export type ShoutoutDispatchLogDto = {
-    channelKey: string;
-    status: string;
-    error: string | null;
-    sentAt: string | null;
-};
-
-export type ShoutoutDetailDto = ShoutoutDto & {
-    sourceSummary: Record<string, unknown>;
-    triggerEventId: string;
-    drafts: ShoutoutDraftDto[];
-    dispatchLogs: ShoutoutDispatchLogDto[];
-};
+export type { ShoutoutDraftDto, ShoutoutDispatchLogDto, ShoutoutStatusResponseDto };
 
 export type ShoutoutStreamEvent = {
     status: string;
@@ -37,14 +20,43 @@ export type ShoutoutStreamEvent = {
     error?: string;
 };
 
-export type ShoutoutStatusResponseDto = {
-    status: string;
-};
+function normalizeBaseUrl(baseUrl: string): string {
+    return baseUrl.replace(/\/$/, '');
+}
+
+export async function getShoutoutsApi() {
+    const baseUrl = process.env.SHIPSHOUT_API_URL;
+    if (!baseUrl) throw new Error('SHIPSHOUT_API_URL is not set');
+
+    const cookieStore = await cookies();
+    const cookieHeader = cookieStore
+        .getAll()
+        .map((c) => `${c.name}=${c.value}`)
+        .join('; ');
+
+    const api = new ApiClient();
+
+    return {
+        api,
+        requestOptions: {
+            baseUrl: normalizeBaseUrl(baseUrl),
+            headers: {
+                Cookie: cookieHeader,
+            },
+            responseStyle: 'fields' as const,
+            throwOnError: false as const,
+        },
+    };
+}
 
 export async function fetchShoutouts() {
-    return shipshoutFetch<{ shoutouts: ShoutoutDto[] }>('/shoutouts');
+    const { api, requestOptions } = await getShoutoutsApi();
+    const result = await api.listShoutouts(requestOptions);
+    return { data: result.data, error: result.error, status: result.response?.status ?? (result.error ? 500 : 200) };
 }
 
 export async function fetchShoutout(id: string) {
-    return shipshoutFetch<ShoutoutDetailDto>(`/shoutouts/${id}`);
+    const { api, requestOptions } = await getShoutoutsApi();
+    const result = await api.getShoutout({ ...requestOptions, path: { id } });
+    return { data: result.data, error: result.error, status: result.response?.status ?? (result.error ? 500 : 200) };
 }

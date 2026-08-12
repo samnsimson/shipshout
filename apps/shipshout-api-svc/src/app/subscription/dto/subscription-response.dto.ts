@@ -6,6 +6,9 @@ export class SubscriptionPlanLimitsDto {
 
     @ApiPropertyOptional({ example: 10, nullable: true, description: 'null means unlimited' })
     releasesPerMonth!: number | null;
+
+    @ApiProperty({ type: [String], example: ['email_alert', 'email_newsletter'] })
+    channels!: string[];
 }
 
 export class SubscriptionPlanResponseDto {

@@ -227,6 +227,20 @@ export type ShoutoutListResponseDto = {
     shoutouts: Array<ShoutoutResponseDto>;
 };
 
+export type ShoutoutDraftDto = {
+    channelKey: string;
+    title: string;
+    body: string;
+    editedAt: string | null;
+};
+
+export type ShoutoutDispatchLogDto = {
+    channelKey: string;
+    status: string;
+    error: string | null;
+    sentAt: string | null;
+};
+
 export type ShoutoutDetailResponseDto = {
     id: string;
     title: string;
@@ -239,6 +253,65 @@ export type ShoutoutDetailResponseDto = {
         [key: string]: unknown;
     };
     triggerEventId: string;
+    drafts: Array<ShoutoutDraftDto>;
+    dispatchLogs: Array<ShoutoutDispatchLogDto>;
+};
+
+export type UpdateShoutoutDraftDto = {
+    title?: string;
+    body?: string;
+};
+
+export type ShoutoutStatusResponseDto = {
+    status: string;
+};
+
+export type ChannelCatalogItemDto = {
+    key: string;
+    displayName: string;
+    description: string;
+    kind: 'notify' | 'publish';
+    configSchema: {
+        [key: string]: unknown;
+    };
+    availableOnPlan: boolean;
+};
+
+export type ChannelCatalogListResponseDto = {
+    channels: Array<ChannelCatalogItemDto>;
+};
+
+export type RepositoryChannelDto = {
+    channelKey: string;
+    displayName: string;
+    description: string;
+    kind: 'notify' | 'publish';
+    configSchema: {
+        [key: string]: unknown;
+    };
+    availableOnPlan: boolean;
+    enabled: boolean;
+    tone: 'professional' | 'dev_focused' | 'hype';
+    config: {
+        [key: string]: unknown;
+    };
+};
+
+export type RepositoryChannelListResponseDto = {
+    channels: Array<RepositoryChannelDto>;
+};
+
+export type PatchRepositoryChannelDto = {
+    channelKey: string;
+    enabled?: boolean;
+    tone?: 'professional' | 'dev_focused' | 'hype';
+    config?: {
+        [key: string]: unknown;
+    };
+};
+
+export type PatchRepositoryChannelsDto = {
+    channels: Array<PatchRepositoryChannelDto>;
 };
 
 export type SubscriptionPlanLimitsDto = {
@@ -249,6 +322,7 @@ export type SubscriptionPlanLimitsDto = {
     releasesPerMonth?: {
         [key: string]: unknown;
     } | null;
+    channels: Array<string>;
 };
 
 export type SubscriptionPlanResponseDto = {
@@ -917,6 +991,195 @@ export type GetShoutoutResponses = {
 };
 
 export type GetShoutoutResponse = GetShoutoutResponses[keyof GetShoutoutResponses];
+
+export type ShoutoutControllerStreamEventsData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}/events';
+};
+
+export type ShoutoutControllerStreamEventsResponses = {
+    200: unknown;
+};
+
+export type UpdateShoutoutDraftData = {
+    body: UpdateShoutoutDraftDto;
+    path: {
+        /**
+         * Shoutout id
+         */
+        id: string;
+        /**
+         * Channel key
+         */
+        channelKey: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}/drafts/{channelKey}';
+};
+
+export type UpdateShoutoutDraftErrors = {
+    /**
+     * Shoutout or draft not found
+     */
+    404: unknown;
+    /**
+     * Shoutout is not ready for review
+     */
+    409: unknown;
+};
+
+export type UpdateShoutoutDraftResponses = {
+    /**
+     * Update Shoutout Draft
+     */
+    200: ShoutoutDetailResponseDto;
+};
+
+export type UpdateShoutoutDraftResponse = UpdateShoutoutDraftResponses[keyof UpdateShoutoutDraftResponses];
+
+export type PublishShoutoutData = {
+    body?: never;
+    path: {
+        /**
+         * Shoutout id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}/publish';
+};
+
+export type PublishShoutoutErrors = {
+    /**
+     * Shoutout not found
+     */
+    404: unknown;
+    /**
+     * Shoutout cannot be published in its current status
+     */
+    409: unknown;
+};
+
+export type PublishShoutoutResponses = {
+    /**
+     * Publish Shoutout
+     */
+    200: ShoutoutStatusResponseDto;
+};
+
+export type PublishShoutoutResponse = PublishShoutoutResponses[keyof PublishShoutoutResponses];
+
+export type RetryShoutoutGenerationData = {
+    body?: never;
+    path: {
+        /**
+         * Shoutout id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}/retry-generation';
+};
+
+export type RetryShoutoutGenerationErrors = {
+    /**
+     * Shoutout not found
+     */
+    404: unknown;
+    /**
+     * Shoutout is not in generation_failed status
+     */
+    409: unknown;
+};
+
+export type RetryShoutoutGenerationResponses = {
+    /**
+     * Retry Shoutout Generation
+     */
+    200: ShoutoutStatusResponseDto;
+};
+
+export type RetryShoutoutGenerationResponse = RetryShoutoutGenerationResponses[keyof RetryShoutoutGenerationResponses];
+
+export type ListChannelsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/channels';
+};
+
+export type ListChannelsResponses = {
+    /**
+     * List Channels
+     */
+    200: ChannelCatalogListResponseDto;
+};
+
+export type ListChannelsResponse = ListChannelsResponses[keyof ListChannelsResponses];
+
+export type ListRepositoryChannelsData = {
+    body?: never;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/repositories/{id}/channels';
+};
+
+export type ListRepositoryChannelsErrors = {
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type ListRepositoryChannelsResponses = {
+    /**
+     * List Repository Channels
+     */
+    200: RepositoryChannelListResponseDto;
+};
+
+export type ListRepositoryChannelsResponse = ListRepositoryChannelsResponses[keyof ListRepositoryChannelsResponses];
+
+export type UpdateRepositoryChannelsData = {
+    body: PatchRepositoryChannelsDto;
+    path: {
+        /**
+         * Linked repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/repositories/{id}/channels';
+};
+
+export type UpdateRepositoryChannelsErrors = {
+    /**
+     * Channel not available on plan
+     */
+    403: unknown;
+    /**
+     * Linked repository not found
+     */
+    404: unknown;
+};
+
+export type UpdateRepositoryChannelsResponses = {
+    /**
+     * Update Repository Channels
+     */
+    200: RepositoryChannelListResponseDto;
+};
+
+export type UpdateRepositoryChannelsResponse = UpdateRepositoryChannelsResponses[keyof UpdateRepositoryChannelsResponses];
 
 export type ListSubscriptionPlansData = {
     body?: never;

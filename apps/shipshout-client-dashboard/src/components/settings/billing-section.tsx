@@ -11,7 +11,7 @@ export type BillingPlan = {
     name: string;
     displayName: string;
     trialDays: number | null;
-    limits: { repos: number; releasesPerMonth: number | null };
+    limits: { repos: number; releasesPerMonth: number | null; channels: string[] };
     isBillable: boolean;
 };
 
@@ -19,7 +19,7 @@ export type BillingSubscription = {
     plan: string;
     status: string | null;
     periodEnd: string | null;
-    limits: { repos: number; releasesPerMonth: number | null };
+    limits: { repos: number; releasesPerMonth: number | null; channels: string[] };
 };
 
 export type BillingInvoice = {
@@ -89,6 +89,10 @@ export function BillingSection(props: {
                     <Flex justify="space-between" gap="md">
                         <Text color="fg.muted">Releases / mo</Text>
                         <Text>{BillingUtils.formatLimit(props.subscription.limits.releasesPerMonth)}</Text>
+                    </Flex>
+                    <Flex justify="space-between" gap="md">
+                        <Text color="fg.muted">Channels</Text>
+                        <Text>{BillingUtils.formatChannels(props.subscription.limits.channels)}</Text>
                     </Flex>
                     {props.subscription.periodEnd ? (
                         <Flex justify="space-between" gap="md">

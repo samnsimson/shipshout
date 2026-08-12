@@ -35,6 +35,7 @@ export default async function SettingsPage({
         limits: {
             repos: me?.limits?.repos ?? 0,
             releasesPerMonth: BillingUtils.asNumber(me?.limits?.releasesPerMonth),
+            channels: me?.limits?.channels ?? [],
         },
     };
 
@@ -78,6 +79,7 @@ export default async function SettingsPage({
                     limits: {
                         repos: plan.limits.repos,
                         releasesPerMonth: BillingUtils.asNumber(plan.limits.releasesPerMonth),
+                        channels: plan.limits.channels ?? [],
                     },
                     isBillable: plan.isBillable,
                 }))}

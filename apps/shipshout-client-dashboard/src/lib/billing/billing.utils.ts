@@ -4,6 +4,18 @@ export class BillingUtils {
         return String(value);
     }
 
+    static formatChannels(channels: string[]): string {
+        if (channels.length === 0) return 'None';
+        return channels
+            .map((key) =>
+                key
+                    .split('_')
+                    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join(' '),
+            )
+            .join(', ');
+    }
+
     static formatMoney(amountDue: number, currency: string): string {
         return new Intl.NumberFormat('en-US', { style: 'currency', currency: currency.toUpperCase() }).format(amountDue / 100);
     }
