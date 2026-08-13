@@ -34,7 +34,7 @@ export default async function ChannelConfigPage({
         api.listLinkedRepos(requestOptions),
     ]);
 
-    if (channelsRes.status === 404) notFound();
+    if (channelsRes.response?.status === 404) notFound();
     if (!catalogRes.data || !channelsRes.data) throw new Error('Failed to load channel configuration');
 
     const catalogItem = catalogRes.data.channels.find((item) => item.key === channelKey);

@@ -1,7 +1,16 @@
 import { cookies } from 'next/headers';
+import type { AuthUserDto } from '@shipshout/api-client';
 import type { NextResponse } from 'next/server';
 
 export type AuthActionResult = { ok: true } | { ok: false; error: string };
+
+export type SessionUser = {
+    id: string;
+    email: string;
+    name: string;
+    username?: string | null;
+    image?: string | null;
+};
 
 export type ParsedSetCookie = {
     name: string;
@@ -17,6 +26,20 @@ export type ParsedSetCookie = {
 export class AuthUtils {
     static readonly AUTH_TOKEN_COOKIE_NAMES = ['auth_token', '__Secure-auth_token'] as const;
     static readonly AUTH_REFRESH_COOKIE_NAMES = ['auth_refresh', '__Secure-auth_refresh'] as const;
+
+    static normalizeSessionUser(user: AuthUserDto): SessionUser {
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            username: AuthUtils.asString(user.username) ?? AuthUtils.asString(user.displayUsername),
+            image: AuthUtils.asString(user.image),
+        };
+    }
+
+    private static asString(value: unknown): string | null {
+        return typeof value === 'string' && value ? value : null;
+    }
 
     static hasAuthCookies(request: { cookies: { has: (name: string) => boolean } }): boolean {
         return [...AuthUtils.AUTH_TOKEN_COOKIE_NAMES, ...AuthUtils.AUTH_REFRESH_COOKIE_NAMES].some((name) => request.cookies.has(name));

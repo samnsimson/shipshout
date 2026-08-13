@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default async function ShoutoutDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const result = await ShoutoutsApi.fetchById(id);
-    if (result.status === 404) notFound();
+    if (result.response?.status === 404) notFound();
     if (!result.data) throw new Error('Failed to load shoutout');
 
     return (

@@ -6,17 +6,14 @@ export async function GET(request: NextRequest) {
     const token = request.nextUrl.searchParams.get('token')?.trim() ?? '';
     if (!token) return NextResponse.redirect(new URL('/login', request.url));
 
-    const response = await AuthApi.fetch('/auth/one-time-token/verify', {
-        method: 'POST',
-        body: JSON.stringify({ token }),
-    });
+    const result = await AuthApi.verifyOneTimeToken({ token });
 
-    if (!response.ok) {
-        const message = await AuthApi.readErrorMessage(response);
+    if (!result.response?.ok) {
+        const message = AuthApi.readErrorMessage(result);
         return NextResponse.redirect(new URL(`/login?error=${encodeURIComponent(message)}`, request.url));
     }
 
     const redirect = NextResponse.redirect(new URL('/dashboard', request.url));
-    AuthUtils.applyToNextResponse(redirect, response);
+    if (result.response) AuthUtils.applyToNextResponse(redirect, result.response);
     return redirect;
 }

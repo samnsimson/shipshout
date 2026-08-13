@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { AuthApi } from './auth.api';
 import { AuthUtils } from './auth.utils';
-import type { AuthActionResult } from './auth.utils';
+import type { AuthActionResult, SessionUser } from './auth.utils';
 
 export class AuthActions {
     static async login(formData: FormData): Promise<AuthActionResult> {
@@ -11,20 +11,17 @@ export class AuthActions {
         const password = AuthActions.field(formData, 'password');
         if (!login || !password) return { ok: false, error: 'Login and password are required' };
 
-        const response = await AuthApi.fetch('/auth/login', {
-            method: 'POST',
-            body: JSON.stringify({ login, password }),
-            redirect: 'manual',
-        });
-        if (response.status >= 300 && response.status < 400) {
+        const result = await AuthApi.login({ login, password });
+        const response = result.response;
+        if (response && response.status >= 300 && response.status < 400) {
             const location = response.headers.get('location');
             if (location) {
                 const url = new URL(location, AuthApi.apiBaseUrl());
                 redirect(`${url.pathname}${url.search}`);
             }
         }
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
-        await AuthUtils.applyToCookieStore(response);
+        if (result.error || !response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
+        if (response) await AuthUtils.applyToCookieStore(response);
         redirect('/dashboard');
     }
 
@@ -36,15 +33,11 @@ export class AuthActions {
         const displayUsername = AuthActions.field(formData, 'displayUsername') || undefined;
         if (!name || !username || !email || !password) return { ok: false, error: 'All fields are required' };
 
-        const response = await AuthApi.fetch('/auth/register', {
-            method: 'POST',
-            body: JSON.stringify({ name, username, email, password, displayUsername }),
-        });
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
+        const result = await AuthApi.register({ name, username, email, password, displayUsername });
+        if (result.error || !result.response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
 
-        const payload = await AuthApi.parseJsonResponse<{ accessToken?: string | null }>(response);
-        if (payload?.accessToken) {
-            await AuthUtils.applyToCookieStore(response);
+        if (result.data?.accessToken && result.response) {
+            await AuthUtils.applyToCookieStore(result.response);
             redirect('/dashboard');
         }
         redirect(`/verify-email?email=${encodeURIComponent(email)}`);
@@ -54,11 +47,8 @@ export class AuthActions {
         const email = AuthActions.field(formData, 'email');
         if (!email) return { ok: false, error: 'Email is required' };
 
-        const response = await AuthApi.fetch('/auth/forgot-password', {
-            method: 'POST',
-            body: JSON.stringify({ email }),
-        });
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
+        const result = await AuthApi.forgotPassword({ email });
+        if (result.error || !result.response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
         return { ok: true };
     }
 
@@ -66,11 +56,8 @@ export class AuthActions {
         const email = AuthActions.field(formData, 'email');
         if (!email) return { ok: false, error: 'Email is required' };
 
-        const response = await AuthApi.fetch('/auth/resend-verification', {
-            method: 'POST',
-            body: JSON.stringify({ email }),
-        });
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
+        const result = await AuthApi.resendVerification({ email });
+        if (result.error || !result.response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
         return { ok: true };
     }
 
@@ -82,11 +69,8 @@ export class AuthActions {
         if (!newPassword || newPassword.length < 8) return { ok: false, error: 'Password must be at least 8 characters' };
         if (newPassword !== confirmPassword) return { ok: false, error: 'Passwords do not match' };
 
-        const response = await AuthApi.fetch('/auth/reset-password', {
-            method: 'POST',
-            body: JSON.stringify({ token, newPassword }),
-        });
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
+        const result = await AuthApi.resetPassword({ token, newPassword });
+        if (result.error || !result.response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
         return { ok: true };
     }
 
@@ -94,19 +78,12 @@ export class AuthActions {
         const trimmed = username.trim();
         if (trimmed.length < 3) return { ok: false, error: 'Username must be at least 3 characters' };
 
-        const response = await AuthApi.fetch('/auth/username/available', {
-            method: 'POST',
-            body: JSON.stringify({ username: trimmed }),
-        });
-        if (!response.ok) return { ok: false, error: await AuthApi.readErrorMessage(response) };
-        const body = await AuthApi.parseJsonResponse<{ available?: boolean }>(response);
-        return { available: Boolean(body?.available) };
+        const result = await AuthApi.checkUsername({ username: trimmed });
+        if (result.error || !result.response?.ok) return { ok: false, error: AuthApi.readErrorMessage(result) };
+        return { available: Boolean(result.data?.available) };
     }
 
-    static async getSession(): Promise<{
-        user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
-        accessToken?: string;
-    } | null> {
+    static async getSession(): Promise<{ user: SessionUser; accessToken?: string } | null> {
         const session = await AuthActions.fetchSession();
         if (session) return session;
 
@@ -116,16 +93,15 @@ export class AuthActions {
     }
 
     static async refreshAccessToken(): Promise<string | null> {
-        const response = await AuthApi.fetch('/auth/refresh', { method: 'POST', body: '{}' });
-        if (!response.ok) return null;
-        const body = await AuthApi.parseJsonResponse<{ accessToken?: string }>(response);
-        if (body?.accessToken) await AuthUtils.applyToCookieStore(response);
-        return body?.accessToken ?? null;
+        const result = await AuthApi.refresh();
+        if (result.error || !result.response?.ok) return null;
+        if (result.data?.accessToken && result.response) await AuthUtils.applyToCookieStore(result.response);
+        return result.data?.accessToken ?? null;
     }
 
     static async logout(): Promise<void> {
-        const response = await AuthApi.fetch('/auth/logout', { method: 'POST', body: '{}' });
-        if (response.ok) await AuthUtils.applyToCookieStore(response);
+        const result = await AuthApi.logout();
+        if (result.response?.ok && result.response) await AuthUtils.applyToCookieStore(result.response);
         redirect('/login');
     }
 
@@ -134,17 +110,9 @@ export class AuthActions {
         return typeof value === 'string' ? value.trim() : '';
     }
 
-    private static async fetchSession(): Promise<{
-        user: { id: string; email: string; name: string; username?: string | null; image?: string | null };
-        accessToken?: string;
-    } | null> {
-        const response = await AuthApi.fetch('/auth/session', { method: 'GET' });
-        if (!response.ok) return null;
-        const body = await AuthApi.parseJsonResponse<{
-            user?: { id: string; email: string; name: string; username?: string | null; image?: string | null };
-            accessToken?: string;
-        }>(response);
-        if (!body?.user) return null;
-        return { user: body.user, accessToken: body.accessToken };
+    private static async fetchSession(): Promise<{ user: SessionUser; accessToken?: string } | null> {
+        const result = await AuthApi.session();
+        if (result.error || !result.response?.ok || !result.data?.user) return null;
+        return { user: AuthUtils.normalizeSessionUser(result.data.user), accessToken: result.data.accessToken };
     }
 }

@@ -20,7 +20,7 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
 
     if (!catalogRes.data) {
         const detail = ShipshoutApi.errorMessage(catalogRes.error, 'Failed to load channel catalog');
-        throw new Error(`${detail} (${catalogRes.status})`);
+        throw new Error(`${detail} (${catalogRes.response?.status ?? 'unknown'})`);
     }
 
     const catalog = catalogRes.data.channels;

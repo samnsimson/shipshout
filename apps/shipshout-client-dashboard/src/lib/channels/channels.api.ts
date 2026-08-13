@@ -13,32 +13,33 @@ export class ChannelsApi {
         return ShipshoutApi.getApiClient();
     }
 
-    static fetchCatalog() {
-        return ChannelsApi.fetchWithAuthRetry<{ channels: ChannelCatalogItemDto[] }>('/channels');
+    static async fetchCatalog() {
+        return ChannelsApi.withAuthRetry((api, requestOptions) => api.listChannels(requestOptions));
     }
 
     static async fetchRepositoryChannels(repositoryId: string) {
+        return ChannelsApi.withAuthRetry((api, requestOptions) => api.listRepositoryChannels({ ...requestOptions, path: { id: repositoryId } }));
+    }
+
+    static async updateRepositoryChannels(repositoryId: string, channels: PatchRepositoryChannelDto[]) {
         const { api, requestOptions } = await ChannelsApi.getClient();
-        let result = await api.listRepositoryChannels({ ...requestOptions, path: { id: repositoryId } });
+        return api.updateRepositoryChannels({ ...requestOptions, path: { id: repositoryId }, body: { channels } });
+    }
+
+    private static async withAuthRetry<TResult extends { response?: Response }>(
+        call: (api: Awaited<ReturnType<typeof ShipshoutApi.getApiClient>>['api'], requestOptions: Awaited<ReturnType<typeof ShipshoutApi.getApiClientOptions>>) => Promise<TResult>,
+    ): Promise<TResult> {
+        const { api, requestOptions } = await ChannelsApi.getClient();
+        let result = await call(api, requestOptions);
 
         if (result.response?.status === 401) {
             const refreshed = await AuthActions.refreshAccessToken();
             if (refreshed) {
                 const retryOptions = await ShipshoutApi.getApiClientOptions();
-                result = await api.listRepositoryChannels({ ...retryOptions, path: { id: repositoryId } });
+                result = await call(api, retryOptions);
             }
         }
 
-        return { data: result.data, error: result.error, status: result.response?.status ?? (result.error ? 500 : 200) };
-    }
-
-    private static async fetchWithAuthRetry<T>(path: string): Promise<{ data?: T; error?: unknown; status: number }> {
-        let result = await ShipshoutApi.fetchJson<T>(path);
-        if (result.status !== 401) return result;
-
-        const refreshed = await AuthActions.refreshAccessToken();
-        if (!refreshed) return result;
-
-        return ShipshoutApi.fetchJson<T>(path);
+        return result;
     }
 }

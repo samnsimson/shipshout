@@ -19,9 +19,9 @@ export default async function RepositoryDetailPage({ params }: { params: Promise
         ChannelsApi.fetchRepositoryChannels(id),
     ]);
 
-    if (detailRes.status === 404) notFound();
+    if (detailRes.response?.status === 404) notFound();
     if (!detailRes.data) throw new Error('Failed to load repository detail');
-    if (channelsRes.status === 404) notFound();
+    if (channelsRes.response?.status === 404) notFound();
     if (!channelsRes.data) throw new Error('Failed to load repository channels');
 
     const events = eventsRes.data?.events ?? [];

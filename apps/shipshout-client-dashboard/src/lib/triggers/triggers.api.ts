@@ -1,55 +1,29 @@
+import { LinkedRepositoryDetailResponseDto, TriggerEventResponseDto } from '@shipshout/api-client';
 import { ShipshoutApi } from '@/lib/shipshout.api';
 
-export type RepositoryTriggersDto = {
-    release: boolean;
-    tagPush: boolean;
-    branchPush: boolean;
-};
+export type LinkedRepositoryDetailDto = LinkedRepositoryDetailResponseDto;
 
-export type WebhookManualSetupDto = {
-    url: string;
-    secret: string;
-    instructions: string;
-};
+export type TriggerEventDto = TriggerEventResponseDto;
 
-export type RepositoryWebhookStatusDto = {
-    status: 'pending' | 'active' | 'manual_required' | 'error' | 'not_configured';
-    lastDeliveryAt: string | null;
-    lastError: string | null;
-    manualSetup: WebhookManualSetupDto | null;
-};
-
-export type LinkedRepositoryDetailDto = {
-    id: string;
-    githubId: number;
-    fullName: string;
-    name: string;
-    owner: string;
-    defaultBranch: string;
-    private: boolean;
-    htmlUrl: string;
-    linkedAt: string;
-    triggers: RepositoryTriggersDto;
-    activeTriggerCount: number;
-    webhook: RepositoryWebhookStatusDto;
-};
-
-export type TriggerEventDto = {
-    id: string;
-    eventType: string;
-    triggerType: string;
-    summary: string;
-    status: string;
-    shoutoutId: string | null;
-    createdAt: string;
-};
+export type RepositoryTriggersDto = LinkedRepositoryDetailDto['triggers'];
 
 export class TriggersApi {
-    static fetchRepositoryDetail(id: string) {
-        return ShipshoutApi.fetchJson<LinkedRepositoryDetailDto>(`/repositories/${id}`);
+    static getClient() {
+        return ShipshoutApi.getApiClient();
     }
 
-    static fetchRepositoryEvents(id: string, limit = 20) {
-        return ShipshoutApi.fetchJson<{ events: TriggerEventDto[] }>(`/repositories/${id}/events?limit=${limit}`);
+    static async fetchRepositoryDetail(id: string) {
+        const { api, requestOptions } = await TriggersApi.getClient();
+        return api.getLinkedRepositoryDetail({ ...requestOptions, path: { id } });
+    }
+
+    static async fetchRepositoryEvents(id: string, limit = 20) {
+        const { api, requestOptions } = await TriggersApi.getClient();
+        return api.listRepositoryTriggerEvents({ ...requestOptions, path: { id }, query: { limit: String(limit) } });
+    }
+
+    static async updateRepositoryTriggers(repositoryId: string, triggers: RepositoryTriggersDto) {
+        const { api, requestOptions } = await TriggersApi.getClient();
+        return api.updateRepositoryTriggers({ ...requestOptions, path: { id: repositoryId }, body: triggers });
     }
 }

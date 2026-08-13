@@ -2,7 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { ShipshoutApi } from '@/lib/shipshout.api';
-import type { ShoutoutDetailDto, ShoutoutStatusResponseDto } from './shoutouts.api';
+import type { ShoutoutDetailDto } from './shoutouts.api';
+import { ShoutoutsApi } from './shoutouts.api';
 
 export class ShoutoutsActions {
     static async updateDraft(
@@ -10,44 +11,28 @@ export class ShoutoutsActions {
         channelKey: string,
         draft: { title: string; body: string },
     ): Promise<{ ok: true; shoutout: ShoutoutDetailDto } | { ok: false; error: string }> {
-        const response = await ShipshoutApi.fetch(`/shoutouts/${shoutoutId}/drafts/${channelKey}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(draft),
-        });
+        const result = await ShoutoutsApi.updateDraft(shoutoutId, channelKey, draft);
+        if (result.error || !result.response?.ok) return { ok: false, error: ShipshoutApi.errorMessage(result.error, 'Request failed') };
 
-        if (!response.ok) return { ok: false, error: await ShoutoutsActions.readErrorMessage(response) };
-
-        const shoutout = (await response.json()) as ShoutoutDetailDto;
         revalidatePath(`/dashboard/shoutouts/${shoutoutId}`);
-        return { ok: true, shoutout };
+        return { ok: true, shoutout: result.data as ShoutoutDetailDto };
     }
 
     static async publish(shoutoutId: string): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
-        const response = await ShipshoutApi.fetch(`/shoutouts/${shoutoutId}/publish`, { method: 'POST' });
+        const result = await ShoutoutsApi.publish(shoutoutId);
+        if (result.error || !result.response?.ok) return { ok: false, error: ShipshoutApi.errorMessage(result.error, 'Request failed') };
 
-        if (!response.ok) return { ok: false, error: await ShoutoutsActions.readErrorMessage(response) };
-
-        const body = (await response.json()) as ShoutoutStatusResponseDto;
         revalidatePath(`/dashboard/shoutouts/${shoutoutId}`);
         revalidatePath('/dashboard/shoutouts');
-        return { ok: true, status: body.status };
+        return { ok: true, status: result.data?.status ?? 'unknown' };
     }
 
     static async retryGeneration(shoutoutId: string): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
-        const response = await ShipshoutApi.fetch(`/shoutouts/${shoutoutId}/retry-generation`, { method: 'POST' });
+        const result = await ShoutoutsApi.retryGeneration(shoutoutId);
+        if (result.error || !result.response?.ok) return { ok: false, error: ShipshoutApi.errorMessage(result.error, 'Request failed') };
 
-        if (!response.ok) return { ok: false, error: await ShoutoutsActions.readErrorMessage(response) };
-
-        const body = (await response.json()) as ShoutoutStatusResponseDto;
         revalidatePath(`/dashboard/shoutouts/${shoutoutId}`);
         revalidatePath('/dashboard/shoutouts');
-        return { ok: true, status: body.status };
-    }
-
-    private static async readErrorMessage(response: Response): Promise<string> {
-        const body = await response.json().catch(() => null);
-        if (body && typeof body === 'object' && 'message' in body && typeof body.message === 'string') return body.message;
-        return 'Request failed';
+        return { ok: true, status: result.data?.status ?? 'unknown' };
     }
 }
