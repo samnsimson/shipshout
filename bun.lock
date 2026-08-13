@@ -155,7 +155,11 @@
       "name": "@shipshout/api-client",
       "version": "0.0.1",
       "dependencies": {
+        "next": "~16.1.6",
         "tslib": "^2.3.0",
+      },
+      "peerDependencies": {
+        "next": ">=15",
       },
     },
     "libs/auth": {

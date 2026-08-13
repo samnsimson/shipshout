@@ -6,6 +6,6 @@ export default defineConfig({
     plugins: [
         '@hey-api/typescript',
         { name: '@hey-api/client-next', runtimeConfigPath: './libs/api-client/src/hey-api.config.js' },
-        { name: '@hey-api/sdk', operations: { containerName: 'ApiClient', strategy: 'single' } },
+        { name: '@hey-api/sdk', operations: { containerName: 'ApiSdk', strategy: 'single' } },
     ],
 });

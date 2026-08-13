@@ -16,6 +16,10 @@
         }
     },
     "dependencies": {
+        "next": "~16.1.6",
         "tslib": "^2.3.0"
+    },
+    "peerDependencies": {
+        "next": ">=15"
     }
 }

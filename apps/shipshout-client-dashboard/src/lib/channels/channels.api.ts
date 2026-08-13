@@ -1,5 +1,4 @@
-import { ChannelCatalogItemDto, PatchRepositoryChannelDto, RepositoryChannelDto } from '@shipshout/api-client';
-import { ApiClientFactory } from '@/lib/api/api-client.factory';
+import { ApiClient, ChannelCatalogItemDto, PatchRepositoryChannelDto, RepositoryChannelDto } from '@shipshout/api-client';
 
 export type { ChannelCatalogItemDto, PatchRepositoryChannelDto, RepositoryChannelDto };
 
@@ -9,14 +8,14 @@ export type RepositoryChannelTone = RepositoryChannelDto['tone'];
 
 export class ChannelsApi {
     static async fetchCatalog() {
-        return ApiClientFactory.fetchProtected((api) => api.listChannels());
+        return ApiClient.fetchProtected((api) => api.listChannels());
     }
 
     static async fetchRepositoryChannels(repositoryId: string) {
-        return ApiClientFactory.fetchProtected((api) => api.listRepositoryChannels({ path: { id: repositoryId } }));
+        return ApiClient.fetchProtected((api) => api.listRepositoryChannels({ path: { id: repositoryId } }));
     }
 
     static async updateRepositoryChannels(repositoryId: string, channels: PatchRepositoryChannelDto[]) {
-        return ApiClientFactory.fetchProtected((api) => api.updateRepositoryChannels({ path: { id: repositoryId }, body: { channels } }));
+        return ApiClient.fetchProtected((api) => api.updateRepositoryChannels({ path: { id: repositoryId }, body: { channels } }));
     }
 }

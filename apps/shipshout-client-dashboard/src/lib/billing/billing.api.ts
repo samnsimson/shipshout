@@ -1,25 +1,25 @@
 import { ApiErrorUtils } from '@/lib/api/api-error.utils';
-import { ApiClientFactory } from '@/lib/api/api-client.factory';
+import { ApiClient } from '@shipshout/api-client';
 import { BillingUtils } from './billing.utils';
 
 type UrlResult = { url: string } | { error: string };
 
 export class BillingApi {
     static async listSubscriptionPlans() {
-        return ApiClientFactory.fetchProtected((api) => api.listSubscriptionPlans());
+        return ApiClient.fetchProtected((api) => api.listSubscriptionPlans());
     }
 
     static async getMySubscription() {
-        return ApiClientFactory.fetchProtected((api) => api.getMySubscription());
+        return ApiClient.fetchProtected((api) => api.getMySubscription());
     }
 
     static async listMyPayments() {
-        return ApiClientFactory.fetchProtected((api) => api.listMyPayments());
+        return ApiClient.fetchProtected((api) => api.listMyPayments());
     }
 
     static async upgradeSubscription(plan: 'starter' | 'pro'): Promise<UrlResult> {
         const app = BillingUtils.clientAppUrl();
-        const result = await ApiClientFactory.fetchProtected((api) =>
+        const result = await ApiClient.fetchProtected((api) =>
             api.upgradeSubscription({
                 body: {
                     plan,
@@ -39,7 +39,7 @@ export class BillingApi {
 
     static async createBillingPortal(): Promise<UrlResult> {
         const app = BillingUtils.clientAppUrl();
-        const result = await ApiClientFactory.fetchProtected((api) =>
+        const result = await ApiClient.fetchProtected((api) =>
             api.createBillingPortal({ body: { returnUrl: `${app}/dashboard/settings`, disableRedirect: true, customerType: 'user' } }),
         );
         if (result.error || !result.response?.ok)

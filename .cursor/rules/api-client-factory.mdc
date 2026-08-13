@@ -1,47 +1,49 @@
 ---
-description: Dashboard server actions and lib API modules must delegate to generated ApiClient
+description: Dashboard server actions and lib API modules must delegate to generated ApiSdk via ApiClient
 globs: apps/shipshout-client-dashboard/src/lib/**/*.ts
 alwaysApply: false
 ---
 
 # Dashboard API client usage
 
-All server-side API calls in the client dashboard must go through `@shipshout/api-client` `ApiClient` methods — not hand-built `fetch` URLs.
+All server-side API calls in the client dashboard must go through `@shipshout/api-client` — not hand-built `fetch` URLs.
 
 ## Layering
 
 | Layer | File pattern | Role |
 |---|---|---|
-| Transport | `api/api-client.factory.ts` (`ApiClientFactory`) | Cookie auth interceptor; `fetchProtected` (401 retry) / `fetchPublic` (one-shot) |
-| Domain API | `*.api.ts` (`AuthApi`, `ShoutoutsApi`, …) | Thin wrappers around `fetchProtected` / `fetchPublic` |
+| Transport | `@shipshout/api-client` (`ApiClient` + generated `ApiSdk`) | Cookie auth interceptor; `fetchProtected` (401 retry) / `fetchPublic` (one-shot) |
+| Domain API | `*.api.ts` (`AuthApi`, `ShoutoutsApi`, …) | Thin wrappers around `ApiClient.fetchProtected` / `fetchPublic` |
 | Server actions | `*.actions.ts` | Form validation, redirects, `revalidatePath`; delegate to matching `*.api.ts` |
 | Errors | `api/api-error.utils.ts` (`ApiErrorUtils`) | Extract Nest-style error messages from hey-api results |
 
 ## Do
 
 ```typescript
+import { ApiClient } from '@shipshout/api-client';
+
 // authenticated
-return ApiClientFactory.fetchProtected((api) => api.publishShoutout({ path: { id: shoutoutId } }));
+return ApiClient.fetchProtected((api) => api.publishShoutout({ path: { id: shoutoutId } }));
 
 // public / auth endpoints (no 401 retry)
-return ApiClientFactory.fetchPublic((api) => api.authControllerLogin({ body, redirect: 'manual' }));
+return ApiClient.fetchPublic((api) => api.authControllerLogin({ body, redirect: 'manual' }));
 ```
 
 ## Don't
 
-- Call raw `fetch('/…')` when `ApiClient` exposes the endpoint
+- Call raw `fetch('/…')` when `ApiSdk` exposes the endpoint
 - Spread `requestOptions` manually — the interceptor injects auth headers
 - Put request/response mapping in `*.actions.ts` — keep actions thin
-- Duplicate cookie/header building or 401 retry outside `ApiClientFactory`
+- Duplicate cookie/header building or 401 retry outside `ApiClient`
 - Use `fetchProtected` for login/register/refresh — 401 is a real failure; refresh must not recurse
-- Call the factory from pages/routes — go through domain `*.api.ts` methods
+- Instantiate `ApiSdk` directly from pages/routes — go through domain `*.api.ts` methods
 
 ## Exceptions
 
-- **Auth / public endpoints** — `ApiClientFactory.fetchPublic` via `AuthApi`
-- **Set-Cookie handling** — `AuthUtils.applyToCookieStore` / `applyToNextResponse`
+- **Auth / public endpoints** — `ApiClient.fetchPublic` via `AuthApi`
+- **Set-Cookie handling** — `AuthUtils.applyToCookieStore` / `applyToNextResponse` for login responses; `ApiClient.fetchProtected` applies refresh cookies itself
 - **Login redirect** — `redirect: 'manual'` on `authControllerLogin` only
-- **SSE streams** — domain API + `fetchProtected` with `parseAs: 'stream'` (retry applies to stream open, not mid-stream)
+- **SSE streams** — domain API + `fetchProtected` with `parseAs: 'stream'`
 
 ## Regenerate client
 
