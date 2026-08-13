@@ -1,18 +1,22 @@
 'use client';
 
-import { Badge, Box, Button, Checkbox, Flex, Link as ChakraLink, Stack, Table, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Checkbox, Flex, For, Link as ChakraLink, Show, Stack, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { ArrowLeft, Copy, ExternalLink, Webhook } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { Toaster } from '../../lib/feedback/toaster.utils';
 import { updateRepositoryTriggersAction } from '../../lib/triggers/actions';
+import type { RepositoryChannelDto } from '../../lib/channels/api';
 import type { LinkedRepositoryDetailDto, TriggerEventDto } from '../../lib/triggers/api';
+import { RepositoryChannelsSummary } from './repository-channels-summary';
 
 const triggerLabels = {
     release: 'Release published',
     tagPush: 'Git tag push',
     branchPush: 'Push to default branch',
 } as const;
+
+const TRIGGER_KEYS = Object.keys(triggerLabels) as Array<keyof typeof triggerLabels>;
 
 function webhookStatusBadge(status: LinkedRepositoryDetailDto['webhook']['status']) {
     if (status === 'active') return { label: 'Active', palette: 'green' as const };
@@ -33,7 +37,7 @@ async function copyText(value: string) {
     await navigator.clipboard.writeText(value);
 }
 
-export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[] }) {
+export function RepositoryDetailClient(props: { repository: LinkedRepositoryDetailDto; events: TriggerEventDto[]; channels: RepositoryChannelDto[] }) {
     const [triggers, setTriggers] = useState(props.repository.triggers);
     const [pending, startTransition] = useTransition();
 
@@ -98,17 +102,19 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                         No triggers are enabled by default. Turn on at least one to start receiving events.
                     </Text>
                     <Stack gap="sm">
-                        {(Object.keys(triggerLabels) as Array<keyof typeof triggerLabels>).map((key) => (
-                            <Checkbox.Root
-                                key={key}
-                                checked={triggers[key]}
-                                onCheckedChange={(details) => setTriggers((prev) => ({ ...prev, [key]: Boolean(details.checked) }))}
-                            >
-                                <Checkbox.HiddenInput />
-                                <Checkbox.Control />
-                                <Checkbox.Label fontSize="sm">{triggerLabels[key]}</Checkbox.Label>
-                            </Checkbox.Root>
-                        ))}
+                        <For each={TRIGGER_KEYS}>
+                            {(key) => (
+                                <Checkbox.Root
+                                    key={key}
+                                    checked={triggers[key]}
+                                    onCheckedChange={(details) => setTriggers((prev) => ({ ...prev, [key]: Boolean(details.checked) }))}
+                                >
+                                    <Checkbox.HiddenInput />
+                                    <Checkbox.Control />
+                                    <Checkbox.Label fontSize="sm">{triggerLabels[key]}</Checkbox.Label>
+                                </Checkbox.Root>
+                            )}
+                        </For>
                     </Stack>
                     <Button colorPalette="blue" borderRadius="full" alignSelf="flex-start" onClick={save} loading={pending}>
                         Save triggers
@@ -116,22 +122,27 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                 </Stack>
             </Box>
 
-            <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
-                <Stack gap="sm">
-                    <Text fontSize="sm" fontWeight="600">
-                        Delivery channels
-                    </Text>
-                    <Text color="fg.muted" fontSize="sm">
-                        Configure where shoutouts are delivered for this repository.
-                    </Text>
-                    <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
-                        <Link href={`/dashboard/channels?repo=${props.repository.id}`}>
-                            <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
-                                Configure channels
-                            </Button>
-                        </Link>
-                    </ChakraLink>
-                </Stack>
+            <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" overflow="hidden">
+                <Box px="lg" pt="lg" pb="md">
+                    <Flex align="center" justify="space-between" gap="md" flexWrap="wrap">
+                        <Stack gap="xxs">
+                            <Text fontSize="sm" fontWeight="600">
+                                Delivery channels
+                            </Text>
+                            <Text color="fg.muted" fontSize="sm">
+                                Channels enabled for this repository.
+                            </Text>
+                        </Stack>
+                        <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
+                            <Link href={`/dashboard/channels?repo=${props.repository.id}`}>
+                                <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
+                                    Manage channels
+                                </Button>
+                            </Link>
+                        </ChakraLink>
+                    </Flex>
+                </Box>
+                <RepositoryChannelsSummary repositoryId={props.repository.id} channels={props.channels} />
             </Box>
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
@@ -145,52 +156,56 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                             {status.label}
                         </Badge>
                     </Flex>
-                    {webhook.lastDeliveryAt ? (
-                        <Text color="fg.muted" fontSize="sm">
-                            Last delivery: {new Date(webhook.lastDeliveryAt).toLocaleString()}
-                        </Text>
-                    ) : null}
-                    {webhook.lastError ? (
+                    <Show when={webhook.lastDeliveryAt}>
+                        {(lastDeliveryAt) => (
+                            <Text color="fg.muted" fontSize="sm">
+                                Last delivery: {new Date(lastDeliveryAt).toLocaleString()}
+                            </Text>
+                        )}
+                    </Show>
+                    <Show when={webhook.lastError}>
                         <Text color={webhook.status === 'error' ? 'red.fg' : 'fg.muted'} fontSize="sm">
                             {webhook.lastError}
                         </Text>
-                    ) : null}
-                    {webhook.manualSetup ? (
-                        <Stack gap="sm" p="md" bg="bg.canvas" borderRadius="md" borderWidth="1px" borderColor="border.hairline">
-                            <Text fontSize="sm" fontWeight="600">
-                                Manual setup
-                            </Text>
-                            <Text fontSize="sm" color="fg.muted">
-                                {webhook.manualSetup.instructions}
-                            </Text>
-                            <Stack gap="xs">
-                                <Text fontSize="xs" color="fg.muted">
-                                    Payload URL
+                    </Show>
+                    <Show when={webhook.manualSetup}>
+                        {(manualSetup) => (
+                            <Stack gap="sm" p="md" bg="bg.canvas" borderRadius="md" borderWidth="1px" borderColor="border.hairline">
+                                <Text fontSize="sm" fontWeight="600">
+                                    Manual setup
                                 </Text>
-                                <Flex align="center" gap="sm">
-                                    <Text fontSize="sm" fontFamily="mono" wordBreak="break-all">
-                                        {webhook.manualSetup.url}
-                                    </Text>
-                                    <Button size="xs" variant="outline" onClick={() => copyText(webhook.manualSetup!.url)}>
-                                        <Copy size={12} strokeWidth={2} aria-hidden />
-                                    </Button>
-                                </Flex>
-                            </Stack>
-                            <Stack gap="xs">
-                                <Text fontSize="xs" color="fg.muted">
-                                    Secret
+                                <Text fontSize="sm" color="fg.muted">
+                                    {manualSetup.instructions}
                                 </Text>
-                                <Flex align="center" gap="sm">
-                                    <Text fontSize="sm" fontFamily="mono" wordBreak="break-all">
-                                        {webhook.manualSetup.secret}
+                                <Stack gap="xs">
+                                    <Text fontSize="xs" color="fg.muted">
+                                        Payload URL
                                     </Text>
-                                    <Button size="xs" variant="outline" onClick={() => copyText(webhook.manualSetup!.secret)}>
-                                        <Copy size={12} strokeWidth={2} aria-hidden />
-                                    </Button>
-                                </Flex>
+                                    <Flex align="center" gap="sm">
+                                        <Text fontSize="sm" fontFamily="mono" wordBreak="break-all">
+                                            {manualSetup.url}
+                                        </Text>
+                                        <Button size="xs" variant="outline" onClick={() => copyText(manualSetup.url)}>
+                                            <Copy size={12} strokeWidth={2} aria-hidden />
+                                        </Button>
+                                    </Flex>
+                                </Stack>
+                                <Stack gap="xs">
+                                    <Text fontSize="xs" color="fg.muted">
+                                        Secret
+                                    </Text>
+                                    <Flex align="center" gap="sm">
+                                        <Text fontSize="sm" fontFamily="mono" wordBreak="break-all">
+                                            {manualSetup.secret}
+                                        </Text>
+                                        <Button size="xs" variant="outline" onClick={() => copyText(manualSetup.secret)}>
+                                            <Copy size={12} strokeWidth={2} aria-hidden />
+                                        </Button>
+                                    </Flex>
+                                </Stack>
                             </Stack>
-                        </Stack>
-                    ) : null}
+                        )}
+                    </Show>
                 </Stack>
             </Box>
 
@@ -200,17 +215,20 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                         Recent events
                     </Text>
                 </Box>
-                {props.events.length === 0 ? (
-                    <Box px="lg" pb="lg">
-                        <Text color="fg.muted" fontSize="sm">
-                            No events yet. Enable a trigger and publish a release.
-                        </Text>
-                    </Box>
-                ) : (
+                <Show
+                    when={props.events.length > 0}
+                    fallback={
+                        <Box px="lg" pb="lg">
+                            <Text color="fg.muted" fontSize="sm">
+                                No events yet. Enable a trigger and publish a release.
+                            </Text>
+                        </Box>
+                    }
+                >
                     <Table.ScrollArea borderTopWidth="1px" borderTopColor="border.hairline">
                         <Table.Root size="sm" variant="line">
                             <Table.Header>
-                                <Table.Row bg="bg.canvas">
+                                <Table.Row bg="bg.soft">
                                     <Table.ColumnHeader>Type</Table.ColumnHeader>
                                     <Table.ColumnHeader>Summary</Table.ColumnHeader>
                                     <Table.ColumnHeader>When</Table.ColumnHeader>
@@ -218,32 +236,44 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
-                                {props.events.map((event) => (
-                                    <Table.Row key={event.id}>
+                                <For each={props.events}>
+                                    {(event) => (
+                                        <Table.Row key={event.id}>
                                         <Table.Cell>{triggerTypeLabel(event.triggerType)}</Table.Cell>
                                         <Table.Cell>{event.summary}</Table.Cell>
                                         <Table.Cell color="fg.muted">{new Date(event.createdAt).toLocaleString()}</Table.Cell>
                                         <Table.Cell textAlign="end">
-                                            {event.status === 'limit_exceeded' ? (
+                                            <Show
+                                                when={event.status === 'limit_exceeded'}
+                                                fallback={
+                                                    <Show
+                                                        when={event.shoutoutId}
+                                                        fallback={
+                                                            <Text fontSize="sm" color="fg.muted">
+                                                                Ignored
+                                                            </Text>
+                                                        }
+                                                    >
+                                                        {(shoutoutId) => (
+                                                            <ChakraLink asChild fontSize="sm" color="brand.fg">
+                                                                <Link href={`/dashboard/shoutouts/${shoutoutId}`}>View shoutout</Link>
+                                                            </ChakraLink>
+                                                        )}
+                                                    </Show>
+                                                }
+                                            >
                                                 <Text fontSize="sm" color="orange.fg">
                                                     Limit reached
                                                 </Text>
-                                            ) : event.shoutoutId ? (
-                                                <ChakraLink asChild fontSize="sm" color="brand.fg">
-                                                    <Link href={`/dashboard/shoutouts/${event.shoutoutId}`}>View shoutout</Link>
-                                                </ChakraLink>
-                                            ) : (
-                                                <Text fontSize="sm" color="fg.muted">
-                                                    Ignored
-                                                </Text>
-                                            )}
+                                            </Show>
                                         </Table.Cell>
-                                    </Table.Row>
-                                ))}
+                                        </Table.Row>
+                                    )}
+                                </For>
                             </Table.Body>
                         </Table.Root>
                     </Table.ScrollArea>
-                )}
+                </Show>
             </Box>
         </Stack>
     );

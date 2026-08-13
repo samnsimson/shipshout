@@ -1,4 +1,4 @@
-import { Flex, Heading, Stack, Text } from '@chakra-ui/react';
+import { Flex, Heading, Show, Stack, Text } from '@chakra-ui/react';
 import type { LucideIcon } from 'lucide-react';
 import type { ReactNode } from 'react';
 
@@ -22,11 +22,11 @@ export function PageHeader(props: {
             <Heading as="h1" fontSize="2xl" letterSpacing="-0.625px" fontWeight="700">
                 {props.title}
             </Heading>
-            {props.description ? (
+            <Show when={props.description}>
                 <Text color="fg.muted" fontSize="sm">
                     {props.description}
                 </Text>
-            ) : null}
+            </Show>
             {props.children}
         </Stack>
     );

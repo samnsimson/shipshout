@@ -1,10 +1,10 @@
-import { cookies } from 'next/headers';
 import {
-    ApiClient,
     type ChannelCatalogItemDto,
     type PatchRepositoryChannelDto,
     type RepositoryChannelDto,
 } from '@shipshout/api-client';
+import { refreshAccessTokenAction } from '../auth/actions';
+import { ShipshoutApiUtils, shipshoutFetch } from '../shipshout-api';
 
 export type { ChannelCatalogItemDto, PatchRepositoryChannelDto, RepositoryChannelDto };
 
@@ -12,43 +12,35 @@ export type ChannelKind = ChannelCatalogItemDto['kind'];
 
 export type RepositoryChannelTone = RepositoryChannelDto['tone'];
 
-function normalizeBaseUrl(baseUrl: string): string {
-    return baseUrl.replace(/\/$/, '');
+async function fetchWithAuthRetry<T>(path: string): Promise<{ data?: T; error?: unknown; status: number }> {
+    let result = await shipshoutFetch<T>(path);
+    if (result.status !== 401) return result;
+
+    const refreshed = await refreshAccessTokenAction();
+    if (!refreshed) return result;
+
+    return shipshoutFetch<T>(path);
 }
 
 export async function getChannelsApi() {
-    const baseUrl = process.env.SHIPSHOUT_API_URL;
-    if (!baseUrl) throw new Error('SHIPSHOUT_API_URL is not set');
-
-    const cookieStore = await cookies();
-    const cookieHeader = cookieStore
-        .getAll()
-        .map((c) => `${c.name}=${c.value}`)
-        .join('; ');
-
-    const api = new ApiClient();
-
-    return {
-        api,
-        requestOptions: {
-            baseUrl: normalizeBaseUrl(baseUrl),
-            headers: {
-                Cookie: cookieHeader,
-            },
-            responseStyle: 'fields' as const,
-            throwOnError: false as const,
-        },
-    };
+    return ShipshoutApiUtils.getApiClient();
 }
 
 export async function fetchChannelCatalog() {
-    const { api, requestOptions } = await getChannelsApi();
-    const result = await api.listChannels(requestOptions);
-    return { data: result.data, error: result.error, status: result.response?.status ?? (result.error ? 500 : 200) };
+    return fetchWithAuthRetry<{ channels: ChannelCatalogItemDto[] }>('/channels');
 }
 
 export async function fetchRepositoryChannels(repositoryId: string) {
     const { api, requestOptions } = await getChannelsApi();
-    const result = await api.listRepositoryChannels({ ...requestOptions, path: { id: repositoryId } });
+    let result = await api.listRepositoryChannels({ ...requestOptions, path: { id: repositoryId } });
+
+    if (result.response?.status === 401) {
+        const refreshed = await refreshAccessTokenAction();
+        if (refreshed) {
+            const retryOptions = await ShipshoutApiUtils.getApiClientOptions();
+            result = await api.listRepositoryChannels({ ...retryOptions, path: { id: repositoryId } });
+        }
+    }
+
     return { data: result.data, error: result.error, status: result.response?.status ?? (result.error ? 500 : 200) };
 }

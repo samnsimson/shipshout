@@ -14,6 +14,7 @@ export function TopBar(props: {
             as="header"
             align="center"
             justify="space-between"
+            flexShrink={0}
             px={{ base: 'md', md: 'xl' }}
             py="md"
             bg="bg.canvas"

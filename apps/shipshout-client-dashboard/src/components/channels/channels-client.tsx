@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Flex, Link as ChakraLink, NativeSelect, SimpleGrid, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, For, Link as ChakraLink, NativeSelect, SimpleGrid, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { FolderGit2 } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
@@ -113,31 +113,35 @@ export function ChannelsClient(props: {
                 </Text>
                 <NativeSelect.Root size="sm">
                     <NativeSelect.Field value={selectedRepoId} onChange={(event) => setSelectedRepoId(event.currentTarget.value)}>
-                        {props.linkedRepos.map((repo) => (
-                            <option key={repo.id} value={repo.id}>
-                                {repo.fullName}
-                            </option>
-                        ))}
+                        <For each={props.linkedRepos}>
+                            {(repo) => (
+                                <option key={repo.id} value={repo.id}>
+                                    {repo.fullName}
+                                </option>
+                            )}
+                        </For>
                     </NativeSelect.Field>
                     <NativeSelect.Indicator />
                 </NativeSelect.Root>
             </Stack>
 
             <SimpleGrid columns={{ base: 1, md: 2, xl: 3 }} gap="md">
-                {repoChannels.map((channel) => {
-                    const state = selectedRepoId ? channelState[selectedRepoId]?.[channel.channelKey] : undefined;
-                    if (!state || !selectedRepoId) return null;
-                    return (
-                        <ChannelCard
-                            key={channel.channelKey}
-                            channel={channel}
-                            repoId={selectedRepoId}
-                            enabled={state.enabled}
-                            pending={pendingKey === channel.channelKey}
-                            onToggleEnabled={(enabled) => toggleEnabled(channel.channelKey, enabled)}
-                        />
-                    );
-                })}
+                <For each={repoChannels}>
+                    {(channel) => {
+                        const state = selectedRepoId ? channelState[selectedRepoId]?.[channel.channelKey] : undefined;
+                        if (!state || !selectedRepoId) return null;
+                        return (
+                            <ChannelCard
+                                key={channel.channelKey}
+                                channel={channel}
+                                repoId={selectedRepoId}
+                                enabled={state.enabled}
+                                pending={pendingKey === channel.channelKey}
+                                onToggleEnabled={(enabled) => toggleEnabled(channel.channelKey, enabled)}
+                            />
+                        );
+                    }}
+                </For>
             </SimpleGrid>
         </Stack>
     );

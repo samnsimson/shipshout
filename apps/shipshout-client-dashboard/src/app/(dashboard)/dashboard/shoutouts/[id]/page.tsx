@@ -17,7 +17,7 @@ export default async function ShoutoutDetailPage({ params }: { params: Promise<{
     if (!result.data) throw new Error('Failed to load shoutout');
 
     return (
-        <Stack maxW="960px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
+        <Stack gap="lg">
             <PageHeader icon={Megaphone} eyebrow="Shoutouts" title="Shoutout detail" />
             <ShoutoutDetailClient shoutout={result.data} />
         </Stack>

@@ -8,7 +8,7 @@ export default async function TeamPage() {
     if (!session) return null;
 
     return (
-        <Stack maxW="720px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
+        <Stack gap="lg">
             <PageHeader
                 icon={Users}
                 eyebrow="Team"

@@ -1,15 +1,33 @@
 'use client';
 
-import { Alert, Button, Field, Stack, Text } from '@chakra-ui/react';
+import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { resendVerificationAction } from '../../lib/auth/actions';
+import { FormUtils } from '../../lib/forms/form.utils';
 import { AuthInput } from './auth-input';
+
+type ResendVerificationFormValues = {
+    email: string;
+};
 
 export function ResendVerificationForm({ defaultEmail = '' }: { defaultEmail?: string }) {
     const [error, setError] = useState<string | null>(null);
     const [done, setDone] = useState(false);
     const [pending, startTransition] = useTransition();
+    const { register, handleSubmit } = useForm<ResendVerificationFormValues>({
+        defaultValues: { email: defaultEmail },
+    });
+
+    const onSubmit = handleSubmit((values) => {
+        startTransition(async () => {
+            setError(null);
+            const result = await resendVerificationAction(FormUtils.toFormData(values));
+            if (!result.ok) setError(result.error);
+            else setDone(true);
+        });
+    });
 
     if (done) {
         return (
@@ -26,28 +44,19 @@ export function ResendVerificationForm({ defaultEmail = '' }: { defaultEmail?: s
     }
 
     return (
-        <form
-            action={(formData) =>
-                startTransition(async () => {
-                    setError(null);
-                    const result = await resendVerificationAction(formData);
-                    if (!result.ok) setError(result.error);
-                    else setDone(true);
-                })
-            }
-        >
+        <form onSubmit={onSubmit}>
             <Stack gap="lg">
-                {error ? (
+                <Show when={error}>
                     <Alert.Root status="error" borderRadius="md">
                         <Alert.Indicator />
                         <Alert.Title>{error}</Alert.Title>
                     </Alert.Root>
-                ) : null}
+                </Show>
                 <Field.Root required gap="xs">
                     <Field.Label fontSize="sm" fontWeight="500">
                         Email
                     </Field.Label>
-                    <AuthInput name="email" type="email" autoComplete="email" defaultValue={defaultEmail} />
+                    <AuthInput {...register('email', { required: true })} type="email" autoComplete="email" />
                 </Field.Root>
                 <Button
                     type="submit"

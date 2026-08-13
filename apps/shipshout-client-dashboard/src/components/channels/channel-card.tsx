@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Box, Button, Flex, IconButton, Link as ChakraLink, Stack, Switch, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Flex, IconButton, Link as ChakraLink, Show, Stack, Switch, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Settings2 } from 'lucide-react';
 import type { RepositoryChannelDto } from '../../lib/channels/api';
@@ -48,7 +48,14 @@ export function ChannelCard(props: {
                     <Badge variant="subtle" borderRadius="full" colorPalette={channel.kind === 'notify' ? 'blue' : 'purple'}>
                         {ChannelUtils.kindLabels[channel.kind]}
                     </Badge>
-                    {channel.availableOnPlan ? (
+                    <Show
+                        when={channel.availableOnPlan}
+                        fallback={
+                            <Badge variant="subtle" borderRadius="full" colorPalette="orange">
+                                Upgrade required
+                            </Badge>
+                        }
+                    >
                         <Switch.Root
                             size="sm"
                             colorPalette="blue"
@@ -61,11 +68,7 @@ export function ChannelCard(props: {
                                 <Switch.Thumb />
                             </Switch.Control>
                         </Switch.Root>
-                    ) : (
-                        <Badge variant="subtle" borderRadius="full" colorPalette="orange">
-                            Upgrade required
-                        </Badge>
-                    )}
+                    </Show>
                 </Stack>
             </Flex>
 
@@ -79,7 +82,18 @@ export function ChannelCard(props: {
             </Stack>
 
             <Flex align="center" justify="flex-end" gap="sm" pt="xs">
-                {channel.availableOnPlan ? (
+                <Show
+                    when={channel.availableOnPlan}
+                    fallback={
+                        <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
+                            <Link href="/dashboard/settings">
+                                <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
+                                    View plans
+                                </Button>
+                            </Link>
+                        </ChakraLink>
+                    }
+                >
                     <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
                         <Link href={configureHref}>
                             <IconButton aria-label={`Configure ${channel.displayName}`} variant="outline" borderColor="border.hairline" borderRadius="md" size="sm">
@@ -87,15 +101,7 @@ export function ChannelCard(props: {
                             </IconButton>
                         </Link>
                     </ChakraLink>
-                ) : (
-                    <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
-                        <Link href="/dashboard/settings">
-                            <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
-                                View plans
-                            </Button>
-                        </Link>
-                    </ChakraLink>
-                )}
+                </Show>
             </Flex>
         </Box>
     );

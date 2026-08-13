@@ -1,10 +1,11 @@
 'use client';
 
-import { Badge, Box, Button, Field, Link as ChakraLink, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
+import { Badge, Box, Button, Field, For, Link as ChakraLink, Show, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { Toaster } from '../../lib/feedback/toaster.utils';
 import { publishShoutoutAction, retryShoutoutGenerationAction, updateShoutoutDraftAction } from '../../lib/shoutouts/actions';
 import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '../../lib/shoutouts/api';
@@ -112,13 +113,14 @@ function DraftEditor(props: {
     editable: boolean;
     onSaved: (shoutout: ShoutoutDetailDto) => void;
 }) {
-    const [draftState, setDraftState] = useState(() => draftsToState(props.drafts));
+    const defaultValues = useMemo(() => ({ drafts: draftsToState(props.drafts) }), [props.drafts]);
+    const { register, getValues, reset } = useForm<{ drafts: Record<string, { title: string; body: string }> }>({ defaultValues });
     const [activeTab, setActiveTab] = useState<string | null>(props.drafts[0]?.channelKey ?? null);
     const [pending, startTransition] = useTransition();
 
     useEffect(() => {
-        setDraftState(draftsToState(props.drafts));
-    }, [props.drafts]);
+        reset(defaultValues);
+    }, [defaultValues, reset]);
 
     useEffect(() => {
         if (activeTab && props.drafts.some((draft) => draft.channelKey === activeTab)) return;
@@ -126,7 +128,7 @@ function DraftEditor(props: {
     }, [activeTab, props.drafts]);
 
     const saveDraft = (channelKey: string) => {
-        const draft = draftState[channelKey];
+        const draft = getValues(`drafts.${channelKey}`);
         if (!draft) return;
 
         startTransition(async () => {
@@ -152,54 +154,35 @@ function DraftEditor(props: {
         <Stack gap="md">
             <Tabs.Root value={activeTab} onValueChange={(details) => setActiveTab(details.value)}>
                 <Tabs.List flexWrap="wrap">
-                    {props.drafts.map((draft) => (
-                        <Tabs.Trigger key={draft.channelKey} value={draft.channelKey}>
-                            {channelLabel(draft.channelKey)}
-                        </Tabs.Trigger>
-                    ))}
+                    <For each={props.drafts}>
+                        {(draft) => (
+                            <Tabs.Trigger key={draft.channelKey} value={draft.channelKey}>
+                                {channelLabel(draft.channelKey)}
+                            </Tabs.Trigger>
+                        )}
+                    </For>
                 </Tabs.List>
-                {props.drafts.map((draft) => {
-                    const state = draftState[draft.channelKey] ?? { title: draft.title, body: draft.body };
-                    return (
+                <For each={props.drafts}>
+                    {(draft) => (
                         <Tabs.Content key={draft.channelKey} value={draft.channelKey} pt="md">
-                            <Stack gap="md">
-                                <Field.Root gap="xs">
-                                    <Field.Label fontSize="sm">Title</Field.Label>
-                                    <Textarea
-                                        value={state.title}
-                                        onChange={(event) =>
-                                            setDraftState((prev) => ({
-                                                ...prev,
-                                                [draft.channelKey]: { ...state, title: event.target.value },
-                                            }))
-                                        }
-                                        disabled={!props.editable}
-                                        rows={2}
-                                    />
-                                </Field.Root>
-                                <Field.Root gap="xs">
-                                    <Field.Label fontSize="sm">Body</Field.Label>
-                                    <Textarea
-                                        value={state.body}
-                                        onChange={(event) =>
-                                            setDraftState((prev) => ({
-                                                ...prev,
-                                                [draft.channelKey]: { ...state, body: event.target.value },
-                                            }))
-                                        }
-                                        disabled={!props.editable}
-                                        rows={10}
-                                    />
-                                </Field.Root>
-                                {props.editable ? (
-                                    <Button colorPalette="blue" borderRadius="full" alignSelf="flex-start" onClick={() => saveDraft(draft.channelKey)} loading={pending}>
-                                        Save draft
-                                    </Button>
-                                ) : null}
-                            </Stack>
-                        </Tabs.Content>
-                    );
-                })}
+                        <Stack gap="md">
+                            <Field.Root gap="xs">
+                                <Field.Label fontSize="sm">Title</Field.Label>
+                                <Textarea {...register(`drafts.${draft.channelKey}.title`)} disabled={!props.editable} rows={2} />
+                            </Field.Root>
+                            <Field.Root gap="xs">
+                                <Field.Label fontSize="sm">Body</Field.Label>
+                                <Textarea {...register(`drafts.${draft.channelKey}.body`)} disabled={!props.editable} rows={10} />
+                            </Field.Root>
+                            <Show when={props.editable}>
+                                <Button colorPalette="blue" borderRadius="full" alignSelf="flex-start" onClick={() => saveDraft(draft.channelKey)} loading={pending}>
+                                    Save draft
+                                </Button>
+                            </Show>
+                        </Stack>
+                    </Tabs.Content>
+                    )}
+                </For>
             </Tabs.Root>
         </Stack>
     );
@@ -285,16 +268,16 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                         Created {new Date(shoutout.createdAt).toLocaleString()} from {shoutout.repositoryFullName}
                     </Text>
                     <Stack direction="row" gap="sm" flexWrap="wrap">
-                        {canPublish ? (
+                        <Show when={canPublish}>
                             <Button colorPalette="blue" borderRadius="full" onClick={publish} loading={pending}>
                                 Publish
                             </Button>
-                        ) : null}
-                        {canRetry ? (
+                        </Show>
+                        <Show when={canRetry}>
                             <Button colorPalette="blue" borderRadius="full" onClick={retry} loading={pending}>
                                 Retry generation
                             </Button>
-                        ) : null}
+                        </Show>
                         <ChakraLink asChild fontSize="sm" color="brand.fg" alignSelf="center">
                             <Link href={`/dashboard/repositories/${shoutout.linkedRepositoryId}`}>View repository triggers</Link>
                         </ChakraLink>
@@ -327,15 +310,18 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                     <Text fontSize="sm" fontWeight="600">
                         Dispatch log
                     </Text>
-                    {shoutout.dispatchLogs.length === 0 ? (
-                        <Text color="fg.muted" fontSize="sm">
-                            Dispatch attempts will appear here after you publish.
-                        </Text>
-                    ) : (
+                    <Show
+                        when={shoutout.dispatchLogs.length > 0}
+                        fallback={
+                            <Text color="fg.muted" fontSize="sm">
+                                Dispatch attempts will appear here after you publish.
+                            </Text>
+                        }
+                    >
                         <Table.ScrollArea>
                             <Table.Root size="sm" variant="line">
                                 <Table.Header>
-                                    <Table.Row bg="bg.canvas">
+                                    <Table.Row bg="bg.soft">
                                         <Table.ColumnHeader>Channel</Table.ColumnHeader>
                                         <Table.ColumnHeader>Status</Table.ColumnHeader>
                                         <Table.ColumnHeader>Sent</Table.ColumnHeader>
@@ -343,10 +329,11 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {shoutout.dispatchLogs.map((log) => {
-                                        const logStatus = dispatchStatusBadge(log.status);
-                                        return (
-                                            <Table.Row key={`${log.channelKey}-${log.sentAt ?? log.status}`}>
+                                    <For each={shoutout.dispatchLogs}>
+                                        {(log) => {
+                                            const logStatus = dispatchStatusBadge(log.status);
+                                            return (
+                                                <Table.Row key={`${log.channelKey}-${log.sentAt ?? log.status}`}>
                                                 <Table.Cell>{channelLabel(log.channelKey)}</Table.Cell>
                                                 <Table.Cell>
                                                     <Badge colorPalette={logStatus.palette} variant="subtle" borderRadius="full">
@@ -357,13 +344,14 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                                                 <Table.Cell color={log.error ? 'red.fg' : 'fg.muted'} fontSize="sm">
                                                     {log.error ?? '—'}
                                                 </Table.Cell>
-                                            </Table.Row>
-                                        );
-                                    })}
+                                                </Table.Row>
+                                            );
+                                        }}
+                                    </For>
                                 </Table.Body>
                             </Table.Root>
                         </Table.ScrollArea>
-                    )}
+                    </Show>
                 </Stack>
             </Box>
         </Stack>

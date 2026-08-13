@@ -1,9 +1,11 @@
 import { Input, type InputProps } from '@chakra-ui/react';
+import { forwardRef } from 'react';
 
 /** DESIGN.md text-input: surface fill, body-sm, rounded.xs, padded. */
-export function AuthInput(props: InputProps) {
+export const AuthInput = forwardRef<HTMLInputElement, InputProps>(function AuthInput(props, ref) {
     return (
         <Input
+            ref={ref}
             size="md"
             borderRadius="xs"
             borderWidth="1px"
@@ -19,4 +21,4 @@ export function AuthInput(props: InputProps) {
             {...props}
         />
     );
-}
+});

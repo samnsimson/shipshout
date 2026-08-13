@@ -1,6 +1,6 @@
 'use client';
 
-import { createToaster, Toaster as ChakraToaster, Toast, Portal, CloseButton, Stack } from '@chakra-ui/react';
+import { CloseButton, Portal, Show, Stack, createToaster, Toaster as ChakraToaster, Toast } from '@chakra-ui/react';
 import { Toaster } from '../../lib/feedback/toaster.utils';
 
 const toasterApi = createToaster({
@@ -35,16 +35,16 @@ export function AppToaster() {
                         >
                             <Toast.Indicator colorPalette={style.palette} />
                             <Stack gap="0.5" flex="1" maxWidth="100%" minW="0">
-                                {toast.title ? (
+                                <Show when={toast.title}>
                                     <Toast.Title fontWeight="600" color={style.titleColor} lineHeight="1.4">
                                         {toast.title}
                                     </Toast.Title>
-                                ) : null}
-                                {toast.description ? (
+                                </Show>
+                                <Show when={toast.description}>
                                     <Toast.Description color={style.descriptionColor} fontSize="sm" lineHeight="1.43">
                                         {toast.description}
                                     </Toast.Description>
-                                ) : null}
+                                </Show>
                             </Stack>
                             <Toast.CloseTrigger asChild>
                                 <CloseButton size="sm" variant="ghost" color={style.titleColor} />

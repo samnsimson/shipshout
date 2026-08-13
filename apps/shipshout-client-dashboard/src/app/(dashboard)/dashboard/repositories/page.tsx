@@ -1,4 +1,4 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { PageHeader } from '../../../../components/dashboard/page-header';
@@ -36,23 +36,21 @@ export default async function RepositoriesPage({ searchParams }: { searchParams:
     const linked = (linkedRes as any)?.data?.repositories ?? [];
 
     return (
-        <Box>
-            <Stack maxW="1080px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-                <PageHeader
-                    icon={FolderGit2}
-                    eyebrow="Repositories"
-                    title="Repositories"
-                    description="Connect GitHub and link the repos you want to shout about."
-                />
-                <RepositoriesClient
-                    connection={connection}
-                    available={available}
-                    linked={linked}
-                    connectUrl={connectUrl}
-                    githubQuery={githubQuery}
-                    githubReason={githubReason}
-                />
-            </Stack>
-        </Box>
+        <Stack gap="lg">
+            <PageHeader
+                icon={FolderGit2}
+                eyebrow="Repositories"
+                title="Repositories"
+                description="Connect GitHub and link the repos you want to shout about."
+            />
+            <RepositoriesClient
+                connection={connection}
+                available={available}
+                linked={linked}
+                connectUrl={connectUrl}
+                githubQuery={githubQuery}
+                githubReason={githubReason}
+            />
+        </Stack>
     );
 }

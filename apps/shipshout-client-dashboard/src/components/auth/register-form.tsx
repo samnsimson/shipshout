@@ -1,77 +1,89 @@
 'use client';
 
-import { Alert, Button, Field, Stack, Text } from '@chakra-ui/react';
+import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
 import { checkUsernameAction, registerAction } from '../../lib/auth/actions';
+import { FormUtils } from '../../lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 import { SocialButtons } from './social-buttons';
+
+type RegisterFormValues = {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+};
 
 export function RegisterForm() {
     const [error, setError] = useState<string | null>(null);
     const [usernameHint, setUsernameHint] = useState<string | null>(null);
     const [pending, startTransition] = useTransition();
+    const { register, handleSubmit } = useForm<RegisterFormValues>();
+
+    const onSubmit = handleSubmit((values) => {
+        startTransition(async () => {
+            setError(null);
+            const result = await registerAction(FormUtils.toFormData(values));
+            if (result && !result.ok) setError(result.error);
+        });
+    });
 
     return (
-        <form
-            action={(formData) =>
-                startTransition(async () => {
-                    setError(null);
-                    const result = await registerAction(formData);
-                    if (result && !result.ok) setError(result.error);
-                })
-            }
-        >
+        <form onSubmit={onSubmit}>
             <Stack gap="lg">
                 <SocialButtons />
-                {error ? (
+                <Show when={error}>
                     <Alert.Root status="error" borderRadius="md">
                         <Alert.Indicator />
                         <Alert.Title>{error}</Alert.Title>
                     </Alert.Root>
-                ) : null}
+                </Show>
                 <Stack gap="md">
                     <Field.Root required gap="xs">
                         <Field.Label fontSize="sm" fontWeight="500">
                             Name
                         </Field.Label>
-                        <AuthInput name="name" autoComplete="name" />
+                        <AuthInput {...register('name', { required: true })} autoComplete="name" />
                     </Field.Root>
                     <Field.Root required gap="xs">
                         <Field.Label fontSize="sm" fontWeight="500">
                             Username
                         </Field.Label>
                         <AuthInput
-                            name="username"
+                            {...register('username', {
+                                required: true,
+                                onBlur: async (event) => {
+                                    const value = event.target.value.trim();
+                                    if (value.length < 3) {
+                                        setUsernameHint(null);
+                                        return;
+                                    }
+                                    const result = await checkUsernameAction(value);
+                                    if ('available' in result) setUsernameHint(result.available ? 'Username is available' : 'Username is taken');
+                                    else if (!result.ok) setUsernameHint(result.error);
+                                },
+                            })}
                             autoComplete="username"
-                            onBlur={async (e) => {
-                                const value = e.target.value.trim();
-                                if (value.length < 3) {
-                                    setUsernameHint(null);
-                                    return;
-                                }
-                                const result = await checkUsernameAction(value);
-                                if ('available' in result) setUsernameHint(result.available ? 'Username is available' : 'Username is taken');
-                                else if (!result.ok) setUsernameHint(result.error);
-                            }}
                         />
-                        {usernameHint ? (
+                        <Show when={usernameHint}>
                             <Field.HelperText fontSize="xs" color="fg.muted" mt="xxs">
                                 {usernameHint}
                             </Field.HelperText>
-                        ) : null}
+                        </Show>
                     </Field.Root>
                     <Field.Root required gap="xs">
                         <Field.Label fontSize="sm" fontWeight="500">
                             Email
                         </Field.Label>
-                        <AuthInput name="email" type="email" autoComplete="email" />
+                        <AuthInput {...register('email', { required: true })} type="email" autoComplete="email" />
                     </Field.Root>
                     <Field.Root required gap="xs">
                         <Field.Label fontSize="sm" fontWeight="500">
                             Password
                         </Field.Label>
-                        <AuthInput name="password" type="password" autoComplete="new-password" minLength={8} />
+                        <AuthInput {...register('password', { required: true, minLength: 8 })} type="password" autoComplete="new-password" minLength={8} />
                     </Field.Root>
                 </Stack>
                 <Button

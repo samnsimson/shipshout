@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Box, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
+import { Badge, Box, For, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
@@ -39,7 +39,7 @@ export function ShoutoutsClient(props: { shoutouts: ShoutoutDto[] }) {
             <Table.ScrollArea>
                 <Table.Root size="sm" variant="line">
                     <Table.Header>
-                        <Table.Row bg="bg.canvas">
+                        <Table.Row bg="bg.soft">
                             <Table.ColumnHeader>Title</Table.ColumnHeader>
                             <Table.ColumnHeader>Repository</Table.ColumnHeader>
                             <Table.ColumnHeader>Trigger</Table.ColumnHeader>
@@ -48,10 +48,11 @@ export function ShoutoutsClient(props: { shoutouts: ShoutoutDto[] }) {
                         </Table.Row>
                     </Table.Header>
                     <Table.Body>
-                        {props.shoutouts.map((shoutout) => {
-                            const status = ShoutoutStatusUtils.badge(shoutout.status);
-                            return (
-                                <Table.Row key={shoutout.id}>
+                        <For each={props.shoutouts}>
+                            {(shoutout) => {
+                                const status = ShoutoutStatusUtils.badge(shoutout.status);
+                                return (
+                                    <Table.Row key={shoutout.id}>
                                     <Table.Cell fontWeight="600">
                                         <ChakraLink asChild color="brand.fg">
                                             <Link href={`/dashboard/shoutouts/${shoutout.id}`}>{shoutout.title}</Link>
@@ -69,9 +70,10 @@ export function ShoutoutsClient(props: { shoutouts: ShoutoutDto[] }) {
                                         </Badge>
                                     </Table.Cell>
                                     <Table.Cell color="fg.muted">{new Date(shoutout.createdAt).toLocaleString()}</Table.Cell>
-                                </Table.Row>
-                            );
-                        })}
+                                    </Table.Row>
+                                );
+                            }}
+                        </For>
                     </Table.Body>
                 </Table.Root>
             </Table.ScrollArea>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Button, Flex, Link as ChakraLink, Stack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, For, Link as ChakraLink, Show, Stack, Text } from '@chakra-ui/react';
 import { CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
@@ -43,6 +43,7 @@ export function BillingSection(props: {
     const [pending, startTransition] = useTransition();
 
     const billablePlans = props.plans.filter((plan) => plan.isBillable);
+    const upgradePlans = billablePlans.filter((plan) => plan.name !== props.subscription.plan);
 
     function redirectTo(result: { url: string } | { error: string }) {
         if ('error' in result) {
@@ -62,16 +63,16 @@ export function BillingSection(props: {
                     </Text>
                 </Flex>
 
-                {props.billingStatus === 'success' ? (
+                <Show when={props.billingStatus === 'success'}>
                     <Text fontSize="sm" color="fg.muted">
                         Checkout completed. Your plan will update once Stripe confirms the subscription.
                     </Text>
-                ) : null}
-                {props.billingStatus === 'cancelled' ? (
+                </Show>
+                <Show when={props.billingStatus === 'cancelled'}>
                     <Text fontSize="sm" color="fg.muted">
                         Checkout was cancelled. No changes were made.
                     </Text>
-                ) : null}
+                </Show>
 
                 <Stack gap="xs" fontSize="sm">
                     <Flex justify="space-between" gap="md">
@@ -94,12 +95,14 @@ export function BillingSection(props: {
                         <Text color="fg.muted">Channels</Text>
                         <Text>{BillingUtils.formatChannels(props.subscription.limits.channels)}</Text>
                     </Flex>
-                    {props.subscription.periodEnd ? (
-                        <Flex justify="space-between" gap="md">
-                            <Text color="fg.muted">Period ends</Text>
-                            <Text>{new Date(props.subscription.periodEnd).toLocaleDateString()}</Text>
-                        </Flex>
-                    ) : null}
+                    <Show when={props.subscription.periodEnd}>
+                        {(periodEnd) => (
+                            <Flex justify="space-between" gap="md">
+                                <Text color="fg.muted">Period ends</Text>
+                                <Text>{new Date(periodEnd).toLocaleDateString()}</Text>
+                            </Flex>
+                        )}
+                    </Show>
                 </Stack>
 
                 <Text fontSize="xs" color="fg.muted">
@@ -107,9 +110,8 @@ export function BillingSection(props: {
                 </Text>
 
                 <Flex gap="sm" flexWrap="wrap">
-                    {billablePlans.map((plan) => {
-                        if (plan.name === props.subscription.plan) return null;
-                        return (
+                    <For each={upgradePlans}>
+                        {(plan) => (
                             <Button
                                 key={plan.name}
                                 size="sm"
@@ -125,8 +127,8 @@ export function BillingSection(props: {
                                 Upgrade to {plan.displayName}
                                 {plan.trialDays ? ` (${plan.trialDays}-day trial)` : ''}
                             </Button>
-                        );
-                    })}
+                        )}
+                    </For>
                     <Button
                         size="sm"
                         variant="outline"
@@ -146,28 +148,33 @@ export function BillingSection(props: {
                     <Text fontSize="sm" fontWeight="600">
                         Recent invoices
                     </Text>
-                    {props.invoices.length === 0 ? (
-                        <Text fontSize="sm" color="fg.muted">
-                            No invoices yet.
-                        </Text>
-                    ) : (
-                        props.invoices.map((invoice) => (
-                            <Flex key={invoice.id} justify="space-between" gap="md" fontSize="sm">
+                    <Show
+                        when={props.invoices.length > 0}
+                        fallback={
+                            <Text fontSize="sm" color="fg.muted">
+                                No invoices yet.
+                            </Text>
+                        }
+                    >
+                        <For each={props.invoices}>
+                            {(invoice) => (
+                                <Flex key={invoice.id} justify="space-between" gap="md" fontSize="sm">
                                 <Text color="fg.muted">{new Date(invoice.createdAt).toLocaleDateString()}</Text>
                                 <Text>
                                     {BillingUtils.formatMoney(invoice.amountDue, invoice.currency)}
                                     {invoice.status ? ` · ${invoice.status}` : ''}
                                 </Text>
-                                {invoice.hostedInvoiceUrl ? (
-                                    <ChakraLink href={invoice.hostedInvoiceUrl} target="_blank" rel="noreferrer">
-                                        View
-                                    </ChakraLink>
-                                ) : (
-                                    <Text color="fg.muted">—</Text>
-                                )}
-                            </Flex>
-                        ))
-                    )}
+                                <Show when={invoice.hostedInvoiceUrl} fallback={<Text color="fg.muted">—</Text>}>
+                                    {(hostedInvoiceUrl) => (
+                                        <ChakraLink href={hostedInvoiceUrl} target="_blank" rel="noreferrer">
+                                            View
+                                        </ChakraLink>
+                                    )}
+                                </Show>
+                                </Flex>
+                            )}
+                        </For>
+                    </Show>
                 </Stack>
             </Stack>
         </Box>

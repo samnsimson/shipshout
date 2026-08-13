@@ -1,7 +1,7 @@
 'use client';
 
 import NextLink from 'next/link';
-import { Box, Flex, Link as ChakraLink, Text } from '@chakra-ui/react';
+import { Box, Flex, For, Link as ChakraLink, Show, Text } from '@chakra-ui/react';
 import { FolderGit2, Home, Megaphone, Radio, Settings, Users, type LucideIcon } from 'lucide-react';
 
 const NAV: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
@@ -26,12 +26,13 @@ export function SidebarNav(props: {
 }) {
     const content = (
         <Flex direction="column" gap="xs" px="md" py="lg">
-            {NAV.map((item) => {
-                const active = isActivePath(props.pathname, item.href);
-                const Icon = item.icon;
-                return (
-                    <ChakraLink
-                        key={item.href}
+            <For each={NAV}>
+                {(item) => {
+                    const active = isActivePath(props.pathname, item.href);
+                    const Icon = item.icon;
+                    return (
+                        <ChakraLink
+                            key={item.href}
                         as={NextLink}
                         href={item.href}
                         display="flex"
@@ -50,9 +51,10 @@ export function SidebarNav(props: {
                     >
                         <Icon size={16} strokeWidth={active ? 2.25 : 2} aria-hidden />
                         <Text fontSize="sm">{item.label}</Text>
-                    </ChakraLink>
-                );
-            })}
+                        </ChakraLink>
+                    );
+                }}
+            </For>
         </Flex>
     );
 
@@ -62,6 +64,8 @@ export function SidebarNav(props: {
                 as="nav"
                 display={{ base: 'none', md: 'block' }}
                 w="260px"
+                flexShrink={0}
+                alignSelf="stretch"
                 borderRightWidth="1px"
                 borderRightColor="border.hairline"
                 bg="bg.canvas"
@@ -69,7 +73,7 @@ export function SidebarNav(props: {
                 {content}
             </Box>
 
-            {props.isMobileOpen ? (
+            <Show when={props.isMobileOpen}>
                 <Box
                     position="fixed"
                     inset="0"
@@ -89,7 +93,7 @@ export function SidebarNav(props: {
                         {content}
                     </Box>
                 </Box>
-            ) : null}
+            </Show>
         </>
     );
 }

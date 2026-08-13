@@ -15,11 +15,11 @@ export function DashboardShell(props: {
     const { open, onOpen, onClose } = useDisclosure();
 
     return (
-        <Flex direction="column" minH="100vh">
+        <Flex direction="column" h="100dvh" overflow="hidden">
             <TopBar user={props.user} onOpenSidebar={onOpen} />
-            <Flex flex="1" bg="bg.soft">
+            <Flex flex="1" minH="0" bg="bg.soft">
                 <SidebarNav user={props.user} pathname={pathname} isMobileOpen={open} onMobileClose={onClose} />
-                <Box as="main" flex="1" bg="bg.soft">
+                <Box as="main" flex="1" minW="0" minH="0" overflowY="auto" bg="bg.soft">
                     {props.children}
                 </Box>
             </Flex>

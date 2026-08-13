@@ -1,4 +1,4 @@
-import { Box, Flex, Stack, Text } from '@chakra-ui/react';
+import { Box, Flex, Show, Stack, Text } from '@chakra-ui/react';
 import { Settings, User } from 'lucide-react';
 import { PageHeader } from '../../../../components/dashboard/page-header';
 import { BillingSection } from '../../../../components/settings/billing-section';
@@ -40,7 +40,7 @@ export default async function SettingsPage({
     };
 
     return (
-        <Stack maxW="720px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
+        <Stack gap="lg">
             <PageHeader icon={Settings} eyebrow="Settings" title="Account" description="Manage your profile and billing." />
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
@@ -60,12 +60,12 @@ export default async function SettingsPage({
                             <Text color="fg.muted">Email</Text>
                             <Text>{user.email}</Text>
                         </Flex>
-                        {user.username ? (
+                        <Show when={user.username}>
                             <Flex justify="space-between" gap="md">
                                 <Text color="fg.muted">Username</Text>
                                 <Text>{user.username}</Text>
                             </Flex>
-                        ) : null}
+                        </Show>
                     </Stack>
                 </Stack>
             </Box>

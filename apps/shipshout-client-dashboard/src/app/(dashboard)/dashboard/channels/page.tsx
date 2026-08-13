@@ -1,10 +1,11 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 import { Radio } from 'lucide-react';
 import type { Metadata } from 'next';
 import { PageHeader } from '../../../../components/dashboard/page-header';
 import { ChannelsClient } from '../../../../components/channels/channels-client';
 import { fetchChannelCatalog, fetchRepositoryChannels } from '../../../../lib/channels/api';
 import { getRepositoriesApi } from '../../../../lib/repositories/api';
+import { ShipshoutApiUtils } from '../../../../lib/shipshout-api';
 
 export const metadata: Metadata = {
     title: 'Channels',
@@ -17,7 +18,10 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
     const { api, requestOptions } = await getRepositoriesApi();
     const [catalogRes, linkedRes] = await Promise.all([fetchChannelCatalog(), api.listLinkedRepos(requestOptions)]);
 
-    if (!catalogRes.data) throw new Error('Failed to load channel catalog');
+    if (!catalogRes.data) {
+        const detail = ShipshoutApiUtils.errorMessage(catalogRes.error, 'Failed to load channel catalog');
+        throw new Error(`${detail} (${catalogRes.status})`);
+    }
 
     const catalog = catalogRes.data.channels;
     const linkedRepos = (linkedRes.data?.repositories ?? []).map((repo) => ({ id: repo.id, fullName: repo.fullName }));
@@ -31,16 +35,14 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
     const channelsByRepo = Object.fromEntries(channelsByRepoEntries);
 
     return (
-        <Box>
-            <Stack maxW="1080px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-                <PageHeader
-                    icon={Radio}
-                    eyebrow="Channels"
-                    title="Channel marketplace"
-                    description="Browse delivery channels and configure where shoutouts go for each repository. Notification channels alert you; publish channels reach your audience when you publish."
-                />
-                <ChannelsClient catalog={catalog} linkedRepos={linkedRepos} channelsByRepo={channelsByRepo} initialRepoId={initialRepoId} />
-            </Stack>
-        </Box>
+        <Stack gap="lg">
+            <PageHeader
+                icon={Radio}
+                eyebrow="Channels"
+                title="Channel marketplace"
+                description="Browse delivery channels and configure where shoutouts go for each repository. Notification channels alert you; publish channels reach your audience when you publish."
+            />
+            <ChannelsClient catalog={catalog} linkedRepos={linkedRepos} channelsByRepo={channelsByRepo} initialRepoId={initialRepoId} />
+        </Stack>
     );
 }

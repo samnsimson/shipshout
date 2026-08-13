@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Box, Button, Checkbox, Flex, Input, InputGroup, Link as ChakraLink, NativeSelect, Stack, Table, Text } from '@chakra-ui/react';
+import { Badge, Box, Button, Checkbox, Flex, For, Input, InputGroup, Link as ChakraLink, NativeSelect, Show, Stack, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useDeferredValue, useMemo, useState, useTransition } from 'react';
 import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Settings2, Unlink } from 'lucide-react';
@@ -212,18 +212,18 @@ export function RepositoriesClient(props: {
                             Linked repositories
                         </Text>
                     </Flex>
-                    {props.linked.length === 0 ? (
+                    <Show when={props.linked.length === 0}>
                         <Text color="fg.muted" fontSize="sm" mt="md">
                             No repositories linked yet.
                         </Text>
-                    ) : null}
+                    </Show>
                 </Box>
 
-                {props.linked.length > 0 ? (
+                <Show when={props.linked.length > 0}>
                     <Table.ScrollArea borderTopWidth="1px" borderTopColor="border.hairline" borderRadius="0" bg="bg.surface">
                         <Table.Root size="sm" variant="line" bg="bg.surface">
                             <Table.Header>
-                                <Table.Row bg="bg.canvas">
+                                <Table.Row bg="bg.soft">
                                     <Table.ColumnHeader>Repository</Table.ColumnHeader>
                                     <Table.ColumnHeader>Owner</Table.ColumnHeader>
                                     <Table.ColumnHeader>Visibility</Table.ColumnHeader>
@@ -231,8 +231,9 @@ export function RepositoriesClient(props: {
                                 </Table.Row>
                             </Table.Header>
                             <Table.Body>
-                                {props.linked.map((repo) => (
-                                    <Table.Row key={repo.id} bg="bg.surface">
+                                <For each={props.linked}>
+                                    {(repo) => (
+                                        <Table.Row key={repo.id} bg="bg.surface">
                                         <Table.Cell fontWeight="600">{repo.fullName}</Table.Cell>
                                         <Table.Cell color="fg.muted">{repo.owner}</Table.Cell>
                                         <Table.Cell color="fg.muted">{repo.private ? 'Private' : 'Public'}</Table.Cell>
@@ -266,12 +267,13 @@ export function RepositoriesClient(props: {
                                                 </Button>
                                             </Flex>
                                         </Table.Cell>
-                                    </Table.Row>
-                                ))}
+                                        </Table.Row>
+                                    )}
+                                </For>
                             </Table.Body>
                         </Table.Root>
                     </Table.ScrollArea>
-                ) : null}
+                </Show>
             </Box>
 
             <Box borderTopWidth="1px" borderTopColor="border.hairline" />
@@ -286,7 +288,7 @@ export function RepositoriesClient(props: {
                             </Text>
                         </Flex>
 
-                        {selectable.length > 0 ? (
+                        <Show when={selectable.length > 0}>
                             <Stack direction={{ base: 'column', md: 'row' }} gap="sm" alignItems={{ md: 'center' }}>
                                 <InputGroup flex="1" startElement={<Search size={14} strokeWidth={2} aria-hidden />}>
                                     <Input
@@ -306,11 +308,13 @@ export function RepositoriesClient(props: {
                                         onChange={(event) => setOwnerFilter(event.currentTarget.value)}
                                     >
                                         <option value="all">All owners</option>
-                                        {owners.map((owner) => (
-                                            <option key={owner} value={owner}>
-                                                {owner}
-                                            </option>
-                                        ))}
+                                        <For each={owners}>
+                                            {(owner) => (
+                                                <option key={owner} value={owner}>
+                                                    {owner}
+                                                </option>
+                                            )}
+                                        </For>
                                     </NativeSelect.Field>
                                     <NativeSelect.Indicator />
                                 </NativeSelect.Root>
@@ -328,31 +332,34 @@ export function RepositoriesClient(props: {
                                     <NativeSelect.Indicator />
                                 </NativeSelect.Root>
                             </Stack>
-                        ) : null}
+                        </Show>
 
-                        {selectable.length > 0 ? (
+                        <Show when={selectable.length > 0}>
                             <Flex align="center" gap="xs" color="fg.muted">
                                 <Filter size={12} strokeWidth={2} aria-hidden />
                                 <Text fontSize="xs">
                                     Showing {filtered.length} of {selectable.length} repositories
                                 </Text>
                             </Flex>
-                        ) : null}
+                        </Show>
                     </Stack>
                 </Box>
 
-                {selectable.length === 0 ? (
-                    <Box px="lg" pb="lg">
-                        <Text color="fg.muted" fontSize="sm">
-                            No available repositories to link.
-                        </Text>
-                    </Box>
-                ) : (
+                <Show
+                    when={selectable.length > 0}
+                    fallback={
+                        <Box px="lg" pb="lg">
+                            <Text color="fg.muted" fontSize="sm">
+                                No available repositories to link.
+                            </Text>
+                        </Box>
+                    }
+                >
                     <>
                         <Table.ScrollArea borderTopWidth="1px" borderTopColor="border.hairline" borderRadius="0" maxH="320px" bg="bg.surface">
                             <Table.Root size="sm" variant="line" stickyHeader bg="bg.surface">
                                 <Table.Header>
-                                    <Table.Row bg="bg.canvas">
+                                    <Table.Row bg="bg.soft">
                                         <Table.ColumnHeader w="12">
                                             <Checkbox.Root
                                                 size="sm"
@@ -372,25 +379,29 @@ export function RepositoriesClient(props: {
                                     </Table.Row>
                                 </Table.Header>
                                 <Table.Body>
-                                    {filtered.length === 0 ? (
-                                        <Table.Row bg="bg.surface">
-                                            <Table.Cell colSpan={5}>
-                                                <Text color="fg.muted" fontSize="sm">
-                                                    No repositories match your search or filters.
-                                                </Text>
-                                            </Table.Cell>
-                                        </Table.Row>
-                                    ) : (
-                                        filtered.map((repo) => {
-                                            const isSelected = selected.includes(repo.githubId);
-                                            return (
-                                                <Table.Row
-                                                    key={repo.githubId}
-                                                    data-selected={isSelected ? '' : undefined}
-                                                    cursor="pointer"
-                                                    bg="bg.surface"
-                                                    onClick={() => toggleRow(repo.githubId, !isSelected)}
-                                                >
+                                    <Show
+                                        when={filtered.length > 0}
+                                        fallback={
+                                            <Table.Row bg="bg.surface">
+                                                <Table.Cell colSpan={5}>
+                                                    <Text color="fg.muted" fontSize="sm">
+                                                        No repositories match your search or filters.
+                                                    </Text>
+                                                </Table.Cell>
+                                            </Table.Row>
+                                        }
+                                    >
+                                        <For each={filtered}>
+                                            {(repo) => {
+                                                const isSelected = selected.includes(repo.githubId);
+                                                return (
+                                                    <Table.Row
+                                                        key={repo.githubId}
+                                                        data-selected={isSelected ? '' : undefined}
+                                                        cursor="pointer"
+                                                        bg="bg.surface"
+                                                        onClick={() => toggleRow(repo.githubId, !isSelected)}
+                                                    >
                                                     <Table.Cell onClick={(event) => event.stopPropagation()}>
                                                         <Checkbox.Root
                                                             size="sm"
@@ -406,10 +417,11 @@ export function RepositoriesClient(props: {
                                                     <Table.Cell color="fg.muted">{repo.owner}</Table.Cell>
                                                     <Table.Cell color="fg.muted">{repo.defaultBranch}</Table.Cell>
                                                     <Table.Cell color="fg.muted">{repo.private ? 'Private' : 'Public'}</Table.Cell>
-                                                </Table.Row>
-                                            );
-                                        })
-                                    )}
+                                                    </Table.Row>
+                                                );
+                                            }}
+                                        </For>
+                                    </Show>
                                 </Table.Body>
                             </Table.Root>
                         </Table.ScrollArea>
@@ -436,7 +448,7 @@ export function RepositoriesClient(props: {
                             </Button>
                         </Box>
                     </>
-                )}
+                </Show>
             </Box>
         </Stack>
     );

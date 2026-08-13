@@ -1,4 +1,4 @@
-import { Alert, Stack, Text } from '@chakra-ui/react';
+import { Alert, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { AuthCard } from '../../../components/auth/auth-card';
 import { ResendVerificationForm } from '../../../components/auth/resend-verification-form';
@@ -44,13 +44,14 @@ export default async function VerifyEmailPage({ searchParams }: { searchParams: 
                     <Alert.Indicator />
                     <Alert.Title>{result.message}</Alert.Title>
                 </Alert.Root>
-                {result.ok ? (
+                <Show
+                    when={result.ok}
+                    fallback={<ResendVerificationForm defaultEmail={email} />}
+                >
                     <Text textAlign="center" fontSize="sm" fontWeight="500">
                         <Link href="/login">Log in</Link>
                     </Text>
-                ) : (
-                    <ResendVerificationForm defaultEmail={email} />
-                )}
+                </Show>
             </Stack>
         </AuthCard>
     );

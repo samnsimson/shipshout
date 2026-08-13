@@ -1,10 +1,11 @@
-import { Box, Stack } from '@chakra-ui/react';
+import { Stack } from '@chakra-ui/react';
 import { Radio } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '../../../../../components/dashboard/page-header';
 import { ChannelConfigClient } from '../../../../../components/channels/channel-config-client';
 import { fetchChannelCatalog, fetchRepositoryChannels } from '../../../../../lib/channels/api';
+import { getSessionAction } from '../../../../../lib/auth/actions';
 import { getRepositoriesApi } from '../../../../../lib/repositories/api';
 
 export async function generateMetadata({ params }: { params: Promise<{ channelKey: string }> }): Promise<Metadata> {
@@ -47,12 +48,13 @@ export default async function ChannelConfigPage({
 
     if (!channel.availableOnPlan) redirect(`/dashboard/channels?repo=${repoId}`);
 
+    const session = await getSessionAction();
+    if (!session) return null;
+
     return (
-        <Box>
-            <Stack maxW="720px" mx="auto" px={{ base: 'md', md: 'xl' }} py="xxl" gap="lg">
-                <PageHeader icon={Radio} eyebrow="Channels" title="Configure channel" description="Set tone and delivery options for this channel on the selected repository." />
-                <ChannelConfigClient repositoryId={repoId} repositoryName={linkedRepo.fullName} channel={channel} />
-            </Stack>
-        </Box>
+        <Stack gap="lg">
+            <PageHeader icon={Radio} eyebrow="Channels" title="Configure channel" description="Set tone and delivery options for this channel on the selected repository." />
+            <ChannelConfigClient repositoryId={repoId} repositoryName={linkedRepo.fullName} channel={channel} accountEmail={session.user.email} />
+        </Stack>
     );
 }
