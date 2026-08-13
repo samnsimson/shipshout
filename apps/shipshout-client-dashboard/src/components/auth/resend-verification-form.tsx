@@ -4,7 +4,7 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { resendVerificationAction } from '@/lib/auth/actions';
+import { AuthActions } from '@/lib/auth/auth.actions';
 import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 
@@ -23,7 +23,7 @@ export function ResendVerificationForm({ defaultEmail = '' }: { defaultEmail?: s
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
             setError(null);
-            const result = await resendVerificationAction(FormUtils.toFormData(values));
+            const result = await AuthActions.resendVerification(FormUtils.toFormData(values));
             if (!result.ok) setError(result.error);
             else setDone(true);
         });

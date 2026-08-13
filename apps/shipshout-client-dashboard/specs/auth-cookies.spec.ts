@@ -1,8 +1,8 @@
-import { collectSetCookieHeaders, parseSetCookie } from '@/lib/auth/cookies';
+import { AuthUtils } from '@/lib/auth/auth.utils';
 
-describe('parseSetCookie', () => {
+describe('AuthUtils.parseSetCookie', () => {
     it('parses name value and attrs without Domain', () => {
-        const parsed = parseSetCookie('auth_token=abc; Path=/; HttpOnly; SameSite=Lax; Domain=api.example.com');
+        const parsed = AuthUtils.parseSetCookie('auth_token=abc; Path=/; HttpOnly; SameSite=Lax; Domain=api.example.com');
         expect(parsed).toEqual({
             name: 'auth_token',
             value: 'abc',
@@ -13,12 +13,12 @@ describe('parseSetCookie', () => {
     });
 
     it('returns null for invalid header', () => {
-        expect(parseSetCookie('')).toBeNull();
-        expect(parseSetCookie('novalue')).toBeNull();
+        expect(AuthUtils.parseSetCookie('')).toBeNull();
+        expect(AuthUtils.parseSetCookie('novalue')).toBeNull();
     });
 });
 
-describe('collectSetCookieHeaders', () => {
+describe('AuthUtils.collectSetCookieHeaders', () => {
     it('uses getSetCookie when available', () => {
         const headers = new Headers();
         const response = {
@@ -27,6 +27,6 @@ describe('collectSetCookieHeaders', () => {
                 get: headers.get.bind(headers),
             },
         } as unknown as Response;
-        expect(collectSetCookieHeaders(response)).toEqual(['a=1', 'b=2']);
+        expect(AuthUtils.collectSetCookieHeaders(response)).toEqual(['a=1', 'b=2']);
     });
 });

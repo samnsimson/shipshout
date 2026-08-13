@@ -1,4 +1,4 @@
-import { shipshoutFetch } from '@/lib/shipshout-api';
+import { ShipshoutApi } from '@/lib/shipshout.api';
 
 export type RepositoryTriggersDto = {
     release: boolean;
@@ -44,10 +44,12 @@ export type TriggerEventDto = {
     createdAt: string;
 };
 
-export async function fetchRepositoryDetail(id: string) {
-    return shipshoutFetch<LinkedRepositoryDetailDto>(`/repositories/${id}`);
-}
+export class TriggersApi {
+    static fetchRepositoryDetail(id: string) {
+        return ShipshoutApi.fetchJson<LinkedRepositoryDetailDto>(`/repositories/${id}`);
+    }
 
-export async function fetchRepositoryEvents(id: string, limit = 20) {
-    return shipshoutFetch<{ events: TriggerEventDto[] }>(`/repositories/${id}/events?limit=${limit}`);
+    static fetchRepositoryEvents(id: string, limit = 20) {
+        return ShipshoutApi.fetchJson<{ events: TriggerEventDto[] }>(`/repositories/${id}/events?limit=${limit}`);
+    }
 }

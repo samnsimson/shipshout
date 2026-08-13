@@ -4,13 +4,13 @@ import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { ChannelConfigClient } from '@/components/channels/channel-config-client';
-import { fetchChannelCatalog, fetchRepositoryChannels } from '@/lib/channels/api';
-import { getSessionAction } from '@/lib/auth/actions';
-import { getRepositoriesApi } from '@/lib/repositories/api';
+import { ChannelsApi } from '@/lib/channels/channels.api';
+import { AuthActions } from '@/lib/auth/auth.actions';
+import { RepositoriesApi } from '@/lib/repositories/repositories.api';
 
 export async function generateMetadata({ params }: { params: Promise<{ channelKey: string }> }): Promise<Metadata> {
     const { channelKey } = await params;
-    const catalogRes = await fetchChannelCatalog();
+    const catalogRes = await ChannelsApi.fetchCatalog();
     const item = catalogRes.data?.channels.find((channel) => channel.key === channelKey);
     return { title: item ? `${item.displayName} configuration` : 'Channel configuration' };
 }
@@ -27,10 +27,10 @@ export default async function ChannelConfigPage({
     const repoId = typeof query.repo === 'string' ? query.repo : undefined;
     if (!repoId) redirect('/dashboard/channels');
 
-    const { api, requestOptions } = await getRepositoriesApi();
+    const { api, requestOptions } = await RepositoriesApi.getClient();
     const [catalogRes, channelsRes, linkedRes] = await Promise.all([
-        fetchChannelCatalog(),
-        fetchRepositoryChannels(repoId),
+        ChannelsApi.fetchCatalog(),
+        ChannelsApi.fetchRepositoryChannels(repoId),
         api.listLinkedRepos(requestOptions),
     ]);
 
@@ -48,7 +48,7 @@ export default async function ChannelConfigPage({
 
     if (!channel.availableOnPlan) redirect(`/dashboard/channels?repo=${repoId}`);
 
-    const session = await getSessionAction();
+    const session = await AuthActions.getSession();
     if (!session) return null;
 
     return (

@@ -6,7 +6,7 @@ export type ShipshoutRequestOptions = {
     headers: Record<string, string>;
 };
 
-export class ShipshoutApiUtils {
+export class ShipshoutApi {
     static normalizeBaseUrl(baseUrl: string): string {
         return HeyApiConfigUtils.normalizeBaseUrl(baseUrl);
     }
@@ -92,12 +92,4 @@ export class ShipshoutApiUtils {
         }
         return fallback;
     }
-}
-
-export async function getShipshoutRequestOptions(): Promise<ShipshoutRequestOptions> {
-    return ShipshoutApiUtils.getRequestOptions();
-}
-
-export async function shipshoutFetch<T>(path: string, init?: RequestInit): Promise<{ data?: T; error?: unknown; status: number }> {
-    return ShipshoutApiUtils.fetchJson<T>(path, init);
 }

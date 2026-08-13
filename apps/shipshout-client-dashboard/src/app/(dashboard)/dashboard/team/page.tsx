@@ -1,10 +1,10 @@
 import { Box, Stack, Text } from '@chakra-ui/react';
 import { Users } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/page-header';
-import { getSessionAction } from '@/lib/auth/actions';
+import { AuthActions } from '@/lib/auth/auth.actions';
 
 export default async function TeamPage() {
-    const session = await getSessionAction();
+    const session = await AuthActions.getSession();
     if (!session) return null;
 
     return (

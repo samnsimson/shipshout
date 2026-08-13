@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useDeferredValue, useMemo, useState, useTransition } from 'react';
 import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Settings2, Unlink } from 'lucide-react';
 import { Toaster } from '@/lib/feedback/toaster.utils';
-import { disconnectGithubAction, linkRepositoriesAction, unlinkRepositoryAction } from '@/lib/repositories/actions';
+import { RepositoriesActions } from '@/lib/repositories/repositories.actions';
 import { QueryBanner } from './query-banner';
 import type { GithubConnectionResponseDto, GithubRepoDto, LinkedRepositoryResponseDto } from '@shipshout/api-client';
 
@@ -189,7 +189,7 @@ export function RepositoriesClient(props: {
                             gap="xs"
                             onClick={() =>
                                 startTransition(() => {
-                                    disconnectGithubAction().then((res) => {
+                                    RepositoriesActions.disconnectGithub().then((res) => {
                                         if (!res.ok) Toaster.error({ title: 'Could not disconnect GitHub', description: res.error });
                                     });
                                 })
@@ -255,7 +255,7 @@ export function RepositoriesClient(props: {
                                                     gap="xs"
                                                     onClick={() =>
                                                         startTransition(() => {
-                                                            unlinkRepositoryAction(repo.id).then((res) => {
+                                                            RepositoriesActions.unlinkRepository(repo.id).then((res) => {
                                                                 if (!res.ok) Toaster.error({ title: 'Could not unlink repository', description: res.error });
                                                             });
                                                         })
@@ -434,7 +434,7 @@ export function RepositoriesClient(props: {
                                 gap="xs"
                                 onClick={() =>
                                     startTransition(() => {
-                                        linkRepositoriesAction(selected).then((res) => {
+                                        RepositoriesActions.linkRepositories(selected).then((res) => {
                                             if (!res.ok) Toaster.error({ title: 'Could not link repositories', description: res.error });
                                             else setSelected([]);
                                         });

@@ -3,7 +3,7 @@ import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { RepositoriesClient } from '@/components/repositories/repositories-client';
-import { getRepositoriesApi } from '@/lib/repositories/api';
+import { RepositoriesApi } from '@/lib/repositories/repositories.api';
 
 function normalizeBaseUrl(baseUrl: string): string {
     return baseUrl.replace(/\/$/, '');
@@ -23,7 +23,7 @@ export default async function RepositoriesPage({ searchParams }: { searchParams:
     const githubQuery = typeof params.github === 'string' ? params.github : undefined;
     const githubReason = typeof params.reason === 'string' ? params.reason : undefined;
 
-    const { api, requestOptions } = await getRepositoriesApi();
+    const { api, requestOptions } = await RepositoriesApi.getClient();
 
     const [connectionRes, availableRes, linkedRes] = await Promise.all([
         api.getGithubConnection(requestOptions),

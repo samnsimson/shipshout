@@ -4,7 +4,7 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { forgotPasswordAction } from '@/lib/auth/actions';
+import { AuthActions } from '@/lib/auth/auth.actions';
 import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 
@@ -21,7 +21,7 @@ export function ForgotPasswordForm() {
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
             setError(null);
-            const result = await forgotPasswordAction(FormUtils.toFormData(values));
+            const result = await AuthActions.forgotPassword(FormUtils.toFormData(values));
             if (!result.ok) setError(result.error);
             else setDone(true);
         });

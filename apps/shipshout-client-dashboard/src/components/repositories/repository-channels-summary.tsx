@@ -3,8 +3,8 @@
 import { Badge, Flex, For, IconButton, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { Settings2 } from 'lucide-react';
-import type { RepositoryChannelDto } from '@/lib/channels/api';
-import { ChannelUtils } from '@/lib/channels/channel.utils';
+import type { RepositoryChannelDto } from '@/lib/channels/channels.api';
+import { ChannelUtils } from '@/lib/channels/channels.utils';
 
 export function RepositoryChannelsSummary(props: { repositoryId: string; channels: RepositoryChannelDto[] }) {
     const enabled = props.channels.filter((channel) => channel.enabled && channel.availableOnPlan);

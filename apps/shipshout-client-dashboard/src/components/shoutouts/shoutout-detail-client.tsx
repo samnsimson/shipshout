@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster } from '@/lib/feedback/toaster.utils';
-import { publishShoutoutAction, retryShoutoutGenerationAction, updateShoutoutDraftAction } from '@/lib/shoutouts/actions';
-import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '@/lib/shoutouts/api';
-import { ShoutoutStatusUtils } from '@/lib/shoutouts/shoutout-status.utils';
+import { ShoutoutsActions } from '@/lib/shoutouts/shoutouts.actions';
+import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '@/lib/shoutouts/shoutouts.api';
+import { ShoutoutsUtils } from '@/lib/shoutouts/shoutouts.utils';
 
 function triggerTypeLabel(type: string) {
     if (type === 'release') return 'Release';
@@ -132,7 +132,7 @@ function DraftEditor(props: {
         if (!draft) return;
 
         startTransition(async () => {
-            const result = await updateShoutoutDraftAction(props.shoutoutId, channelKey, draft);
+            const result = await ShoutoutsActions.updateDraft(props.shoutoutId, channelKey, draft);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not save draft', description: result.error });
                 return;
@@ -204,16 +204,16 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
         [router],
     );
 
-    useShoutoutEvents(shoutout.id, ShoutoutStatusUtils.isInFlight(shoutout.status), onStreamEvent);
+    useShoutoutEvents(shoutout.id, ShoutoutsUtils.isInFlight(shoutout.status), onStreamEvent);
 
-    const status = ShoutoutStatusUtils.badge(shoutout.status);
+    const status = ShoutoutsUtils.badge(shoutout.status);
     const canEdit = shoutout.status === 'ready_for_review';
     const canPublish = shoutout.status === 'ready_for_review';
     const canRetry = shoutout.status === 'generation_failed';
 
     const publish = () => {
         startTransition(async () => {
-            const result = await publishShoutoutAction(shoutout.id);
+            const result = await ShoutoutsActions.publish(shoutout.id);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not publish shoutout', description: result.error });
                 return;
@@ -225,7 +225,7 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
 
     const retry = () => {
         startTransition(async () => {
-            const result = await retryShoutoutGenerationAction(shoutout.id);
+            const result = await ShoutoutsActions.retryGeneration(shoutout.id);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not retry generation', description: result.error });
                 return;

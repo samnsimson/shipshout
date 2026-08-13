@@ -1,11 +1,11 @@
 import { cookies } from 'next/headers';
-import { ShipshoutApiUtils } from '@/lib/shipshout-api';
+import { ShipshoutApi } from '@/lib/shipshout.api';
 
 jest.mock('next/headers', () => ({
     cookies: jest.fn(),
 }));
 
-describe('ShipshoutApiUtils.buildRequestHeaders', () => {
+describe('ShipshoutApi.buildRequestHeaders', () => {
     beforeEach(() => {
         process.env.CLIENT_APP_URL = 'http://localhost:3000';
         jest.mocked(cookies).mockReset();
@@ -16,7 +16,7 @@ describe('ShipshoutApiUtils.buildRequestHeaders', () => {
             getAll: () => [{ name: 'auth_token', value: 'jwt.access' }],
         } as Awaited<ReturnType<typeof cookies>>);
 
-        const headers = await ShipshoutApiUtils.buildRequestHeaders();
+        const headers = await ShipshoutApi.buildRequestHeaders();
 
         expect(headers.Cookie).toBe('auth_token=jwt.access');
         expect(headers.origin).toBe('http://localhost:3000');
@@ -28,7 +28,7 @@ describe('ShipshoutApiUtils.buildRequestHeaders', () => {
             getAll: () => [],
         } as Awaited<ReturnType<typeof cookies>>);
 
-        const headers = await ShipshoutApiUtils.buildRequestHeaders();
+        const headers = await ShipshoutApi.buildRequestHeaders();
 
         expect(headers.Cookie).toBeUndefined();
         expect(headers.origin).toBe('http://localhost:3000');
@@ -39,7 +39,7 @@ describe('ShipshoutApiUtils.buildRequestHeaders', () => {
             getAll: () => [],
         } as Awaited<ReturnType<typeof cookies>>);
 
-        const headers = await ShipshoutApiUtils.buildRequestHeaders({ 'content-type': 'application/json' });
+        const headers = await ShipshoutApi.buildRequestHeaders({ 'content-type': 'application/json' });
 
         expect(headers['content-type']).toBe('application/json');
     });

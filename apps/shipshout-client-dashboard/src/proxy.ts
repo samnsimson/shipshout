@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { hasAuthCookies } from './lib/auth/cookies';
+import { AuthUtils } from './lib/auth/auth.utils';
 
 export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const isProtected = pathname.startsWith('/dashboard');
 
-    if (isProtected && !hasAuthCookies(request)) return NextResponse.redirect(new URL('/login', request.url));
+    if (isProtected && !AuthUtils.hasAuthCookies(request)) return NextResponse.redirect(new URL('/login', request.url));
     return NextResponse.next();
 }
 

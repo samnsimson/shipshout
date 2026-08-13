@@ -4,7 +4,7 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { loginAction } from '@/lib/auth/actions';
+import { AuthActions } from '@/lib/auth/auth.actions';
 import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 import { SocialButtons } from './social-buttons';
@@ -22,7 +22,7 @@ export function LoginForm() {
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
             setError(null);
-            const result = await loginAction(FormUtils.toFormData(values));
+            const result = await AuthActions.login(FormUtils.toFormData(values));
             if (result && !result.ok) setError(result.error);
         });
     });

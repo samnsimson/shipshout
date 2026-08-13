@@ -4,8 +4,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { RepositoryDetailClient } from '@/components/repositories/repository-detail-client';
-import { fetchRepositoryChannels } from '@/lib/channels/api';
-import { fetchRepositoryDetail, fetchRepositoryEvents } from '@/lib/triggers/api';
+import { ChannelsApi } from '@/lib/channels/channels.api';
+import { TriggersApi } from '@/lib/triggers/triggers.api';
 
 export const metadata: Metadata = {
     title: 'Repository triggers',
@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 export default async function RepositoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     const [detailRes, eventsRes, channelsRes] = await Promise.all([
-        fetchRepositoryDetail(id),
-        fetchRepositoryEvents(id),
-        fetchRepositoryChannels(id),
+        TriggersApi.fetchRepositoryDetail(id),
+        TriggersApi.fetchRepositoryEvents(id),
+        ChannelsApi.fetchRepositoryChannels(id),
     ]);
 
     if (detailRes.status === 404) notFound();

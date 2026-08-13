@@ -1,8 +1,8 @@
-import { getShipshoutRequestOptions } from '@/lib/shipshout-api';
+import { ShipshoutApi } from '@/lib/shipshout.api';
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
     const { id } = await context.params;
-    const { baseUrl, headers } = await getShipshoutRequestOptions();
+    const { baseUrl, headers } = await ShipshoutApi.getRequestOptions();
     const response = await fetch(`${baseUrl}/shoutouts/${id}/events`, { headers, cache: 'no-store' });
     if (!response.ok || !response.body) return new Response(null, { status: response.status });
     return new Response(response.body, {

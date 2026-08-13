@@ -2,16 +2,16 @@ import { Alert, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { AuthCard } from '@/components/auth/auth-card';
 import { ResendVerificationForm } from '@/components/auth/resend-verification-form';
-import { authFetch, readErrorMessage } from '@/lib/auth/api';
+import { AuthApi } from '@/lib/auth/auth.api';
 
 async function verifyEmailToken(token: string): Promise<{ ok: boolean; message: string }> {
     try {
-        const response = await authFetch('/auth/verify-email', {
+        const response = await AuthApi.fetch('/auth/verify-email', {
             method: 'POST',
             body: JSON.stringify({ token }),
         });
         if (response.ok) return { ok: true, message: 'Email verified. You can log in.' };
-        return { ok: false, message: await readErrorMessage(response) };
+        return { ok: false, message: await AuthApi.readErrorMessage(response) };
     } catch {
         return { ok: false, message: 'Could not verify email right now. Try again later.' };
     }

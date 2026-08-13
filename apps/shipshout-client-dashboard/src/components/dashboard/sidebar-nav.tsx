@@ -2,7 +2,7 @@
 
 import NextLink from 'next/link';
 import { Box, Flex, For, Link as ChakraLink, Show, Text } from '@chakra-ui/react';
-import { FolderGit2, Home, Megaphone, Radio, Settings, Users, type LucideIcon } from 'lucide-react';
+import { FolderGit2, Home, LucideIcon, Megaphone, Radio, Settings, Users } from 'lucide-react';
 
 const NAV: ReadonlyArray<{ href: string; label: string; icon: LucideIcon }> = [
     { href: '/dashboard', label: 'Home', icon: Home },

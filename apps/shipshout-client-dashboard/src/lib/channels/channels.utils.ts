@@ -1,5 +1,5 @@
-import { AtSign, Bell, Briefcase, Mail, type LucideIcon } from 'lucide-react';
-import type { PatchRepositoryChannelDto, RepositoryChannelDto, RepositoryChannelTone } from './api';
+import { AtSign, Bell, Briefcase, LucideIcon, Mail } from 'lucide-react';
+import type { PatchRepositoryChannelDto, RepositoryChannelDto, RepositoryChannelTone } from './channels.api';
 
 export type ChannelFormState = {
     enabled: boolean;

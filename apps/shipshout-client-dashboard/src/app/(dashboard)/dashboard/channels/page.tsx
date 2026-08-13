@@ -3,9 +3,9 @@ import { Radio } from 'lucide-react';
 import type { Metadata } from 'next';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { ChannelsClient } from '@/components/channels/channels-client';
-import { fetchChannelCatalog, fetchRepositoryChannels } from '@/lib/channels/api';
-import { getRepositoriesApi } from '@/lib/repositories/api';
-import { ShipshoutApiUtils } from '@/lib/shipshout-api';
+import { ChannelsApi } from '@/lib/channels/channels.api';
+import { RepositoriesApi } from '@/lib/repositories/repositories.api';
+import { ShipshoutApi } from '@/lib/shipshout.api';
 
 export const metadata: Metadata = {
     title: 'Channels',
@@ -15,11 +15,11 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
     const params = await searchParams;
     const initialRepoId = typeof params.repo === 'string' ? params.repo : undefined;
 
-    const { api, requestOptions } = await getRepositoriesApi();
-    const [catalogRes, linkedRes] = await Promise.all([fetchChannelCatalog(), api.listLinkedRepos(requestOptions)]);
+    const { api, requestOptions } = await RepositoriesApi.getClient();
+    const [catalogRes, linkedRes] = await Promise.all([ChannelsApi.fetchCatalog(), api.listLinkedRepos(requestOptions)]);
 
     if (!catalogRes.data) {
-        const detail = ShipshoutApiUtils.errorMessage(catalogRes.error, 'Failed to load channel catalog');
+        const detail = ShipshoutApi.errorMessage(catalogRes.error, 'Failed to load channel catalog');
         throw new Error(`${detail} (${catalogRes.status})`);
     }
 
@@ -28,7 +28,7 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
 
     const channelsByRepoEntries = await Promise.all(
         linkedRepos.map(async (repo) => {
-            const result = await fetchRepositoryChannels(repo.id);
+            const result = await ChannelsApi.fetchRepositoryChannels(repo.id);
             return [repo.id, result.data?.channels ?? []] as const;
         }),
     );

@@ -2,8 +2,8 @@ import { Box, Flex, Show, Stack, Text } from '@chakra-ui/react';
 import { Settings, User } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { BillingSection } from '@/components/settings/billing-section';
-import { getSessionAction } from '@/lib/auth/actions';
-import { getBillingApi } from '@/lib/billing/api';
+import { AuthActions } from '@/lib/auth/auth.actions';
+import { BillingApi } from '@/lib/billing/billing.api';
 import { BillingUtils } from '@/lib/billing/billing.utils';
 
 export default async function SettingsPage({
@@ -11,12 +11,12 @@ export default async function SettingsPage({
 }: {
     searchParams: Promise<{ billing?: string }>;
 }) {
-    const session = await getSessionAction();
+    const session = await AuthActions.getSession();
     if (!session) return null;
 
     const { user } = session;
     const params = await searchParams;
-    const { api, requestOptions } = await getBillingApi();
+    const { api, requestOptions } = await BillingApi.getClient();
 
     const [plansRes, meRes, paymentsRes] = await Promise.all([
         api.listSubscriptionPlans(requestOptions),

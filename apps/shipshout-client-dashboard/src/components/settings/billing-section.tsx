@@ -4,7 +4,7 @@ import { Box, Button, Flex, For, Link as ChakraLink, Show, Stack, Text } from '@
 import { CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import { createBillingPortalAction, upgradeSubscriptionAction } from '@/lib/billing/actions';
+import { BillingActions } from '@/lib/billing/billing.actions';
 import { BillingUtils } from '@/lib/billing/billing.utils';
 import { Toaster } from '@/lib/feedback/toaster.utils';
 
@@ -119,7 +119,7 @@ export function BillingSection(props: {
                                 disabled={pending}
                                 onClick={() => {
                                     startTransition(async () => {
-                                        redirectTo(await upgradeSubscriptionAction(plan.name as 'starter' | 'pro'));
+                                        redirectTo(await BillingActions.upgradeSubscription(plan.name as 'starter' | 'pro'));
                                         router.refresh();
                                     });
                                 }}
@@ -136,7 +136,7 @@ export function BillingSection(props: {
                         disabled={pending}
                         onClick={() => {
                             startTransition(async () => {
-                                redirectTo(await createBillingPortalAction());
+                                redirectTo(await BillingActions.createBillingPortal());
                             });
                         }}
                     >

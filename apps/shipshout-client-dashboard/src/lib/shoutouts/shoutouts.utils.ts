@@ -7,7 +7,7 @@ export type ShoutoutStatus =
     | 'failed'
     | 'generation_failed';
 
-export class ShoutoutStatusUtils {
+export class ShoutoutsUtils {
     static isInFlight(status: string): boolean {
         return status === 'generating' || status === 'publishing';
     }

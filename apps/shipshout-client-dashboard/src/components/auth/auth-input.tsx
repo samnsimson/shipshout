@@ -1,4 +1,4 @@
-import { Input, type InputProps } from '@chakra-ui/react';
+import { Input, InputProps } from '@chakra-ui/react';
 import { forwardRef } from 'react';
 
 /** DESIGN.md text-input: surface fill, body-sm, rounded.xs, padded. */

@@ -2,10 +2,10 @@ import { Stack } from '@chakra-ui/react';
 import { Megaphone } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { ShoutoutsClient } from '@/components/shoutouts/shoutouts-client';
-import { fetchShoutouts } from '@/lib/shoutouts/api';
+import { ShoutoutsApi } from '@/lib/shoutouts/shoutouts.api';
 
 export default async function ShoutoutsPage() {
-    const result = await fetchShoutouts();
+    const result = await ShoutoutsApi.fetchAll();
     const shoutouts = result.data?.shoutouts ?? [];
 
     return (

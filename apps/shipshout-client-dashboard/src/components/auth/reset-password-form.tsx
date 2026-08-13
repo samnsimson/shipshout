@@ -4,7 +4,7 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { resetPasswordAction } from '@/lib/auth/actions';
+import { AuthActions } from '@/lib/auth/auth.actions';
 import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 
@@ -25,7 +25,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
             setError(null);
-            const result = await resetPasswordAction(FormUtils.toFormData({ ...values, token }));
+            const result = await AuthActions.resetPassword(FormUtils.toFormData({ ...values, token }));
             if (!result.ok) setError(result.error);
             else setDone(true);
         });

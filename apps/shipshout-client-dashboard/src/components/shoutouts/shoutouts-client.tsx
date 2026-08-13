@@ -4,8 +4,8 @@ import { Badge, Box, For, Link as ChakraLink, Table, Text } from '@chakra-ui/rea
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import type { ShoutoutDto } from '@/lib/shoutouts/api';
-import { ShoutoutStatusUtils } from '@/lib/shoutouts/shoutout-status.utils';
+import type { ShoutoutDto } from '@/lib/shoutouts/shoutouts.api';
+import { ShoutoutsUtils } from '@/lib/shoutouts/shoutouts.utils';
 
 function triggerTypeLabel(type: string) {
     if (type === 'release') return 'Release';
@@ -16,7 +16,7 @@ function triggerTypeLabel(type: string) {
 
 export function ShoutoutsClient(props: { shoutouts: ShoutoutDto[] }) {
     const router = useRouter();
-    const hasInFlight = props.shoutouts.some((shoutout) => ShoutoutStatusUtils.isInFlight(shoutout.status));
+    const hasInFlight = props.shoutouts.some((shoutout) => ShoutoutsUtils.isInFlight(shoutout.status));
 
     useEffect(() => {
         if (!hasInFlight) return;
@@ -50,7 +50,7 @@ export function ShoutoutsClient(props: { shoutouts: ShoutoutDto[] }) {
                     <Table.Body>
                         <For each={props.shoutouts}>
                             {(shoutout) => {
-                                const status = ShoutoutStatusUtils.badge(shoutout.status);
+                                const status = ShoutoutsUtils.badge(shoutout.status);
                                 return (
                                     <Table.Row key={shoutout.id}>
                                     <Table.Cell fontWeight="600">
