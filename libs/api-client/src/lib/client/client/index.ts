@@ -20,8 +20,6 @@ export type {
   Options,
   RequestOptions,
   RequestResult,
-  ResolvedRequestOptions,
-  ResponseStyle,
   TDataShape,
 } from './types.gen.js';
-export { createConfig, mergeHeaders } from './utils.gen.js';
+export { createConfig } from './utils.gen.js';

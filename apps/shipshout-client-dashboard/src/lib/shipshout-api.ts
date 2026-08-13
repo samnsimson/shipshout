@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { ApiClient } from '@shipshout/api-client';
+import { ApiClient, HeyApiConfigUtils } from '@shipshout/api-client';
 
 export type ShipshoutRequestOptions = {
     baseUrl: string;
@@ -8,33 +8,64 @@ export type ShipshoutRequestOptions = {
 
 export class ShipshoutApiUtils {
     static normalizeBaseUrl(baseUrl: string): string {
-        return baseUrl.replace(/\/$/, '');
+        return HeyApiConfigUtils.normalizeBaseUrl(baseUrl);
     }
 
     static clientAppUrl(): string {
         return (process.env.CLIENT_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
     }
 
-    static async requestHeaders(): Promise<Record<string, string>> {
+    static apiBaseUrl(): string {
+        const baseUrl = process.env.SHIPSHOUT_API_URL;
+        if (!baseUrl) throw new Error('SHIPSHOUT_API_URL is not set');
+        return HeyApiConfigUtils.normalizeBaseUrl(baseUrl);
+    }
+
+    static async buildRequestHeaders(initHeaders?: HeadersInit): Promise<Record<string, string>> {
         const cookieStore = await cookies();
         const cookieHeader = cookieStore
             .getAll()
             .map((c) => `${c.name}=${c.value}`)
             .join('; ');
         const clientAppUrl = this.clientAppUrl();
-        return {
-            Cookie: cookieHeader,
+        const headers: Record<string, string> = {
             origin: clientAppUrl,
             referer: `${clientAppUrl}/`,
         };
+        if (cookieHeader) headers.Cookie = cookieHeader;
+
+        if (initHeaders) {
+            const extra = new Headers(initHeaders);
+            extra.forEach((value, key) => {
+                headers[key] = value;
+            });
+        }
+
+        return headers;
+    }
+
+    static async fetch(path: string, init?: RequestInit): Promise<Response> {
+        const headers = await this.buildRequestHeaders(init?.headers);
+        return fetch(`${this.apiBaseUrl()}${path}`, {
+            ...init,
+            headers,
+            cache: 'no-store',
+        });
+    }
+
+    static async fetchJson<T>(path: string, init?: RequestInit): Promise<{ data?: T; error?: unknown; status: number }> {
+        const response = await this.fetch(path, init);
+        if (response.status === 204) return { status: response.status };
+
+        const body = await response.json().catch(() => null);
+        if (!response.ok) return { error: body, status: response.status };
+        return { data: body as T, status: response.status };
     }
 
     static async getRequestOptions(): Promise<ShipshoutRequestOptions> {
-        const baseUrl = process.env.SHIPSHOUT_API_URL;
-        if (!baseUrl) throw new Error('SHIPSHOUT_API_URL is not set');
         return {
-            baseUrl: this.normalizeBaseUrl(baseUrl),
-            headers: await this.requestHeaders(),
+            baseUrl: this.apiBaseUrl(),
+            headers: await this.buildRequestHeaders(),
         };
     }
 
@@ -68,19 +99,5 @@ export async function getShipshoutRequestOptions(): Promise<ShipshoutRequestOpti
 }
 
 export async function shipshoutFetch<T>(path: string, init?: RequestInit): Promise<{ data?: T; error?: unknown; status: number }> {
-    const { baseUrl, headers } = await getShipshoutRequestOptions();
-    const response = await fetch(`${baseUrl}${path}`, {
-        ...init,
-        headers: {
-            ...headers,
-            ...(init?.headers ?? {}),
-        },
-        cache: 'no-store',
-    });
-
-    if (response.status === 204) return { status: response.status };
-
-    const body = await response.json().catch(() => null);
-    if (!response.ok) return { error: body, status: response.status };
-    return { data: body as T, status: response.status };
+    return ShipshoutApiUtils.fetchJson<T>(path, init);
 }
