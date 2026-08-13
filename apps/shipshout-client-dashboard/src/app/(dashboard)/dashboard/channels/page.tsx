@@ -5,7 +5,7 @@ import { PageHeader } from '@/components/dashboard/page-header';
 import { ChannelsClient } from '@/components/channels/channels-client';
 import { ChannelsApi } from '@/lib/channels/channels.api';
 import { RepositoriesApi } from '@/lib/repositories/repositories.api';
-import { ShipshoutApi } from '@/lib/shipshout.api';
+import { ApiErrorUtils } from '@/lib/api/api-error.utils';
 
 export const metadata: Metadata = {
     title: 'Channels',
@@ -15,11 +15,10 @@ export default async function ChannelsPage({ searchParams }: { searchParams: Pro
     const params = await searchParams;
     const initialRepoId = typeof params.repo === 'string' ? params.repo : undefined;
 
-    const { api, requestOptions } = await RepositoriesApi.getClient();
-    const [catalogRes, linkedRes] = await Promise.all([ChannelsApi.fetchCatalog(), api.listLinkedRepos(requestOptions)]);
+    const [catalogRes, linkedRes] = await Promise.all([ChannelsApi.fetchCatalog(), RepositoriesApi.listLinkedRepos()]);
 
     if (!catalogRes.data) {
-        const detail = ShipshoutApi.errorMessage(catalogRes.error, 'Failed to load channel catalog');
+        const detail = ApiErrorUtils.message(catalogRes.error, 'Failed to load channel catalog');
         throw new Error(`${detail} (${catalogRes.response?.status ?? 'unknown'})`);
     }
 

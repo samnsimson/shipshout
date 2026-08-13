@@ -2,12 +2,10 @@
 
 import { BillingApi } from './billing.api';
 
-export class BillingActions {
-    static upgradeSubscription(plan: 'starter' | 'pro') {
-        return BillingApi.upgradeSubscription(plan);
-    }
+export async function upgradeSubscription(plan: 'starter' | 'pro') {
+    return BillingApi.upgradeSubscription(plan);
+}
 
-    static createBillingPortal() {
-        return BillingApi.createBillingPortal();
-    }
+export async function createBillingPortal() {
+    return BillingApi.createBillingPortal();
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, Copy, ExternalLink, Webhook } from 'lucide-react';
 import { useState, useTransition } from 'react';
 import { Toaster } from '@/lib/feedback/toaster.utils';
-import { TriggersActions } from '@/lib/triggers/triggers.actions';
+import { updateRepositoryTriggers } from '@/lib/triggers/triggers.actions';
 import type { RepositoryChannelDto } from '@/lib/channels/channels.api';
 import type { LinkedRepositoryDetailDto, TriggerEventDto } from '@/lib/triggers/triggers.api';
 import { RepositoryChannelsSummary } from './repository-channels-summary';
@@ -46,7 +46,7 @@ export function RepositoryDetailClient(props: { repository: LinkedRepositoryDeta
 
     const save = () => {
         startTransition(async () => {
-            const result = await TriggersActions.updateRepositoryTriggers(props.repository.id, triggers);
+            const result = await updateRepositoryTriggers(props.repository.id, triggers);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not save triggers', description: result.error });
                 return;

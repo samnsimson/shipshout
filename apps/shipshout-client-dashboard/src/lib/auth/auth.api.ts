@@ -1,57 +1,54 @@
-import { ShipshoutApi } from '@/lib/shipshout.api';
+import { ApiErrorUtils } from '@/lib/api/api-error.utils';
+import { ApiClientFactory } from '@/lib/api/api-client.factory';
 import { AuthUtils } from './auth.utils';
 
 export class AuthApi {
-    static getClient() {
-        return ShipshoutApi.getApiClient();
-    }
-
     static apiBaseUrl(): string {
-        return ShipshoutApi.apiBaseUrl();
+        return ApiClientFactory.apiBaseUrl();
     }
 
     static login(body: { login: string; password: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerLogin({ ...requestOptions, body, redirect: 'manual' }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerLogin({ body, redirect: 'manual' }));
     }
 
     static register(body: { name: string; username: string; email: string; password: string; displayUsername?: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerRegister({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerRegister({ body }));
     }
 
     static forgotPassword(body: { email: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerForgotPassword({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerForgotPassword({ body }));
     }
 
     static resendVerification(body: { email: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerResendVerification({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerResendVerification({ body }));
     }
 
     static resetPassword(body: { token: string; newPassword: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerResetPassword({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerResetPassword({ body }));
     }
 
     static checkUsername(body: { username: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerIsUsernameAvailable({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerIsUsernameAvailable({ body }));
     }
 
     static session() {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerSession(requestOptions));
+        return ApiClientFactory.fetchProtected((api) => api.authControllerSession());
     }
 
     static refresh() {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerRefresh(requestOptions));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerRefresh());
     }
 
     static logout() {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerLogout(requestOptions));
+        return ApiClientFactory.fetchProtected((api) => api.authControllerLogout());
     }
 
     static verifyEmail(body: { token: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerVerifyEmail({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerVerifyEmail({ body }));
     }
 
     static verifyOneTimeToken(body: { token: string }) {
-        return AuthApi.withClient((api, requestOptions) => api.authControllerVerifyOneTimeToken({ ...requestOptions, body }));
+        return ApiClientFactory.fetchPublic((api) => api.authControllerVerifyOneTimeToken({ body }));
     }
 
     static applySetCookies(response: Response): Promise<void> {
@@ -59,11 +56,6 @@ export class AuthApi {
     }
 
     static readErrorMessage(result: { error?: unknown; response?: Response }): string {
-        return ShipshoutApi.errorMessage(result.error, `Request failed (${result.response?.status ?? 'unknown'})`);
-    }
-
-    private static async withClient<T>(call: (api: Awaited<ReturnType<typeof ShipshoutApi.getApiClient>>['api'], requestOptions: Awaited<ReturnType<typeof ShipshoutApi.getApiClientOptions>>) => T) {
-        const { api, requestOptions } = await AuthApi.getClient();
-        return call(api, requestOptions);
+        return ApiErrorUtils.message(result.error, `Request failed (${result.response?.status ?? 'unknown'})`);
     }
 }

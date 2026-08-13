@@ -1,22 +1,27 @@
-import { ShipshoutApi } from '@/lib/shipshout.api';
+import { ApiClientFactory } from '@/lib/api/api-client.factory';
 
 export class RepositoriesApi {
-    static getClient() {
-        return ShipshoutApi.getApiClient();
+    static async getGithubConnection() {
+        return ApiClientFactory.fetchProtected((api) => api.getGithubConnection());
+    }
+
+    static async listAvailableRepos() {
+        return ApiClientFactory.fetchProtected((api) => api.listAvailableRepos());
+    }
+
+    static async listLinkedRepos() {
+        return ApiClientFactory.fetchProtected((api) => api.listLinkedRepos());
     }
 
     static async disconnectGithub() {
-        const { api, requestOptions } = await RepositoriesApi.getClient();
-        return api.disconnectGithub(requestOptions);
+        return ApiClientFactory.fetchProtected((api) => api.disconnectGithub());
     }
 
     static async linkRepositories(githubIds: number[]) {
-        const { api, requestOptions } = await RepositoriesApi.getClient();
-        return api.linkRepositories({ ...requestOptions, body: { githubIds } });
+        return ApiClientFactory.fetchProtected((api) => api.linkRepositories({ body: { githubIds } }));
     }
 
     static async unlinkRepository(id: string) {
-        const { api, requestOptions } = await RepositoriesApi.getClient();
-        return api.unlinkRepository({ ...requestOptions, path: { id } });
+        return ApiClientFactory.fetchProtected((api) => api.unlinkRepository({ path: { id } }));
     }
 }

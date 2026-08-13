@@ -6,6 +6,7 @@ import { authOptionsSchema } from './contracts/schema/auth.schema';
 import { AuthOptions } from './contracts/types/auth.types';
 import { createAuth } from './auth.config';
 import { AuthController } from './controllers/auth.controller';
+import { AuthSubscriptionController } from './controllers/auth-subscription.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { AuthService } from './services/auth.service';
 import { AUTH_OPTIONS } from './constants/auth.constants';
@@ -35,7 +36,7 @@ export class AuthModule {
         return {
             global: true,
             module: AuthModule,
-            controllers: [AuthController],
+            controllers: [AuthController, AuthSubscriptionController],
             providers: [AuthOptionsProvider, AuthService, JwtAuthGuard],
             exports: [AuthService, AUTH_OPTIONS, JwtAuthGuard],
             imports: [

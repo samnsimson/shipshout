@@ -101,6 +101,33 @@ export type VerifyOneTimeTokenDto = {
     token: string;
 };
 
+export type UpgradeSubscriptionDto = {
+    /**
+     * Billable plan name
+     */
+    plan: string;
+    successUrl: string;
+    cancelUrl: string;
+    /**
+     * Return checkout URL in JSON instead of redirecting
+     */
+    disableRedirect: boolean;
+    customerType?: 'user' | 'organization';
+};
+
+export type StripeRedirectUrlResponseDto = {
+    url: string;
+};
+
+export type CreateBillingPortalDto = {
+    returnUrl: string;
+    /**
+     * Return portal URL in JSON instead of redirecting
+     */
+    disableRedirect: boolean;
+    customerType?: 'user' | 'organization';
+};
+
 export type GithubConnectionResponseDto = {
     connected: boolean;
     githubUsername?: string;
@@ -663,6 +690,60 @@ export type AuthControllerGithubData = {
     query?: never;
     url: '/auth/github';
 };
+
+export type UpgradeSubscriptionData = {
+    body: UpgradeSubscriptionDto;
+    path?: never;
+    query?: never;
+    url: '/auth-service/subscription/upgrade';
+};
+
+export type UpgradeSubscriptionErrors = {
+    /**
+     * Validation or Stripe error
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type UpgradeSubscriptionResponses = {
+    /**
+     * Upgrade Subscription
+     */
+    200: StripeRedirectUrlResponseDto;
+};
+
+export type UpgradeSubscriptionResponse = UpgradeSubscriptionResponses[keyof UpgradeSubscriptionResponses];
+
+export type CreateBillingPortalData = {
+    body: CreateBillingPortalDto;
+    path?: never;
+    query?: never;
+    url: '/auth-service/subscription/billing-portal';
+};
+
+export type CreateBillingPortalErrors = {
+    /**
+     * Validation or Stripe error
+     */
+    400: unknown;
+    /**
+     * Unauthorized
+     */
+    401: unknown;
+};
+
+export type CreateBillingPortalResponses = {
+    /**
+     * Create Billing Portal
+     */
+    200: StripeRedirectUrlResponseDto;
+};
+
+export type CreateBillingPortalResponse = CreateBillingPortalResponses[keyof CreateBillingPortalResponses];
 
 export type DisconnectGithubData = {
     body?: never;

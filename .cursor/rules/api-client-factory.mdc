@@ -1,0 +1,52 @@
+---
+description: Dashboard server actions and lib API modules must delegate to generated ApiClient
+globs: apps/shipshout-client-dashboard/src/lib/**/*.ts
+alwaysApply: false
+---
+
+# Dashboard API client usage
+
+All server-side API calls in the client dashboard must go through `@shipshout/api-client` `ApiClient` methods — not hand-built `fetch` URLs.
+
+## Layering
+
+| Layer | File pattern | Role |
+|---|---|---|
+| Transport | `api/api-client.factory.ts` (`ApiClientFactory`) | Cookie auth interceptor; `fetchProtected` (401 retry) / `fetchPublic` (one-shot) |
+| Domain API | `*.api.ts` (`AuthApi`, `ShoutoutsApi`, …) | Thin wrappers around `fetchProtected` / `fetchPublic` |
+| Server actions | `*.actions.ts` | Form validation, redirects, `revalidatePath`; delegate to matching `*.api.ts` |
+| Errors | `api/api-error.utils.ts` (`ApiErrorUtils`) | Extract Nest-style error messages from hey-api results |
+
+## Do
+
+```typescript
+// authenticated
+return ApiClientFactory.fetchProtected((api) => api.publishShoutout({ path: { id: shoutoutId } }));
+
+// public / auth endpoints (no 401 retry)
+return ApiClientFactory.fetchPublic((api) => api.authControllerLogin({ body, redirect: 'manual' }));
+```
+
+## Don't
+
+- Call raw `fetch('/…')` when `ApiClient` exposes the endpoint
+- Spread `requestOptions` manually — the interceptor injects auth headers
+- Put request/response mapping in `*.actions.ts` — keep actions thin
+- Duplicate cookie/header building or 401 retry outside `ApiClientFactory`
+- Use `fetchProtected` for login/register/refresh — 401 is a real failure; refresh must not recurse
+- Call the factory from pages/routes — go through domain `*.api.ts` methods
+
+## Exceptions
+
+- **Auth / public endpoints** — `ApiClientFactory.fetchPublic` via `AuthApi`
+- **Set-Cookie handling** — `AuthUtils.applyToCookieStore` / `applyToNextResponse`
+- **Login redirect** — `redirect: 'manual'` on `authControllerLogin` only
+- **SSE streams** — domain API + `fetchProtected` with `parseAs: 'stream'` (retry applies to stream open, not mid-stream)
+
+## Regenerate client
+
+```bash
+bun run openapi:generate
+```
+
+Requires the API serving OpenAPI at `http://localhost:8000/docs/openapi.json`.

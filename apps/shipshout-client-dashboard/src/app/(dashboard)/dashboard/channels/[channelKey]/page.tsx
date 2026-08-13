@@ -5,7 +5,7 @@ import { notFound, redirect } from 'next/navigation';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { ChannelConfigClient } from '@/components/channels/channel-config-client';
 import { ChannelsApi } from '@/lib/channels/channels.api';
-import { AuthActions } from '@/lib/auth/auth.actions';
+import { getSession } from '@/lib/auth/auth.actions';
 import { RepositoriesApi } from '@/lib/repositories/repositories.api';
 
 export async function generateMetadata({ params }: { params: Promise<{ channelKey: string }> }): Promise<Metadata> {
@@ -27,11 +27,10 @@ export default async function ChannelConfigPage({
     const repoId = typeof query.repo === 'string' ? query.repo : undefined;
     if (!repoId) redirect('/dashboard/channels');
 
-    const { api, requestOptions } = await RepositoriesApi.getClient();
     const [catalogRes, channelsRes, linkedRes] = await Promise.all([
         ChannelsApi.fetchCatalog(),
         ChannelsApi.fetchRepositoryChannels(repoId),
-        api.listLinkedRepos(requestOptions),
+        RepositoriesApi.listLinkedRepos(),
     ]);
 
     if (channelsRes.response?.status === 404) notFound();
@@ -48,7 +47,7 @@ export default async function ChannelConfigPage({
 
     if (!channel.availableOnPlan) redirect(`/dashboard/channels?repo=${repoId}`);
 
-    const session = await AuthActions.getSession();
+    const session = await getSession();
     if (!session) return null;
 
     return (

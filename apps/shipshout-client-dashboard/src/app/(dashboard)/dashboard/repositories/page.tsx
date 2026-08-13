@@ -23,12 +23,10 @@ export default async function RepositoriesPage({ searchParams }: { searchParams:
     const githubQuery = typeof params.github === 'string' ? params.github : undefined;
     const githubReason = typeof params.reason === 'string' ? params.reason : undefined;
 
-    const { api, requestOptions } = await RepositoriesApi.getClient();
-
     const [connectionRes, availableRes, linkedRes] = await Promise.all([
-        api.getGithubConnection(requestOptions),
-        api.listAvailableRepos(requestOptions),
-        api.listLinkedRepos(requestOptions),
+        RepositoriesApi.getGithubConnection(),
+        RepositoriesApi.listAvailableRepos(),
+        RepositoriesApi.listLinkedRepos(),
     ]);
 
     const connection = (connectionRes as any)?.data ?? { connected: false };

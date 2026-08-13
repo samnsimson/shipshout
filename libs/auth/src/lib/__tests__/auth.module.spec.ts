@@ -36,6 +36,7 @@ jest.mock('@thallesp/nestjs-better-auth', () => ({
 import { AuthModule } from '../auth.module';
 import { AUTH_OPTIONS } from '../constants/auth.constants';
 import { AuthController } from '../controllers/auth.controller';
+import { AuthSubscriptionController } from '../controllers/auth-subscription.controller';
 
 describe('AuthModule', () => {
     it('forRootAsync returns a global DynamicModule', () => {
@@ -50,7 +51,7 @@ describe('AuthModule', () => {
         expect(dynamicModule.global).toBe(true);
         expect(dynamicModule.module).toBe(AuthModule);
         expect(dynamicModule.imports?.length).toBeGreaterThan(0);
-        expect(dynamicModule.controllers).toEqual([AuthController]);
+        expect(dynamicModule.controllers).toEqual([AuthController, AuthSubscriptionController]);
         expect(dynamicModule.providers).toEqual(
             expect.arrayContaining([
                 expect.objectContaining({

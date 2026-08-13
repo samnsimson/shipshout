@@ -1,5 +1,7 @@
 # Centralized cookie auth for dashboard API calls
 
+> **Superseded in part by** [`2026-08-13-dashboard-api-client-factory-design.md`](./2026-08-13-dashboard-api-client-factory-design.md) — `ShipshoutApi` / `ShipshoutApiUtils` replaced by `DashboardApiClient` factory with request interceptor.
+
 ## Summary
 
 Consolidate authenticated API transport in the client dashboard so all server-side requests share one cookie-based auth path. Keep `libs/api-client/src/hey-api.config.ts` for static hey-api defaults only (`baseUrl`, `cache`, `responseStyle`, `throwOnError`). Do not use hey-api runtime config or `auth` for JWT — the API already accepts JWT from httpOnly cookies, and request-scoped auth belongs in the Next.js dashboard layer.

@@ -1,10 +1,10 @@
 import { Stack } from '@chakra-ui/react';
 import { Home } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/page-header';
-import { AuthActions } from '@/lib/auth/auth.actions';
+import { getSession } from '@/lib/auth/auth.actions';
 
 export default async function DashboardPage() {
-    const session = await AuthActions.getSession();
+    const session = await getSession();
     if (!session) return null;
 
     const { user } = session;

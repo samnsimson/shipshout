@@ -5,6 +5,7 @@ export * from './lib/contracts/types/auth.types';
 export * from './lib/contracts/types/auth-api.types';
 export * from './lib/contracts/types/jwt-user.types';
 export * from './lib/controllers/auth.controller';
+export * from './lib/controllers/auth-subscription.controller';
 export * from './lib/services/auth.service';
 export * from './lib/guards/jwt-auth.guard';
 export * from './lib/decorators/jwt-user.decorator';

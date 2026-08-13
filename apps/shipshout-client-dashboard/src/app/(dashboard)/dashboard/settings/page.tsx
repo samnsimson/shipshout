@@ -2,7 +2,7 @@ import { Box, Flex, Show, Stack, Text } from '@chakra-ui/react';
 import { Settings, User } from 'lucide-react';
 import { PageHeader } from '@/components/dashboard/page-header';
 import { BillingSection } from '@/components/settings/billing-section';
-import { AuthActions } from '@/lib/auth/auth.actions';
+import { getSession } from '@/lib/auth/auth.actions';
 import { BillingApi } from '@/lib/billing/billing.api';
 import { BillingUtils } from '@/lib/billing/billing.utils';
 
@@ -11,17 +11,15 @@ export default async function SettingsPage({
 }: {
     searchParams: Promise<{ billing?: string }>;
 }) {
-    const session = await AuthActions.getSession();
+    const session = await getSession();
     if (!session) return null;
 
     const { user } = session;
     const params = await searchParams;
-    const { api, requestOptions } = await BillingApi.getClient();
-
     const [plansRes, meRes, paymentsRes] = await Promise.all([
-        api.listSubscriptionPlans(requestOptions),
-        api.getMySubscription(requestOptions),
-        api.listMyPayments(requestOptions),
+        BillingApi.listSubscriptionPlans(),
+        BillingApi.getMySubscription(),
+        BillingApi.listMyPayments(),
     ]);
 
     const plans = plansRes.data?.plans ?? [];

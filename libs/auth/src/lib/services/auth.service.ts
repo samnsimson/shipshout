@@ -27,6 +27,9 @@ import { UsernameAvailableDto } from '../dto/username-available.dto';
 import { UsernameAvailableResponseDto } from '../dto/username-available-response.dto';
 import { VerifyEmailDto } from '../dto/verify-email.dto';
 import { VerifyOneTimeTokenDto } from '../dto/verify-one-time-token.dto';
+import { CreateBillingPortalDto } from '../dto/create-billing-portal.dto';
+import { StripeRedirectUrlResponseDto } from '../dto/stripe-redirect-url-response.dto';
+import { UpgradeSubscriptionDto } from '../dto/upgrade-subscription.dto';
 import { AuthJwtUtils } from '../utils/auth-jwt.utils';
 import { AuthUtils } from '../utils/auth-http';
 
@@ -199,6 +202,40 @@ export class AuthService {
         }
     }
 
+    async upgradeSubscription(body: UpgradeSubscriptionDto, requestHeaders: IncomingHttpHeaders): Promise<StripeRedirectUrlResponseDto> {
+        try {
+            const result = await this.betterAuth.api.upgradeSubscription({
+                body: {
+                    plan: body.plan,
+                    successUrl: body.successUrl,
+                    cancelUrl: body.cancelUrl,
+                    disableRedirect: body.disableRedirect,
+                    customerType: body.customerType ?? 'user',
+                },
+                headers: fromNodeHeaders(requestHeaders),
+            });
+            return AuthService.toStripeRedirectUrl(result);
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
+    async createBillingPortal(body: CreateBillingPortalDto, requestHeaders: IncomingHttpHeaders): Promise<StripeRedirectUrlResponseDto> {
+        try {
+            const result = await this.betterAuth.api.createBillingPortal({
+                body: {
+                    returnUrl: body.returnUrl,
+                    disableRedirect: body.disableRedirect,
+                    customerType: body.customerType ?? 'user',
+                },
+                headers: fromNodeHeaders(requestHeaders),
+            });
+            return AuthService.toStripeRedirectUrl(result);
+        } catch (error) {
+            AuthUtils.mapAuthError(error);
+        }
+    }
+
     cookieOpts(): Pick<AuthOptions, 'cookieDomain' | 'baseUrl'> {
         return { baseUrl: this.authOptions.baseUrl, cookieDomain: this.authOptions.cookieDomain };
     }
@@ -245,5 +282,20 @@ export class AuthService {
         const base = this.clientAppBaseUrl();
         if (email) return `${base}/verify-email?email=${encodeURIComponent(email)}`;
         return `${base}/verify-email`;
+    }
+
+    private static toStripeRedirectUrl(result: unknown): StripeRedirectUrlResponseDto {
+        const url = AuthService.readStripeRedirectUrl(result);
+        if (!url) throw new BadRequestException('Missing Stripe redirect URL');
+        return { url };
+    }
+
+    private static readStripeRedirectUrl(result: unknown): string | null {
+        if (!result || typeof result !== 'object') return null;
+        const direct = (result as { url?: unknown }).url;
+        if (typeof direct === 'string' && direct) return direct;
+        const nested = (result as { data?: { url?: unknown } }).data?.url;
+        if (typeof nested === 'string' && nested) return nested;
+        return null;
     }
 }

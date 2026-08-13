@@ -4,7 +4,7 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { AuthActions } from '@/lib/auth/auth.actions';
+import { checkUsername, register as registerAccount } from '@/lib/auth/auth.actions';
 import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 import { SocialButtons } from './social-buttons';
@@ -25,7 +25,7 @@ export function RegisterForm() {
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
             setError(null);
-            const result = await AuthActions.register(FormUtils.toFormData(values));
+            const result = await registerAccount(FormUtils.toFormData(values));
             if (result && !result.ok) setError(result.error);
         });
     });
@@ -60,7 +60,7 @@ export function RegisterForm() {
                                         setUsernameHint(null);
                                         return;
                                     }
-                                    const result = await AuthActions.checkUsername(value);
+                                    const result = await checkUsername(value);
                                     if ('available' in result) setUsernameHint(result.available ? 'Username is available' : 'Username is taken');
                                     else if (!result.ok) setUsernameHint(result.error);
                                 },

@@ -2,7 +2,7 @@
 
 import { client } from './client.gen.js';
 import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from './client/index.js';
-import type { AuthControllerForgotPasswordData, AuthControllerForgotPasswordResponses, AuthControllerGithubData, AuthControllerGoogleData, AuthControllerIsUsernameAvailableData, AuthControllerIsUsernameAvailableResponses, AuthControllerLoginData, AuthControllerLoginErrors, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerOauthBridgeData, AuthControllerRefreshData, AuthControllerRefreshErrors, AuthControllerRefreshResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerResendVerificationData, AuthControllerResendVerificationResponses, AuthControllerResetPasswordData, AuthControllerResetPasswordErrors, AuthControllerResetPasswordResponses, AuthControllerSessionData, AuthControllerSessionResponses, AuthControllerVerifyEmailData, AuthControllerVerifyEmailErrors, AuthControllerVerifyEmailResponses, AuthControllerVerifyOneTimeTokenData, AuthControllerVerifyOneTimeTokenErrors, AuthControllerVerifyOneTimeTokenResponses, ConnectGithubData, DisconnectGithubData, DisconnectGithubResponses, GetGithubConnectionData, GetGithubConnectionResponses, GetHelloData, GetHelloResponses, GetLinkedRepositoryDetailData, GetLinkedRepositoryDetailErrors, GetLinkedRepositoryDetailResponses, GetMySubscriptionData, GetMySubscriptionResponses, GetRepositoryTriggersData, GetRepositoryTriggersErrors, GetRepositoryTriggersResponses, GetShoutoutData, GetShoutoutErrors, GetShoutoutResponses, GithubCallbackData, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IngestGithubWebhookData, IngestGithubWebhookErrors, IngestGithubWebhookResponses, LinkRepositoriesData, LinkRepositoriesErrors, LinkRepositoriesResponses, ListAvailableReposData, ListAvailableReposErrors, ListAvailableReposResponses, ListChannelsData, ListChannelsResponses, ListLinkedReposData, ListLinkedReposResponses, ListMyPaymentsData, ListMyPaymentsResponses, ListRepositoryChannelsData, ListRepositoryChannelsErrors, ListRepositoryChannelsResponses, ListRepositoryTriggerEventsData, ListRepositoryTriggerEventsErrors, ListRepositoryTriggerEventsResponses, ListShoutoutsData, ListShoutoutsResponses, ListSubscriptionPlansData, ListSubscriptionPlansResponses, PublishShoutoutData, PublishShoutoutErrors, PublishShoutoutResponses, RetryShoutoutGenerationData, RetryShoutoutGenerationErrors, RetryShoutoutGenerationResponses, ShoutoutControllerStreamEventsData, ShoutoutControllerStreamEventsResponses, UnlinkRepositoryData, UnlinkRepositoryErrors, UnlinkRepositoryResponses, UpdateRepositoryChannelsData, UpdateRepositoryChannelsErrors, UpdateRepositoryChannelsResponses, UpdateRepositoryTriggersData, UpdateRepositoryTriggersErrors, UpdateRepositoryTriggersResponses, UpdateShoutoutDraftData, UpdateShoutoutDraftErrors, UpdateShoutoutDraftResponses } from './types.gen.js';
+import type { AuthControllerForgotPasswordData, AuthControllerForgotPasswordResponses, AuthControllerGithubData, AuthControllerGoogleData, AuthControllerIsUsernameAvailableData, AuthControllerIsUsernameAvailableResponses, AuthControllerLoginData, AuthControllerLoginErrors, AuthControllerLoginResponses, AuthControllerLogoutData, AuthControllerLogoutResponses, AuthControllerOauthBridgeData, AuthControllerRefreshData, AuthControllerRefreshErrors, AuthControllerRefreshResponses, AuthControllerRegisterData, AuthControllerRegisterErrors, AuthControllerRegisterResponses, AuthControllerResendVerificationData, AuthControllerResendVerificationResponses, AuthControllerResetPasswordData, AuthControllerResetPasswordErrors, AuthControllerResetPasswordResponses, AuthControllerSessionData, AuthControllerSessionResponses, AuthControllerVerifyEmailData, AuthControllerVerifyEmailErrors, AuthControllerVerifyEmailResponses, AuthControllerVerifyOneTimeTokenData, AuthControllerVerifyOneTimeTokenErrors, AuthControllerVerifyOneTimeTokenResponses, ConnectGithubData, CreateBillingPortalData, CreateBillingPortalErrors, CreateBillingPortalResponses, DisconnectGithubData, DisconnectGithubResponses, GetGithubConnectionData, GetGithubConnectionResponses, GetHelloData, GetHelloResponses, GetLinkedRepositoryDetailData, GetLinkedRepositoryDetailErrors, GetLinkedRepositoryDetailResponses, GetMySubscriptionData, GetMySubscriptionResponses, GetRepositoryTriggersData, GetRepositoryTriggersErrors, GetRepositoryTriggersResponses, GetShoutoutData, GetShoutoutErrors, GetShoutoutResponses, GithubCallbackData, HealthControllerCheckData, HealthControllerCheckErrors, HealthControllerCheckResponses, IngestGithubWebhookData, IngestGithubWebhookErrors, IngestGithubWebhookResponses, LinkRepositoriesData, LinkRepositoriesErrors, LinkRepositoriesResponses, ListAvailableReposData, ListAvailableReposErrors, ListAvailableReposResponses, ListChannelsData, ListChannelsResponses, ListLinkedReposData, ListLinkedReposResponses, ListMyPaymentsData, ListMyPaymentsResponses, ListRepositoryChannelsData, ListRepositoryChannelsErrors, ListRepositoryChannelsResponses, ListRepositoryTriggerEventsData, ListRepositoryTriggerEventsErrors, ListRepositoryTriggerEventsResponses, ListShoutoutsData, ListShoutoutsResponses, ListSubscriptionPlansData, ListSubscriptionPlansResponses, PublishShoutoutData, PublishShoutoutErrors, PublishShoutoutResponses, RetryShoutoutGenerationData, RetryShoutoutGenerationErrors, RetryShoutoutGenerationResponses, ShoutoutControllerStreamEventsData, ShoutoutControllerStreamEventsResponses, UnlinkRepositoryData, UnlinkRepositoryErrors, UnlinkRepositoryResponses, UpdateRepositoryChannelsData, UpdateRepositoryChannelsErrors, UpdateRepositoryChannelsResponses, UpdateRepositoryTriggersData, UpdateRepositoryTriggersErrors, UpdateRepositoryTriggersResponses, UpdateShoutoutDraftData, UpdateShoutoutDraftErrors, UpdateShoutoutDraftResponses, UpgradeSubscriptionData, UpgradeSubscriptionErrors, UpgradeSubscriptionResponses } from './types.gen.js';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -222,6 +222,38 @@ export class ApiClient extends HeyApiClient {
      */
     public authControllerGithub<ThrowOnError extends boolean = false>(options?: Options<AuthControllerGithubData, ThrowOnError>): RequestResult<unknown, unknown, ThrowOnError> {
         return (options?.client ?? this.client).get<unknown, unknown, ThrowOnError>({ url: '/auth/github', ...options });
+    }
+    
+    /**
+     * Upgrade Subscription
+     *
+     * Upgrade Subscription
+     */
+    public upgradeSubscription<ThrowOnError extends boolean = false>(options: Options<UpgradeSubscriptionData, ThrowOnError>): RequestResult<UpgradeSubscriptionResponses, UpgradeSubscriptionErrors, ThrowOnError> {
+        return (options.client ?? this.client).post<UpgradeSubscriptionResponses, UpgradeSubscriptionErrors, ThrowOnError>({
+            url: '/auth-service/subscription/upgrade',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Create Billing Portal
+     *
+     * Create Billing Portal
+     */
+    public createBillingPortal<ThrowOnError extends boolean = false>(options: Options<CreateBillingPortalData, ThrowOnError>): RequestResult<CreateBillingPortalResponses, CreateBillingPortalErrors, ThrowOnError> {
+        return (options.client ?? this.client).post<CreateBillingPortalResponses, CreateBillingPortalErrors, ThrowOnError>({
+            url: '/auth-service/subscription/billing-portal',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
     }
     
     /**

@@ -3,7 +3,7 @@
 import { Button } from '@chakra-ui/react';
 import { LogOut } from 'lucide-react';
 import { useTransition } from 'react';
-import { AuthActions } from '@/lib/auth/auth.actions';
+import { logout } from '@/lib/auth/auth.actions';
 
 export function LogoutButton() {
     const [pending, startTransition] = useTransition();
@@ -16,7 +16,7 @@ export function LogoutButton() {
             borderRadius="full"
             borderColor="border.hairline"
             gap="xs"
-            onClick={() => startTransition(() => AuthActions.logout())}
+            onClick={() => startTransition(() => logout())}
         >
             <LogOut size={14} strokeWidth={2} aria-hidden />
             Log out

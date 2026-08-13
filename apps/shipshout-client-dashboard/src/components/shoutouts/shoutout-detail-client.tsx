@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster } from '@/lib/feedback/toaster.utils';
-import { ShoutoutsActions } from '@/lib/shoutouts/shoutouts.actions';
+import { publish as publishShoutout, retryGeneration, updateDraft } from '@/lib/shoutouts/shoutouts.actions';
 import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '@/lib/shoutouts/shoutouts.api';
 import { ShoutoutsUtils } from '@/lib/shoutouts/shoutouts.utils';
 
@@ -132,7 +132,7 @@ function DraftEditor(props: {
         if (!draft) return;
 
         startTransition(async () => {
-            const result = await ShoutoutsActions.updateDraft(props.shoutoutId, channelKey, draft);
+            const result = await updateDraft(props.shoutoutId, channelKey, draft);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not save draft', description: result.error });
                 return;
@@ -213,7 +213,7 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
 
     const publish = () => {
         startTransition(async () => {
-            const result = await ShoutoutsActions.publish(shoutout.id);
+            const result = await publishShoutout(shoutout.id);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not publish shoutout', description: result.error });
                 return;
@@ -225,7 +225,7 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
 
     const retry = () => {
         startTransition(async () => {
-            const result = await ShoutoutsActions.retryGeneration(shoutout.id);
+            const result = await retryGeneration(shoutout.id);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not retry generation', description: result.error });
                 return;

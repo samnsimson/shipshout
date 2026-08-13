@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FolderGit2 } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
 import type { ChannelCatalogItemDto, RepositoryChannelDto } from '@/lib/channels/channels.api';
-import { ChannelsActions } from '@/lib/channels/channels.actions';
+import { updateRepositoryChannels } from '@/lib/channels/channels.actions';
 import { ChannelFormState, ChannelUtils } from '@/lib/channels/channels.utils';
 import { Toaster } from '@/lib/feedback/toaster.utils';
 import { ChannelCard } from './channel-card';
@@ -63,7 +63,7 @@ export function ChannelsClient(props: {
         }));
         setPendingKey(channelKey);
         startTransition(async () => {
-            const result = await ChannelsActions.updateRepositoryChannels(selectedRepoId, [ChannelUtils.toPatch(channelKey, nextState)]);
+            const result = await updateRepositoryChannels(selectedRepoId, [ChannelUtils.toPatch(channelKey, nextState)]);
             setPendingKey(null);
             if (!result.ok) {
                 setChannelState((prev) => ({

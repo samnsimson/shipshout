@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import type { RepositoryChannelDto, RepositoryChannelTone } from '@/lib/channels/channels.api';
-import { ChannelsActions } from '@/lib/channels/channels.actions';
+import { updateRepositoryChannels } from '@/lib/channels/channels.actions';
 import { ChannelFormState, ChannelUtils } from '@/lib/channels/channels.utils';
 import { Toaster } from '@/lib/feedback/toaster.utils';
 
@@ -25,7 +25,7 @@ export function ChannelConfigClient(props: { repositoryId: string; repositoryNam
 
     const onSubmit = handleSubmit((values) => {
         startTransition(async () => {
-            const result = await ChannelsActions.updateRepositoryChannels(props.repositoryId, [ChannelUtils.toPatch(props.channel.channelKey, values)]);
+            const result = await updateRepositoryChannels(props.repositoryId, [ChannelUtils.toPatch(props.channel.channelKey, values)]);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not save configuration', description: result.error });
                 return;
