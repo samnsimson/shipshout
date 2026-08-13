@@ -2,8 +2,8 @@
 
 import { Button, Flex, Text } from '@chakra-ui/react';
 import { Menu, ShipWheel } from 'lucide-react';
-import { LogoutButton } from '../auth/logout-button';
-import { ColorModeButton } from '../ui/color-mode';
+import { LogoutButton } from '@/components/auth/logout-button';
+import { ColorModeButton } from '@/components/ui/color-mode';
 
 export function TopBar(props: {
     user: { email: string; name: string; username?: string | null; image?: string | null };

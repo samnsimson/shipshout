@@ -1,10 +1,10 @@
 import { Box, Flex, Show, Stack, Text } from '@chakra-ui/react';
 import { Settings, User } from 'lucide-react';
-import { PageHeader } from '../../../../components/dashboard/page-header';
-import { BillingSection } from '../../../../components/settings/billing-section';
-import { getSessionAction } from '../../../../lib/auth/actions';
-import { getBillingApi } from '../../../../lib/billing/api';
-import { BillingUtils } from '../../../../lib/billing/billing.utils';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { BillingSection } from '@/components/settings/billing-section';
+import { getSessionAction } from '@/lib/auth/actions';
+import { getBillingApi } from '@/lib/billing/api';
+import { BillingUtils } from '@/lib/billing/billing.utils';
 
 export default async function SettingsPage({
     searchParams,

@@ -1,7 +1,7 @@
 'use client';
 
 import { CloseButton, Portal, Show, Stack, createToaster, Toaster as ChakraToaster, Toast } from '@chakra-ui/react';
-import { Toaster } from '../../lib/feedback/toaster.utils';
+import { Toaster } from '@/lib/feedback/toaster.utils';
 
 const toasterApi = createToaster({
     placement: 'bottom-end',

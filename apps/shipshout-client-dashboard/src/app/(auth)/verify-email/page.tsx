@@ -1,8 +1,8 @@
 import { Alert, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
-import { AuthCard } from '../../../components/auth/auth-card';
-import { ResendVerificationForm } from '../../../components/auth/resend-verification-form';
-import { authFetch, readErrorMessage } from '../../../lib/auth/api';
+import { AuthCard } from '@/components/auth/auth-card';
+import { ResendVerificationForm } from '@/components/auth/resend-verification-form';
+import { authFetch, readErrorMessage } from '@/lib/auth/api';
 
 async function verifyEmailToken(token: string): Promise<{ ok: boolean; message: string }> {
     try {

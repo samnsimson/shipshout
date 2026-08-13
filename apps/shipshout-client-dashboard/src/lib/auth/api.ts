@@ -1,4 +1,4 @@
-import { ShipshoutApiUtils } from '../shipshout-api';
+import { ShipshoutApiUtils } from '@/lib/shipshout-api';
 import { AuthCookieUtils } from './auth-cookie.utils';
 
 export function getApiBaseUrl(): string {

@@ -5,7 +5,7 @@ import {
     type ShoutoutResponseDto,
     type ShoutoutStatusResponseDto,
 } from '@shipshout/api-client';
-import { ShipshoutApiUtils } from '../shipshout-api';
+import { ShipshoutApiUtils } from '@/lib/shipshout-api';
 
 export type ShoutoutDto = ShoutoutResponseDto;
 

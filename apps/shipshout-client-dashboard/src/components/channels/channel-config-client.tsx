@@ -6,10 +6,10 @@ import { ArrowLeft, Save } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import type { RepositoryChannelDto, RepositoryChannelTone } from '../../lib/channels/api';
-import { updateRepositoryChannelsAction } from '../../lib/channels/actions';
-import { ChannelUtils, type ChannelFormState } from '../../lib/channels/channel.utils';
-import { Toaster } from '../../lib/feedback/toaster.utils';
+import type { RepositoryChannelDto, RepositoryChannelTone } from '@/lib/channels/api';
+import { updateRepositoryChannelsAction } from '@/lib/channels/actions';
+import { ChannelUtils, type ChannelFormState } from '@/lib/channels/channel.utils';
+import { Toaster } from '@/lib/feedback/toaster.utils';
 
 const TONE_OPTIONS = Object.keys(ChannelUtils.toneLabels) as RepositoryChannelTone[];
 

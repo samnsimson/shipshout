@@ -3,8 +3,8 @@ import {
     type PatchRepositoryChannelDto,
     type RepositoryChannelDto,
 } from '@shipshout/api-client';
-import { refreshAccessTokenAction } from '../auth/actions';
-import { ShipshoutApiUtils, shipshoutFetch } from '../shipshout-api';
+import { refreshAccessTokenAction } from '@/lib/auth/actions';
+import { ShipshoutApiUtils, shipshoutFetch } from '@/lib/shipshout-api';
 
 export type { ChannelCatalogItemDto, PatchRepositoryChannelDto, RepositoryChannelDto };
 

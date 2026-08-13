@@ -1,6 +1,6 @@
 'use server';
 
-import { authFetch, readErrorMessage } from '../auth/api';
+import { authFetch, readErrorMessage } from '@/lib/auth/api';
 import { BillingUtils } from './billing.utils';
 
 type UrlResult = { url: string } | { error: string };

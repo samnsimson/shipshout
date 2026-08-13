@@ -4,8 +4,8 @@ import { Badge, Box, Button, Checkbox, Flex, For, Input, InputGroup, Link as Cha
 import Link from 'next/link';
 import { useDeferredValue, useMemo, useState, useTransition } from 'react';
 import { CheckCircle2, Filter, GitBranch, Link2, Link2Off, Plus, Search, Settings2, Unlink } from 'lucide-react';
-import { Toaster } from '../../lib/feedback/toaster.utils';
-import { disconnectGithubAction, linkRepositoriesAction, unlinkRepositoryAction } from '../../lib/repositories/actions';
+import { Toaster } from '@/lib/feedback/toaster.utils';
+import { disconnectGithubAction, linkRepositoriesAction, unlinkRepositoryAction } from '@/lib/repositories/actions';
 import { QueryBanner } from './query-banner';
 import type { GithubConnectionResponseDto, GithubRepoDto, LinkedRepositoryResponseDto } from '@shipshout/api-client';
 

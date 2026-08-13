@@ -1,4 +1,4 @@
-import { shipshoutFetch } from '../shipshout-api';
+import { shipshoutFetch } from '@/lib/shipshout-api';
 
 export type RepositoryTriggersDto = {
     release: boolean;

@@ -4,8 +4,8 @@ import { Badge, Box, For, Link as ChakraLink, Table, Text } from '@chakra-ui/rea
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import type { ShoutoutDto } from '../../lib/shoutouts/api';
-import { ShoutoutStatusUtils } from '../../lib/shoutouts/shoutout-status.utils';
+import type { ShoutoutDto } from '@/lib/shoutouts/api';
+import { ShoutoutStatusUtils } from '@/lib/shoutouts/shoutout-status.utils';
 
 function triggerTypeLabel(type: string) {
     if (type === 'release') return 'Release';

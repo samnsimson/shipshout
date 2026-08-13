@@ -4,10 +4,10 @@ import { Badge, Box, Button, Checkbox, Flex, For, Link as ChakraLink, Show, Stac
 import Link from 'next/link';
 import { ArrowLeft, Copy, ExternalLink, Webhook } from 'lucide-react';
 import { useState, useTransition } from 'react';
-import { Toaster } from '../../lib/feedback/toaster.utils';
-import { updateRepositoryTriggersAction } from '../../lib/triggers/actions';
-import type { RepositoryChannelDto } from '../../lib/channels/api';
-import type { LinkedRepositoryDetailDto, TriggerEventDto } from '../../lib/triggers/api';
+import { Toaster } from '@/lib/feedback/toaster.utils';
+import { updateRepositoryTriggersAction } from '@/lib/triggers/actions';
+import type { RepositoryChannelDto } from '@/lib/channels/api';
+import type { LinkedRepositoryDetailDto, TriggerEventDto } from '@/lib/triggers/api';
 import { RepositoryChannelsSummary } from './repository-channels-summary';
 
 const triggerLabels = {

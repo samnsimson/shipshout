@@ -2,10 +2,10 @@ import { Stack } from '@chakra-ui/react';
 import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { PageHeader } from '../../../../../components/dashboard/page-header';
-import { RepositoryDetailClient } from '../../../../../components/repositories/repository-detail-client';
-import { fetchRepositoryChannels } from '../../../../../lib/channels/api';
-import { fetchRepositoryDetail, fetchRepositoryEvents } from '../../../../../lib/triggers/api';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { RepositoryDetailClient } from '@/components/repositories/repository-detail-client';
+import { fetchRepositoryChannels } from '@/lib/channels/api';
+import { fetchRepositoryDetail, fetchRepositoryEvents } from '@/lib/triggers/api';
 
 export const metadata: Metadata = {
     title: 'Repository triggers',

@@ -1,7 +1,7 @@
 import { Box, Flex } from '@chakra-ui/react';
 import type { ReactNode } from 'react';
-import { AuthMarketingPanel } from '../../components/auth/auth-marketing-panel';
-import { AuthColorModeToggle } from '../../components/ui/auth-color-mode-toggle';
+import { AuthMarketingPanel } from '@/components/auth/auth-marketing-panel';
+import { AuthColorModeToggle } from '@/components/ui/auth-color-mode-toggle';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
     return (

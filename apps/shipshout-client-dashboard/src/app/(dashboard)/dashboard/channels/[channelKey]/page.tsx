@@ -2,11 +2,11 @@ import { Stack } from '@chakra-ui/react';
 import { Radio } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
-import { PageHeader } from '../../../../../components/dashboard/page-header';
-import { ChannelConfigClient } from '../../../../../components/channels/channel-config-client';
-import { fetchChannelCatalog, fetchRepositoryChannels } from '../../../../../lib/channels/api';
-import { getSessionAction } from '../../../../../lib/auth/actions';
-import { getRepositoriesApi } from '../../../../../lib/repositories/api';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { ChannelConfigClient } from '@/components/channels/channel-config-client';
+import { fetchChannelCatalog, fetchRepositoryChannels } from '@/lib/channels/api';
+import { getSessionAction } from '@/lib/auth/actions';
+import { getRepositoriesApi } from '@/lib/repositories/api';
 
 export async function generateMetadata({ params }: { params: Promise<{ channelKey: string }> }): Promise<Metadata> {
     const { channelKey } = await params;

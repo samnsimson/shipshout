@@ -6,10 +6,10 @@ import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { Toaster } from '../../lib/feedback/toaster.utils';
-import { publishShoutoutAction, retryShoutoutGenerationAction, updateShoutoutDraftAction } from '../../lib/shoutouts/actions';
-import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '../../lib/shoutouts/api';
-import { ShoutoutStatusUtils } from '../../lib/shoutouts/shoutout-status.utils';
+import { Toaster } from '@/lib/feedback/toaster.utils';
+import { publishShoutoutAction, retryShoutoutGenerationAction, updateShoutoutDraftAction } from '@/lib/shoutouts/actions';
+import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '@/lib/shoutouts/api';
+import { ShoutoutStatusUtils } from '@/lib/shoutouts/shoutout-status.utils';
 
 function triggerTypeLabel(type: string) {
     if (type === 'release') return 'Release';

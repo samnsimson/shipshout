@@ -4,9 +4,9 @@ import { Box, Button, Flex, For, Link as ChakraLink, Show, Stack, Text } from '@
 import { CreditCard } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
-import { createBillingPortalAction, upgradeSubscriptionAction } from '../../lib/billing/actions';
-import { BillingUtils } from '../../lib/billing/billing.utils';
-import { Toaster } from '../../lib/feedback/toaster.utils';
+import { createBillingPortalAction, upgradeSubscriptionAction } from '@/lib/billing/actions';
+import { BillingUtils } from '@/lib/billing/billing.utils';
+import { Toaster } from '@/lib/feedback/toaster.utils';
 
 export type BillingPlan = {
     name: string;

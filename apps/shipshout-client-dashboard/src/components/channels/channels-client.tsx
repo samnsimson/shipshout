@@ -4,10 +4,10 @@ import { Box, Button, Flex, For, Link as ChakraLink, NativeSelect, SimpleGrid, S
 import Link from 'next/link';
 import { FolderGit2 } from 'lucide-react';
 import { useMemo, useState, useTransition } from 'react';
-import type { ChannelCatalogItemDto, RepositoryChannelDto } from '../../lib/channels/api';
-import { updateRepositoryChannelsAction } from '../../lib/channels/actions';
-import { ChannelUtils, type ChannelFormState } from '../../lib/channels/channel.utils';
-import { Toaster } from '../../lib/feedback/toaster.utils';
+import type { ChannelCatalogItemDto, RepositoryChannelDto } from '@/lib/channels/api';
+import { updateRepositoryChannelsAction } from '@/lib/channels/actions';
+import { ChannelUtils, type ChannelFormState } from '@/lib/channels/channel.utils';
+import { Toaster } from '@/lib/feedback/toaster.utils';
 import { ChannelCard } from './channel-card';
 
 type LinkedRepo = { id: string; fullName: string };

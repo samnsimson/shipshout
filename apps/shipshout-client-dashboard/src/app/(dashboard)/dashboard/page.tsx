@@ -1,7 +1,7 @@
 import { Stack } from '@chakra-ui/react';
 import { Home } from 'lucide-react';
-import { PageHeader } from '../../../components/dashboard/page-header';
-import { getSessionAction } from '../../../lib/auth/actions';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { getSessionAction } from '@/lib/auth/actions';
 
 export default async function DashboardPage() {
     const session = await getSessionAction();

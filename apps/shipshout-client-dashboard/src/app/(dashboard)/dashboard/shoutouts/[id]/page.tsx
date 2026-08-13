@@ -2,9 +2,9 @@ import { Stack } from '@chakra-ui/react';
 import { Megaphone } from 'lucide-react';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { PageHeader } from '../../../../../components/dashboard/page-header';
-import { ShoutoutDetailClient } from '../../../../../components/shoutouts/shoutout-detail-client';
-import { fetchShoutout } from '../../../../../lib/shoutouts/api';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { ShoutoutDetailClient } from '@/components/shoutouts/shoutout-detail-client';
+import { fetchShoutout } from '@/lib/shoutouts/api';
 
 export const metadata: Metadata = {
     title: 'Shoutout detail',

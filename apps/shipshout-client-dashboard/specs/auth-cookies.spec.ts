@@ -1,4 +1,4 @@
-import { collectSetCookieHeaders, parseSetCookie } from '../src/lib/auth/cookies';
+import { collectSetCookieHeaders, parseSetCookie } from '@/lib/auth/cookies';
 
 describe('parseSetCookie', () => {
     it('parses name value and attrs without Domain', () => {

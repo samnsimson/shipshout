@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { getShipshoutRequestOptions } from '../shipshout-api';
+import { getShipshoutRequestOptions } from '@/lib/shipshout-api';
 import type { ShoutoutDetailDto, ShoutoutStatusResponseDto } from './api';
 
 async function readErrorMessage(response: Response): Promise<string> {

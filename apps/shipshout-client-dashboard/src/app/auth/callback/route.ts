@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authFetch, readErrorMessage } from '../../../lib/auth/api';
-import { AuthCookieUtils } from '../../../lib/auth/auth-cookie.utils';
+import { authFetch, readErrorMessage } from '@/lib/auth/api';
+import { AuthCookieUtils } from '@/lib/auth/auth-cookie.utils';
 
 export async function GET(request: NextRequest) {
     const token = request.nextUrl.searchParams.get('token')?.trim() ?? '';

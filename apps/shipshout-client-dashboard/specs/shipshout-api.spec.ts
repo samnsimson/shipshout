@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { ShipshoutApiUtils } from '../src/lib/shipshout-api';
+import { ShipshoutApiUtils } from '@/lib/shipshout-api';
 
 jest.mock('next/headers', () => ({
     cookies: jest.fn(),

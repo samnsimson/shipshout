@@ -1,9 +1,9 @@
 import { Stack } from '@chakra-ui/react';
 import { FolderGit2 } from 'lucide-react';
 import type { Metadata } from 'next';
-import { PageHeader } from '../../../../components/dashboard/page-header';
-import { RepositoriesClient } from '../../../../components/repositories/repositories-client';
-import { getRepositoriesApi } from '../../../../lib/repositories/api';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { RepositoriesClient } from '@/components/repositories/repositories-client';
+import { getRepositoriesApi } from '@/lib/repositories/api';
 
 function normalizeBaseUrl(baseUrl: string): string {
     return baseUrl.replace(/\/$/, '');

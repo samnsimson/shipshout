@@ -1,11 +1,11 @@
 import { Stack } from '@chakra-ui/react';
 import { Radio } from 'lucide-react';
 import type { Metadata } from 'next';
-import { PageHeader } from '../../../../components/dashboard/page-header';
-import { ChannelsClient } from '../../../../components/channels/channels-client';
-import { fetchChannelCatalog, fetchRepositoryChannels } from '../../../../lib/channels/api';
-import { getRepositoriesApi } from '../../../../lib/repositories/api';
-import { ShipshoutApiUtils } from '../../../../lib/shipshout-api';
+import { PageHeader } from '@/components/dashboard/page-header';
+import { ChannelsClient } from '@/components/channels/channels-client';
+import { fetchChannelCatalog, fetchRepositoryChannels } from '@/lib/channels/api';
+import { getRepositoriesApi } from '@/lib/repositories/api';
+import { ShipshoutApiUtils } from '@/lib/shipshout-api';
 
 export const metadata: Metadata = {
     title: 'Channels',

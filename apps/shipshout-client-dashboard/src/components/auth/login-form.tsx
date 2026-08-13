@@ -4,8 +4,8 @@ import { Alert, Button, Field, Show, Stack, Text } from '@chakra-ui/react';
 import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
-import { loginAction } from '../../lib/auth/actions';
-import { FormUtils } from '../../lib/forms/form.utils';
+import { loginAction } from '@/lib/auth/actions';
+import { FormUtils } from '@/lib/forms/form.utils';
 import { AuthInput } from './auth-input';
 import { SocialButtons } from './social-buttons';
 
