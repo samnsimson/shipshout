@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Box, Button, Field, For, Link as ChakraLink, Show, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
+import { Badge, Box, Button, Field, Flex, For, Link as ChakraLink, Show, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -203,6 +203,48 @@ function DraftEditor(props: {
     );
 }
 
+function SourceSummaryPanel(props: { triggerType: string; sourceSummary: Record<string, unknown> }) {
+    const fields = useMemo(
+        () => ShoutoutsUtils.sourceSummaryFields(props.triggerType, props.sourceSummary),
+        [props.triggerType, props.sourceSummary],
+    );
+
+    return (
+        <Stack gap="md">
+            <Flex align="center" gap="sm" flexWrap="wrap">
+                <Badge variant="subtle" borderRadius="full">
+                    {triggerTypeLabel(props.triggerType)}
+                </Badge>
+            </Flex>
+            <Show
+                when={fields.length > 0}
+                fallback={
+                    <Text color="fg.muted" fontSize="sm">
+                        No source details available.
+                    </Text>
+                }
+            >
+                <Stack gap="md">
+                    <For each={fields}>
+                        {(field) => (
+                            <Stack key={field.label} gap="xxs">
+                                <Text fontSize="xs" fontWeight="600" color="fg.muted" letterSpacing="0.125px" textTransform="uppercase">
+                                    {field.label}
+                                </Text>
+                                <Box bg="bg.canvas" borderRadius="md" px="md" py="sm">
+                                    <Text fontSize="sm" whiteSpace={field.multiline ? 'pre-wrap' : 'nowrap'} wordBreak={field.multiline ? 'break-word' : 'normal'}>
+                                        {field.value}
+                                    </Text>
+                                </Box>
+                            </Stack>
+                        )}
+                    </For>
+                </Stack>
+            </Show>
+        </Stack>
+    );
+}
+
 export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
     const router = useRouter();
     const [shoutout, setShoutout] = useState(props.shoutout);
@@ -320,13 +362,11 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
             </Box>
 
             <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
-                <Stack gap="sm">
+                <Stack gap="md">
                     <Text fontSize="sm" fontWeight="600">
                         Source summary
                     </Text>
-                    <Box as="pre" fontSize="xs" p="md" bg="bg.canvas" borderRadius="md" overflowX="auto" whiteSpace="pre-wrap">
-                        {JSON.stringify(shoutout.sourceSummary, null, 2)}
-                    </Box>
+                    <SourceSummaryPanel triggerType={shoutout.triggerType} sourceSummary={shoutout.sourceSummary} />
                 </Stack>
             </Box>
 
