@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, Index, PrimaryGeneratedColumn } from 
 
 @Entity('linked_repositories')
 @Index('uq_linked_repositories_user_github_repo', ['userId', 'githubRepoId'], { unique: true })
+@Index('uq_linked_repositories_github_repo', ['githubRepoId'], { unique: true })
 export class LinkedRepositoryEntity {
     @PrimaryGeneratedColumn('uuid')
     id!: string;
