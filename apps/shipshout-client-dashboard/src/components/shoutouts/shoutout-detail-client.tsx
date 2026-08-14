@@ -121,6 +121,7 @@ function DraftEditor(props: {
     const [savePending, startSaveTransition] = useTransition();
     const [regeneratePending, startRegenerateTransition] = useTransition();
     const [regeneratingChannelKey, setRegeneratingChannelKey] = useState<string | null>(null);
+    const [regenerationGuidance, setRegenerationGuidance] = useState<Record<string, string>>({});
 
     useEffect(() => {
         reset(defaultValues);
@@ -148,8 +149,9 @@ function DraftEditor(props: {
 
     const regenerateChannelDraft = (channelKey: string) => {
         setRegeneratingChannelKey(channelKey);
+        const userPrompt = regenerationGuidance[channelKey]?.trim() || undefined;
         startRegenerateTransition(async () => {
-            const result = await regenerateDraft(props.shoutoutId, channelKey);
+            const result = await regenerateDraft(props.shoutoutId, channelKey, userPrompt);
             setRegeneratingChannelKey(null);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not regenerate draft', description: result.error });
@@ -207,6 +209,21 @@ function DraftEditor(props: {
                                 <Textarea {...register(`drafts.${draft.channelKey}.body`)} disabled={!props.editable} rows={10} />
                             </Field.Root>
                             <Show when={props.editable}>
+                                <Field.Root gap="xs">
+                                    <Field.Label fontSize="sm">Regeneration guidance (optional)</Field.Label>
+                                    <Textarea
+                                        value={regenerationGuidance[draft.channelKey] ?? ''}
+                                        onChange={(event) =>
+                                            setRegenerationGuidance((current) => ({ ...current, [draft.channelKey]: event.target.value }))
+                                        }
+                                        disabled={regeneratePending}
+                                        rows={3}
+                                        placeholder="e.g. emphasize security fixes, keep it shorter"
+                                    />
+                                    <Field.HelperText fontSize="xs" color="fg.muted">
+                                        Hints for tone or emphasis only. Regeneration always stays anchored to this release or commit.
+                                    </Field.HelperText>
+                                </Field.Root>
                                 <Flex gap="sm" flexWrap="wrap">
                                     <Button colorPalette="blue" borderRadius="full" onClick={() => saveDraft(draft.channelKey)} loading={savePending} disabled={regeneratePending}>
                                         Save draft

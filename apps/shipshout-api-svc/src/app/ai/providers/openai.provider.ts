@@ -21,8 +21,8 @@ export class OpenAiProvider implements AiProvider {
                 model: this.model,
                 response_format: { type: 'json_object' },
                 messages: [
-                    { role: 'system', content: AiPromptUtils.buildSystemPrompt(channel.key, channel.tone) },
-                    { role: 'user', content: AiPromptUtils.buildUserMessage(input.sourceSummary, input.repoFullName) },
+                    { role: 'system', content: AiPromptUtils.buildSystemPrompt(channel.key, channel.tone, input.userPrompt) },
+                    { role: 'user', content: AiPromptUtils.buildUserMessage(input.sourceSummary, input.repoFullName, input.userPrompt) },
                 ],
             });
 

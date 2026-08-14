@@ -164,4 +164,20 @@ describe('ShoutoutGenerationService', () => {
             body: 'Fresh body.',
         });
     });
+
+    it('passes optional user prompt when regenerating a channel draft', async () => {
+        shoutouts.findById.mockResolvedValue(shoutout);
+        repositoryChannels.findByLinkedRepositoryId.mockResolvedValue([{ channelKey: 'email_newsletter', enabled: true, tone: 'professional' }]);
+        shoutoutLimits.getLimitsForUser.mockResolvedValue({ repos: 1, releasesPerMonth: 5, channels: ['email_newsletter'] });
+        ai.generateVariants.mockResolvedValue({ email_newsletter: { title: 'Fresh title', body: 'Fresh body.' } });
+
+        await service.regenerateChannel('shoutout-1', 'email_newsletter', 'emphasize performance');
+
+        expect(ai.generateVariants).toHaveBeenCalledWith({
+            sourceSummary: shoutout.sourceSummary,
+            channels: [{ key: 'email_newsletter', tone: 'professional' }],
+            repoFullName: 'acme/widget',
+            userPrompt: 'emphasize performance',
+        });
+    });
 });

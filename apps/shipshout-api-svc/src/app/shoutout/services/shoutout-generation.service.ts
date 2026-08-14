@@ -63,7 +63,7 @@ export class ShoutoutGenerationService {
         await this.events.publish(shoutoutId, { status: 'ready_for_review' });
     }
 
-    async regenerateChannel(shoutoutId: string, channelKey: string): Promise<void> {
+    async regenerateChannel(shoutoutId: string, channelKey: string, userPrompt?: string): Promise<void> {
         const shoutout = await this.shoutouts.findById(shoutoutId);
         if (!shoutout) throw new NotFoundException('Shoutout not found');
         if (channelKey === 'email_alert') throw new ConflictException('Channel cannot be regenerated');
@@ -80,6 +80,7 @@ export class ShoutoutGenerationService {
             sourceSummary: shoutout.sourceSummary,
             channels: [{ key: channel.channelKey, tone: channel.tone }],
             repoFullName: shoutout.linkedRepository?.fullName ?? 'Unknown repository',
+            userPrompt,
         });
         const variant = variants[channelKey];
         if (!variant) throw new ConflictException('Failed to generate draft for channel');

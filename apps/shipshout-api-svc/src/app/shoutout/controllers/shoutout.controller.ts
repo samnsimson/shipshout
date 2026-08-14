@@ -4,6 +4,7 @@ import { JwtAuthGuard, JwtUser, type JwtUserPayload } from '@shipshout/auth/guar
 import { ApiResource } from '@shipshout/swagger';
 import { Observable } from 'rxjs';
 import { ShoutoutDetailResponseDto, ShoutoutListResponseDto, ShoutoutStatusResponseDto } from '../dto/shoutout.dto';
+import { RegenerateShoutoutDraftDto } from '../dto/regenerate-shoutout-draft.dto';
 import { UpdateShoutoutDraftDto } from '../dto/update-shoutout-draft.dto';
 import { ShoutoutService } from '../services/shoutout.service';
 
@@ -74,13 +75,19 @@ export class ShoutoutController {
             { name: 'id', description: 'Shoutout id' },
             { name: 'channelKey', description: 'Channel key' },
         ],
+        body: RegenerateShoutoutDraftDto,
         errors: [
             { status: 404, description: 'Shoutout or draft not found' },
             { status: 409, description: 'Shoutout is not ready for review or channel cannot be regenerated' },
         ],
     })
-    regenerateDraft(@JwtUser() user: JwtUserPayload, @Param('id') id: string, @Param('channelKey') channelKey: string): Promise<ShoutoutDetailResponseDto> {
-        return this.shoutoutService.regenerateDraft(user.sub, id, channelKey);
+    regenerateDraft(
+        @JwtUser() user: JwtUserPayload,
+        @Param('id') id: string,
+        @Param('channelKey') channelKey: string,
+        @Body() body: RegenerateShoutoutDraftDto,
+    ): Promise<ShoutoutDetailResponseDto> {
+        return this.shoutoutService.regenerateDraft(user.sub, id, channelKey, body);
     }
 
     @Post(':id/publish')

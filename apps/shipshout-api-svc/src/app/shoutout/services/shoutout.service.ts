@@ -3,6 +3,7 @@ import { MessageEvent } from '@nestjs/common';
 import { ShoutoutChannelDraftEntity, ShoutoutDispatchLogEntity, ShoutoutEntity } from '@shipshout/database';
 import { Observable } from 'rxjs';
 import { ShoutoutDetailResponseDto, ShoutoutListResponseDto, ShoutoutResponseDto, ShoutoutStatusResponseDto } from '../dto/shoutout.dto';
+import { RegenerateShoutoutDraftDto } from '../dto/regenerate-shoutout-draft.dto';
 import { UpdateShoutoutDraftDto } from '../dto/update-shoutout-draft.dto';
 import { ShoutoutChannelDraftRepository } from '../repositories/shoutout-channel-draft.repository';
 import { ShoutoutDispatchLogRepository } from '../repositories/shoutout-dispatch-log.repository';
@@ -48,7 +49,7 @@ export class ShoutoutService {
         return this.getById(userId, shoutoutId);
     }
 
-    async regenerateDraft(userId: string, shoutoutId: string, channelKey: string): Promise<ShoutoutDetailResponseDto> {
+    async regenerateDraft(userId: string, shoutoutId: string, channelKey: string, body?: RegenerateShoutoutDraftDto): Promise<ShoutoutDetailResponseDto> {
         const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
         if (!shoutout) throw new NotFoundException('Shoutout not found');
         if (shoutout.status !== 'ready_for_review') throw new ConflictException(`Cannot regenerate drafts while shoutout status is ${shoutout.status}`);
@@ -56,7 +57,7 @@ export class ShoutoutService {
         const draftRows = await this.drafts.findByShoutoutId(shoutoutId);
         if (!draftRows.some((row) => row.channelKey === channelKey)) throw new NotFoundException('Draft not found');
 
-        await this.generation.regenerateChannel(shoutoutId, channelKey);
+        await this.generation.regenerateChannel(shoutoutId, channelKey, body?.userPrompt);
         return this.getById(userId, shoutoutId);
     }
 

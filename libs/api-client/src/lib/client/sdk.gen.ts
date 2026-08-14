@@ -434,6 +434,10 @@ export class ApiSdk extends HeyApiClient {
         return (options.client ?? this.client).post<RegenerateShoutoutDraftResponses, RegenerateShoutoutDraftErrors, ThrowOnError>({
             url: '/shoutouts/{id}/drafts/{channelKey}/regenerate',
             ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
         });
     }
     

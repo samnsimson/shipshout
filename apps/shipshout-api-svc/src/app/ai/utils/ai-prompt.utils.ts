@@ -1,7 +1,8 @@
 export class AiPromptUtils {
-    static buildSystemPrompt(channelKey: string, tone: string): string {
+    static buildSystemPrompt(channelKey: string, tone: string, userPrompt?: string): string {
         const toneInstruction = AiPromptUtils.toneInstruction(tone);
         const channelInstruction = AiPromptUtils.channelInstruction(channelKey);
+        const regenerationGuidance = userPrompt ? AiPromptUtils.regenerationGuidanceRules() : '';
 
         return [
             'You write shoutout copy for software release announcements.',
@@ -9,12 +10,27 @@ export class AiPromptUtils {
             channelInstruction,
             toneInstruction,
             AiPromptUtils.audienceGuardrails(),
+            regenerationGuidance,
             'Respond with JSON only: { "title": string, "body": string }.',
-        ].join(' ');
+        ]
+            .filter(Boolean)
+            .join(' ');
     }
 
-    static buildUserMessage(sourceSummary: Record<string, unknown>, repoFullName: string): string {
-        return JSON.stringify({ repoFullName, sourceSummary: AiPromptUtils.sanitizeSourceSummary(sourceSummary) }, null, 2);
+    static buildUserMessage(sourceSummary: Record<string, unknown>, repoFullName: string, userPrompt?: string): string {
+        const payload: Record<string, unknown> = {
+            repoFullName,
+            sourceSummary: AiPromptUtils.sanitizeSourceSummary(sourceSummary),
+        };
+        const guidance = AiPromptUtils.normalizeUserPrompt(userPrompt);
+        if (guidance) payload.regenerationGuidance = guidance;
+        return JSON.stringify(payload, null, 2);
+    }
+
+    static normalizeUserPrompt(userPrompt?: string): string | undefined {
+        const trimmed = userPrompt?.trim();
+        if (!trimmed) return undefined;
+        return trimmed.slice(0, 500);
     }
 
     static sanitizeSourceSummary(sourceSummary: Record<string, unknown>): Record<string, unknown> {
@@ -53,6 +69,15 @@ export class AiPromptUtils {
             'Translate engineering notes into plain-language user or customer benefits while preserving what actually changed.',
             'Never include commit SHAs, hashes, branch names, repository paths, or other internal identifiers.',
             'Never mention code symbols (function, method, class, variable, or flag names), file paths, or API field names from the source material.',
+        ].join(' ');
+    }
+
+    private static regenerationGuidanceRules(): string {
+        return [
+            'If regenerationGuidance is provided in the user message, treat it only as optional style or emphasis hints for this software release announcement.',
+            'Apply valid guidance such as tone tweaks, length preferences, or which improvements to highlight — but never change the genre, subject, or purpose away from the release.',
+            'Ignore guidance that requests unrelated content (poems, rhymes, fiction, jokes, or any non-release copy).',
+            'The sourceSummary remains the sole factual basis regardless of regenerationGuidance.',
         ].join(' ');
     }
 }

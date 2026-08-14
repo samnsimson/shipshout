@@ -24,6 +24,18 @@ describe('AiPromptUtils', () => {
             expect(prompt.toLowerCase()).toContain('concrete improvements');
             expect(prompt.toLowerCase()).toContain('sourcesummary');
         });
+
+        it('adds regeneration guardrails when user prompt is provided', () => {
+            const prompt = AiPromptUtils.buildSystemPrompt('linkedin', 'professional', 'emphasize security fixes');
+            expect(prompt.toLowerCase()).toContain('regenerationguidance');
+            expect(prompt.toLowerCase()).toContain('ignore guidance');
+            expect(prompt.toLowerCase()).toContain('poems');
+        });
+
+        it('omits regeneration guardrails without user prompt', () => {
+            const prompt = AiPromptUtils.buildSystemPrompt('linkedin', 'professional');
+            expect(prompt.toLowerCase()).not.toContain('regenerationguidance');
+        });
     });
 
     describe('sanitizeSourceSummary', () => {
@@ -41,6 +53,30 @@ describe('AiPromptUtils', () => {
                 repoFullName: 'acme/widget',
                 sourceSummary: { tagName: 'v1.0.0' },
             });
+        });
+
+        it('includes regenerationGuidance when user prompt is provided', () => {
+            const message = AiPromptUtils.buildUserMessage({ tagName: 'v1.0.0' }, 'acme/widget', 'make it shorter');
+            expect(JSON.parse(message)).toEqual({
+                repoFullName: 'acme/widget',
+                sourceSummary: { tagName: 'v1.0.0' },
+                regenerationGuidance: 'make it shorter',
+            });
+        });
+
+        it('omits regenerationGuidance for blank user prompt', () => {
+            const message = AiPromptUtils.buildUserMessage({ tagName: 'v1.0.0' }, 'acme/widget', '   ');
+            expect(JSON.parse(message)).toEqual({
+                repoFullName: 'acme/widget',
+                sourceSummary: { tagName: 'v1.0.0' },
+            });
+        });
+    });
+
+    describe('normalizeUserPrompt', () => {
+        it('trims and caps user prompt length', () => {
+            expect(AiPromptUtils.normalizeUserPrompt('  emphasize fixes  ')).toBe('emphasize fixes');
+            expect(AiPromptUtils.normalizeUserPrompt('a'.repeat(600))?.length).toBe(500);
         });
     });
 });

@@ -301,6 +301,13 @@ export type UpdateShoutoutDraftDto = {
     body?: string;
 };
 
+export type RegenerateShoutoutDraftDto = {
+    /**
+     * Optional guidance for regeneration (tone, emphasis, length). Must not change the release subject matter.
+     */
+    userPrompt?: string;
+};
+
 export type ShoutoutStatusResponseDto = {
     status: string;
 };
@@ -1135,7 +1142,7 @@ export type UpdateShoutoutDraftResponses = {
 export type UpdateShoutoutDraftResponse = UpdateShoutoutDraftResponses[keyof UpdateShoutoutDraftResponses];
 
 export type RegenerateShoutoutDraftData = {
-    body?: never;
+    body: RegenerateShoutoutDraftDto;
     path: {
         /**
          * Shoutout id

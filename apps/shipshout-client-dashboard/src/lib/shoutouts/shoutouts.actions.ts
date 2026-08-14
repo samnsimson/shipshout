@@ -20,8 +20,9 @@ export async function updateDraft(
 export async function regenerateDraft(
     shoutoutId: string,
     channelKey: string,
+    userPrompt?: string,
 ): Promise<{ ok: true; shoutout: ShoutoutDetailDto } | { ok: false; error: string }> {
-    const result = await ShoutoutsApi.regenerateDraft(shoutoutId, channelKey);
+    const result = await ShoutoutsApi.regenerateDraft(shoutoutId, channelKey, userPrompt);
     if (result.error || !result.response?.ok) return { ok: false, error: ApiErrorUtils.message(result.error, 'Request failed') };
 
     revalidatePath(`/dashboard/shoutouts/${shoutoutId}`);

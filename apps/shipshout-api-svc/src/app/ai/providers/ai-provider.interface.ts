@@ -7,6 +7,7 @@ export interface AiGenerateChannelVariantsInput {
     sourceSummary: Record<string, unknown>;
     channels: { key: string; tone: string }[];
     repoFullName: string;
+    userPrompt?: string;
 }
 
 export interface AiProvider {
