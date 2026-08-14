@@ -36,12 +36,13 @@ export function RepositoriesClient(props: {
     const deferredSearch = useDeferredValue(search);
 
     const connected = Boolean(props.connection.connected);
-    const selectable = useMemo(() => props.available.filter((repo) => !repo.linked), [props.available]);
-    const owners = useMemo(() => [...new Set(selectable.map((repo) => repo.owner))].sort((a, b) => a.localeCompare(b)), [selectable]);
+    const addTableRepos = useMemo(() => props.available.filter((repo) => !repo.linked), [props.available]);
+    const isSelectable = (repo: GithubRepoDto) => !repo.claimedByOtherAccount;
+    const owners = useMemo(() => [...new Set(addTableRepos.map((repo) => repo.owner))].sort((a, b) => a.localeCompare(b)), [addTableRepos]);
 
     const filtered = useMemo(() => {
         const query = deferredSearch.trim().toLowerCase();
-        return selectable.filter((repo) => {
+        return addTableRepos.filter((repo) => {
             if (ownerFilter !== 'all' && repo.owner !== ownerFilter) return false;
             if (visibilityFilter === 'public' && repo.private) return false;
             if (visibilityFilter === 'private' && !repo.private) return false;
@@ -53,12 +54,15 @@ export function RepositoriesClient(props: {
                 repo.defaultBranch.toLowerCase().includes(query)
             );
         });
-    }, [selectable, deferredSearch, ownerFilter, visibilityFilter]);
+    }, [addTableRepos, deferredSearch, ownerFilter, visibilityFilter]);
 
-    const allSelected = filtered.length > 0 && filtered.every((repo) => selected.includes(repo.githubId));
-    const someSelected = filtered.some((repo) => selected.includes(repo.githubId)) && !allSelected;
+    const selectableFiltered = useMemo(() => filtered.filter(isSelectable), [filtered]);
+    const allSelected = selectableFiltered.length > 0 && selectableFiltered.every((repo) => selected.includes(repo.githubId));
+    const someSelected = selectableFiltered.some((repo) => selected.includes(repo.githubId)) && !allSelected;
 
-    const toggleRow = (githubId: number, checked: boolean) => {
+    const toggleRow = (repo: GithubRepoDto, checked: boolean) => {
+        if (!isSelectable(repo)) return;
+        const githubId = repo.githubId;
         setSelected((prev) => {
             if (checked) {
                 if (prev.includes(githubId)) return prev;
@@ -69,7 +73,7 @@ export function RepositoriesClient(props: {
     };
 
     const toggleAll = (checked: boolean) => {
-        const visibleIds = filtered.map((repo) => repo.githubId);
+        const visibleIds = selectableFiltered.map((repo) => repo.githubId);
         setSelected((prev) => {
             if (checked) return [...new Set([...prev, ...visibleIds])];
             return prev.filter((id) => !visibleIds.includes(id));
@@ -288,7 +292,7 @@ export function RepositoriesClient(props: {
                             </Text>
                         </Flex>
 
-                        <Show when={selectable.length > 0}>
+                        <Show when={addTableRepos.length > 0}>
                             <Stack direction={{ base: 'column', md: 'row' }} gap="sm" alignItems={{ md: 'center' }}>
                                 <InputGroup flex="1" startElement={<Search size={14} strokeWidth={2} aria-hidden />}>
                                     <Input
@@ -334,11 +338,11 @@ export function RepositoriesClient(props: {
                             </Stack>
                         </Show>
 
-                        <Show when={selectable.length > 0}>
+                        <Show when={addTableRepos.length > 0}>
                             <Flex align="center" gap="xs" color="fg.muted">
                                 <Filter size={12} strokeWidth={2} aria-hidden />
                                 <Text fontSize="xs">
-                                    Showing {filtered.length} of {selectable.length} repositories
+                                    Showing {filtered.length} of {addTableRepos.length} repositories
                                 </Text>
                             </Flex>
                         </Show>
@@ -346,7 +350,7 @@ export function RepositoriesClient(props: {
                 </Box>
 
                 <Show
-                    when={selectable.length > 0}
+                    when={addTableRepos.length > 0}
                     fallback={
                         <Box px="lg" pb="lg">
                             <Text color="fg.muted" fontSize="sm">
@@ -366,7 +370,7 @@ export function RepositoriesClient(props: {
                                                 aria-label="Select all repositories"
                                                 checked={someSelected ? 'indeterminate' : allSelected}
                                                 onCheckedChange={(details) => toggleAll(Boolean(details.checked))}
-                                                disabled={filtered.length === 0}
+                                                disabled={selectableFiltered.length === 0}
                                             >
                                                 <Checkbox.HiddenInput />
                                                 <Checkbox.Control />
@@ -394,26 +398,38 @@ export function RepositoriesClient(props: {
                                         <For each={filtered}>
                                             {(repo) => {
                                                 const isSelected = selected.includes(repo.githubId);
+                                                const canSelect = isSelectable(repo);
                                                 return (
                                                     <Table.Row
                                                         key={repo.githubId}
                                                         data-selected={isSelected ? '' : undefined}
-                                                        cursor="pointer"
+                                                        cursor={canSelect ? 'pointer' : 'default'}
+                                                        opacity={canSelect ? 1 : 0.6}
                                                         bg="bg.surface"
-                                                        onClick={() => toggleRow(repo.githubId, !isSelected)}
+                                                        onClick={() => canSelect && toggleRow(repo, !isSelected)}
                                                     >
                                                     <Table.Cell onClick={(event) => event.stopPropagation()}>
                                                         <Checkbox.Root
                                                             size="sm"
                                                             aria-label={`Select ${repo.fullName}`}
                                                             checked={isSelected}
-                                                            onCheckedChange={(details) => toggleRow(repo.githubId, Boolean(details.checked))}
+                                                            disabled={!canSelect}
+                                                            onCheckedChange={(details) => toggleRow(repo, Boolean(details.checked))}
                                                         >
                                                             <Checkbox.HiddenInput />
                                                             <Checkbox.Control />
                                                         </Checkbox.Root>
                                                     </Table.Cell>
-                                                    <Table.Cell fontWeight={isSelected ? '600' : '400'}>{repo.fullName}</Table.Cell>
+                                                    <Table.Cell fontWeight={isSelected ? '600' : '400'}>
+                                                        <Flex align="center" gap="xs" flexWrap="wrap">
+                                                            <Text>{repo.fullName}</Text>
+                                                            <Show when={repo.claimedByOtherAccount}>
+                                                                <Badge colorPalette="gray" variant="subtle" borderRadius="full">
+                                                                    Linked to another account
+                                                                </Badge>
+                                                            </Show>
+                                                        </Flex>
+                                                    </Table.Cell>
                                                     <Table.Cell color="fg.muted">{repo.owner}</Table.Cell>
                                                     <Table.Cell color="fg.muted">{repo.defaultBranch}</Table.Cell>
                                                     <Table.Cell color="fg.muted">{repo.private ? 'Private' : 'Public'}</Table.Cell>
