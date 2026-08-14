@@ -117,7 +117,7 @@ export function ChannelConfigClient(props: { repositoryId: string; repositoryNam
                         </Show>
                     </Stack>
 
-                    <Button type="submit" colorPalette="blue" borderRadius="full" gap="xs" alignSelf="flex-start" loading={pending}>
+                    <Button type="submit" colorPalette="blue" borderRadius="lg" gap="xs" alignSelf="flex-start" loading={pending}>
                         <Save size={14} strokeWidth={2} aria-hidden />
                         Save configuration
                     </Button>

@@ -1,16 +1,13 @@
 'use client';
 
-import { Badge, Box, For, Link as ChakraLink, Table, Text } from '@chakra-ui/react';
+import { Box, For, Link as ChakraLink, Table } from '@chakra-ui/react';
 import Link from 'next/link';
+import { EmptyStateText } from '@/components/ui/empty-state-text';
+import { StatusBadge } from '@/components/ui/status-badge';
+import { SurfaceCard } from '@/components/ui/surface-card';
 import type { ShoutoutDto } from '@/lib/shoutouts/shoutouts.api';
 import { ShoutoutsUtils } from '@/lib/shoutouts/shoutouts.utils';
-
-function triggerTypeLabel(type: string) {
-    if (type === 'release') return 'Release';
-    if (type === 'tag_push') return 'Tag push';
-    if (type === 'branch_push') return 'Branch push';
-    return type;
-}
+import { TriggerUtils } from '@/lib/triggers/triggers.utils';
 
 export function ShoutoutsTable(props: { shoutouts: ShoutoutDto[]; emptyMessage?: string; embedded?: boolean }) {
     const emptyMessage = props.emptyMessage ?? 'Shoutouts appear here when a trigger fires on a linked repo.';
@@ -19,19 +16,15 @@ export function ShoutoutsTable(props: { shoutouts: ShoutoutDto[]; emptyMessage?:
         if (props.embedded) {
             return (
                 <Box p="lg">
-                    <Text color="fg.muted" fontSize="sm">
-                        {emptyMessage}
-                    </Text>
+                    <EmptyStateText>{emptyMessage}</EmptyStateText>
                 </Box>
             );
         }
 
         return (
-            <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" p="lg">
-                <Text color="fg.muted" fontSize="sm">
-                    {emptyMessage}
-                </Text>
-            </Box>
+            <SurfaceCard>
+                <EmptyStateText>{emptyMessage}</EmptyStateText>
+            </SurfaceCard>
         );
     }
 
@@ -60,14 +53,10 @@ export function ShoutoutsTable(props: { shoutouts: ShoutoutDto[]; emptyMessage?:
                                     </Table.Cell>
                                     <Table.Cell color="fg.muted">{shoutout.repositoryFullName}</Table.Cell>
                                     <Table.Cell>
-                                        <Badge variant="subtle" borderRadius="full">
-                                            {triggerTypeLabel(shoutout.triggerType)}
-                                        </Badge>
+                                        <StatusBadge label={TriggerUtils.triggerTypeLabel(shoutout.triggerType)} />
                                     </Table.Cell>
                                     <Table.Cell>
-                                        <Badge colorPalette={status.palette} variant="subtle" borderRadius="full">
-                                            {status.label}
-                                        </Badge>
+                                        <StatusBadge label={status.label} palette={status.palette} />
                                     </Table.Cell>
                                     <Table.Cell color="fg.muted">{new Date(shoutout.createdAt).toLocaleString()}</Table.Cell>
                                 </Table.Row>
@@ -82,8 +71,8 @@ export function ShoutoutsTable(props: { shoutouts: ShoutoutDto[]; emptyMessage?:
     if (props.embedded) return table;
 
     return (
-        <Box bg="bg.surface" borderWidth="1px" borderColor="border.hairline" borderRadius="lg" overflow="hidden">
+        <SurfaceCard flush p="0">
             {table}
-        </Box>
+        </SurfaceCard>
     );
 }

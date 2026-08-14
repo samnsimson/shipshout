@@ -29,6 +29,26 @@ export class ShoutoutsUtils {
         return { label: status, palette: 'gray' };
     }
 
+    static channelLabel(channelKey: string): string {
+        return channelKey
+            .split('_')
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+    }
+
+    static dispatchStatusBadge(status: string): { label: string; palette: 'green' | 'red' | 'gray' } {
+        if (status === 'sent') return { label: 'Sent', palette: 'green' };
+        if (status === 'failed') return { label: 'Failed', palette: 'red' };
+        if (status === 'skipped') return { label: 'Skipped', palette: 'gray' };
+        return { label: status, palette: 'gray' };
+    }
+
+    static draftsToFormState<T extends { channelKey: string; title: string; body: string }>(
+        drafts: T[],
+    ): Record<string, { title: string; body: string }> {
+        return Object.fromEntries(drafts.map((draft) => [draft.channelKey, { title: draft.title, body: draft.body }]));
+    }
+
     static sourceSummaryFields(triggerType: string, sourceSummary: Record<string, unknown>): SourceSummaryField[] {
         const text = (key: string) => {
             const value = sourceSummary[key];

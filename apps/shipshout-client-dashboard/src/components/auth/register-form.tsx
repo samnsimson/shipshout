@@ -91,7 +91,7 @@ export function RegisterForm() {
                     loading={pending}
                     bg="brand.solid"
                     color="white"
-                    borderRadius="full"
+                    borderRadius="lg"
                     h="44px"
                     fontWeight="500"
                     _hover={{ bg: 'brand.600' }}

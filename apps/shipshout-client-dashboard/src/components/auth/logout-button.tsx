@@ -13,7 +13,7 @@ export function LogoutButton() {
             type="button"
             loading={pending}
             variant="outline"
-            borderRadius="full"
+            borderRadius="lg"
             borderColor="border.hairline"
             gap="xs"
             onClick={() => startTransition(() => logout())}

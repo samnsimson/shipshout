@@ -68,7 +68,7 @@ export function SetupChecklist(props: { setup: SetupState }) {
                                             justifyContent="center"
                                             bg="brand.solid"
                                             color="white"
-                                            borderRadius="full"
+                                            borderRadius="lg"
                                             px="md"
                                             h="32px"
                                             fontSize="sm"
@@ -79,7 +79,7 @@ export function SetupChecklist(props: { setup: SetupState }) {
                                             {state.cta}
                                         </ChakraLink>
                                     ) : (
-                                        <Button asChild size="sm" colorPalette="blue" borderRadius="full" flexShrink={0}>
+                                        <Button asChild size="sm" colorPalette="blue" borderRadius="lg" flexShrink={0}>
                                             <Link href={state.href}>{state.cta}</Link>
                                         </Button>
                                     ))}

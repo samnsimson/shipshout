@@ -14,7 +14,7 @@ export function SocialButtons() {
             <Button
                 asChild
                 variant="outline"
-                borderRadius="full"
+                borderRadius="lg"
                 w="100%"
                 h="44px"
                 borderColor="border.hairline"
@@ -31,7 +31,7 @@ export function SocialButtons() {
             <Button
                 asChild
                 variant="outline"
-                borderRadius="full"
+                borderRadius="lg"
                 w="100%"
                 h="44px"
                 borderColor="border.hairline"

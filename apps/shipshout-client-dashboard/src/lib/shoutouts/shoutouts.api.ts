@@ -26,8 +26,9 @@ export class ShoutoutsApi {
     }
 
     static async regenerateDraft(shoutoutId: string, channelKey: string, userPrompt?: string) {
-        const body = userPrompt ? { userPrompt } : undefined;
-        return ApiClient.fetchProtected((api) => api.regenerateShoutoutDraft({ path: { id: shoutoutId, channelKey }, body }));
+        return ApiClient.fetchProtected((api) =>
+            api.regenerateShoutoutDraft({ path: { id: shoutoutId, channelKey }, body: userPrompt ? { userPrompt } : {} }),
+        );
     }
 
     static async publish(shoutoutId: string) {

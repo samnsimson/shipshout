@@ -42,7 +42,7 @@ export function TopBar(props: {
             </Flex>
 
             <Flex align="center" gap="xs">
-                <ColorModeButton borderRadius="full" />
+                <ColorModeButton borderRadius="lg" />
                 <LogoutButton />
             </Flex>
         </Flex>

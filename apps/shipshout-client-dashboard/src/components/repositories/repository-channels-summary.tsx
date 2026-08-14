@@ -49,7 +49,7 @@ export function RepositoryChannelsSummary(props: { repositoryId: string; channel
                                 <Table.Cell color="fg.muted">{ChannelUtils.kindLabels[channel.kind]}</Table.Cell>
                                 <Table.Cell color="fg.muted">{ChannelUtils.toneLabels[channel.tone]}</Table.Cell>
                                 <Table.Cell>
-                                    <Badge variant="subtle" borderRadius="full" colorPalette="green">
+                                    <Badge variant="subtle" borderRadius="lg" colorPalette="green">
                                         Enabled
                                     </Badge>
                                 </Table.Cell>

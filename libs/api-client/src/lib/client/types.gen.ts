@@ -1142,7 +1142,7 @@ export type UpdateShoutoutDraftResponses = {
 export type UpdateShoutoutDraftResponse = UpdateShoutoutDraftResponses[keyof UpdateShoutoutDraftResponses];
 
 export type RegenerateShoutoutDraftData = {
-    body: RegenerateShoutoutDraftDto;
+    body?: RegenerateShoutoutDraftDto;
     path: {
         /**
          * Shoutout id

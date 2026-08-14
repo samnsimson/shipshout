@@ -45,13 +45,13 @@ export function ChannelCard(props: {
                     <Icon size={20} strokeWidth={2} aria-hidden />
                 </Flex>
                 <Stack gap="sm" align="flex-end">
-                    <Badge variant="subtle" borderRadius="full" colorPalette={channel.kind === 'notify' ? 'blue' : 'purple'}>
+                    <Badge variant="subtle" borderRadius="lg" colorPalette={channel.kind === 'notify' ? 'blue' : 'purple'}>
                         {ChannelUtils.kindLabels[channel.kind]}
                     </Badge>
                     <Show
                         when={channel.availableOnPlan}
                         fallback={
-                            <Badge variant="subtle" borderRadius="full" colorPalette="orange">
+                            <Badge variant="subtle" borderRadius="lg" colorPalette="orange">
                                 Upgrade required
                             </Badge>
                         }
@@ -87,7 +87,7 @@ export function ChannelCard(props: {
                     fallback={
                         <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
                             <Link href="/dashboard/settings">
-                                <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="full">
+                                <Button size="sm" variant="outline" borderColor="border.hairline" borderRadius="lg">
                                     View plans
                                 </Button>
                             </Link>

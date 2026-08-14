@@ -95,7 +95,7 @@ export function ChannelsClient(props: {
                     </Text>
                     <ChakraLink asChild _hover={{ textDecoration: 'none' }}>
                         <Link href="/dashboard/repositories">
-                            <Button colorPalette="blue" borderRadius="full">
+                            <Button colorPalette="blue" borderRadius="lg">
                                 Go to repositories
                             </Button>
                         </Link>
