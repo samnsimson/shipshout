@@ -87,10 +87,7 @@ describe('ShoutoutGenerationService', () => {
 
         expect(ai.generateVariants).toHaveBeenCalledWith({
             sourceSummary: shoutout.sourceSummary,
-            channels: [
-                { key: 'email_alert', tone: 'professional' },
-                { key: 'email_newsletter', tone: 'professional' },
-            ],
+            channels: [{ key: 'email_newsletter', tone: 'professional' }],
             repoFullName: 'acme/widget',
         });
         expect(drafts.upsertDraft).toHaveBeenCalledWith({
@@ -130,5 +127,20 @@ describe('ShoutoutGenerationService', () => {
 
         expect(emailClient.send).not.toHaveBeenCalled();
         expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'ready_for_review' }));
+    });
+
+    it('marks generation_failed when no generatable channels are enabled', async () => {
+        shoutouts.findById.mockResolvedValue(shoutout);
+        repositoryChannels.findByLinkedRepositoryId.mockResolvedValue([{ channelKey: 'email_alert', enabled: true, tone: 'professional' }]);
+        shoutoutLimits.getLimitsForUser.mockResolvedValue({ repos: 1, releasesPerMonth: 5, channels: ['email_alert'] });
+        shoutouts.save.mockImplementation(async (row) => row);
+
+        await service.run('shoutout-1');
+
+        expect(ai.generateVariants).not.toHaveBeenCalled();
+        expect(drafts.upsertDraft).not.toHaveBeenCalled();
+        expect(emailClient.send).not.toHaveBeenCalled();
+        expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'generation_failed' }));
+        expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'generation_failed' });
     });
 });

@@ -39,10 +39,17 @@ export class ShoutoutGenerationService {
         ]);
         const planChannels = limits.channels ?? [];
         const entitled = ChannelEntitlementUtils.filterEntitled(channelRows, planChannels);
+        const generatable = ChannelEntitlementUtils.filterGeneratable(channelRows, planChannels);
+
+        if (generatable.length === 0) {
+            await this.shoutouts.save({ ...shoutout, status: 'generation_failed' });
+            await this.events.publish(shoutoutId, { status: 'generation_failed' });
+            return;
+        }
 
         const variants = await this.ai.generateVariants({
             sourceSummary: shoutout.sourceSummary,
-            channels: entitled.map((row) => ({ key: row.channelKey, tone: row.tone })),
+            channels: generatable.map((row) => ({ key: row.channelKey, tone: row.tone })),
             repoFullName: shoutout.linkedRepository?.fullName ?? 'Unknown repository',
         });
 

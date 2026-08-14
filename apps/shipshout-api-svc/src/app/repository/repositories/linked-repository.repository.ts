@@ -28,7 +28,7 @@ export class LinkedRepositoryRepository extends BaseRepository<LinkedRepositoryE
         if (githubRepoIds.length === 0) return new Set();
         const rows = await this.find({
             where: { githubRepoId: In(githubRepoIds), userId: Not(excludeUserId) },
-            select: ['githubRepoId'],
+            select: { githubRepoId: true },
         });
         return new Set(rows.map((row) => row.githubRepoId));
     }

@@ -109,7 +109,9 @@ function useShoutoutEvents(shoutoutId: string, enabled: boolean, onEvent: (event
 
 function DraftEditor(props: {
     shoutoutId: string;
+    linkedRepositoryId: string;
     drafts: ShoutoutDraftDto[];
+    status: ShoutoutDetailDto['status'];
     editable: boolean;
     onSaved: (shoutout: ShoutoutDetailDto) => void;
 }) {
@@ -143,10 +145,23 @@ function DraftEditor(props: {
     };
 
     if (props.drafts.length === 0) {
+        if (props.status === 'generating') {
+            return (
+                <Text color="fg.muted" fontSize="sm">
+                    Drafts will appear here once generation completes.
+                </Text>
+            );
+        }
+
         return (
-            <Text color="fg.muted" fontSize="sm">
-                Drafts will appear here once generation completes.
-            </Text>
+            <Stack gap="sm">
+                <Text color="fg.muted" fontSize="sm">
+                    No channel drafts were generated. Enable at least one content channel (such as Email newsletter) on the repository, then retry generation.
+                </Text>
+                <ChakraLink asChild fontSize="sm" color="brand.fg">
+                    <Link href={`/dashboard/repositories/${props.linkedRepositoryId}`}>Configure repository channels</Link>
+                </ChakraLink>
+            </Stack>
         );
     }
 
@@ -207,9 +222,12 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
     useShoutoutEvents(shoutout.id, ShoutoutsUtils.isInFlight(shoutout.status), onStreamEvent);
 
     const status = ShoutoutsUtils.badge(shoutout.status);
-    const canEdit = shoutout.status === 'ready_for_review';
-    const canPublish = shoutout.status === 'ready_for_review';
-    const canRetry = shoutout.status === 'generation_failed';
+    const canEdit = shoutout.status === 'ready_for_review' && shoutout.drafts.length > 0;
+    const canPublish = shoutout.status === 'ready_for_review' && shoutout.drafts.length > 0;
+    const canRetry =
+        shoutout.status === 'generation_failed' ||
+        shoutout.status === 'generating' ||
+        (shoutout.status === 'ready_for_review' && shoutout.drafts.length === 0);
 
     const publish = () => {
         startTransition(async () => {
@@ -290,7 +308,14 @@ export function ShoutoutDetailClient(props: { shoutout: ShoutoutDetailDto }) {
                     <Text fontSize="sm" fontWeight="600">
                         Channel drafts
                     </Text>
-                    <DraftEditor shoutoutId={shoutout.id} drafts={shoutout.drafts} editable={canEdit} onSaved={setShoutout} />
+                    <DraftEditor
+                        shoutoutId={shoutout.id}
+                        linkedRepositoryId={shoutout.linkedRepositoryId}
+                        drafts={shoutout.drafts}
+                        status={shoutout.status}
+                        editable={canEdit}
+                        onSaved={setShoutout}
+                    />
                 </Stack>
             </Box>
 

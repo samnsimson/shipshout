@@ -51,6 +51,9 @@ export class ShoutoutService {
         if (!ShoutoutStatusUtils.canTransition(shoutout.status, 'publishing'))
             throw new ConflictException(`Cannot publish shoutout while status is ${shoutout.status}`);
 
+        const draftRows = await this.drafts.findByShoutoutId(shoutoutId);
+        if (draftRows.length === 0) throw new ConflictException('Cannot publish shoutout without channel drafts');
+
         await this.shoutouts.save({ ...shoutout, status: 'publishing' });
         await this.events.publish(shoutoutId, { status: 'publishing' });
         await this.queue.addDispatchJob({ shoutoutId });
@@ -60,12 +63,17 @@ export class ShoutoutService {
     async retryGeneration(userId: string, shoutoutId: string): Promise<ShoutoutStatusResponseDto> {
         const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
         if (!shoutout) throw new NotFoundException('Shoutout not found');
-        if (!ShoutoutStatusUtils.canTransition(shoutout.status, 'generating'))
-            throw new ConflictException(`Cannot retry generation while shoutout status is ${shoutout.status}`);
+
+        const draftRows = await this.drafts.findByShoutoutId(shoutoutId);
+        const canRetry =
+            shoutout.status === 'generation_failed' ||
+            shoutout.status === 'generating' ||
+            (shoutout.status === 'ready_for_review' && draftRows.length === 0);
+        if (!canRetry) throw new ConflictException(`Cannot retry generation while shoutout status is ${shoutout.status}`);
 
         await this.shoutouts.save({ ...shoutout, status: 'generating' });
         await this.events.publish(shoutoutId, { status: 'generating' });
-        await this.queue.addGenerationJob({ shoutoutId });
+        await this.queue.addGenerationJob({ shoutoutId }, { replace: true });
         return { status: 'generating' };
     }
 
