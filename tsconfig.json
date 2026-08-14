@@ -4,9 +4,6 @@
     "files": [],
     "references": [
         {
-            "path": "./tsconfig.typeorm.json"
-        },
-        {
             "path": "./apps/shipshout-api-svc-e2e"
         },
         {
@@ -38,6 +35,72 @@
         },
         {
             "path": "./libs/email-client"
+        },
+        {
+            "path": "./shipshout/libs/integrations/mailchimp"
+        },
+        {
+            "path": "./shipshout/libs/integrations/linkedin"
+        },
+        {
+            "path": "./shipshout/libs/shared/observability"
+        },
+        {
+            "path": "./shipshout/libs/integrations/buffer"
+        },
+        {
+            "path": "./shipshout/libs/integrations/github"
+        },
+        {
+            "path": "./shipshout/libs/integrations/linear"
+        },
+        {
+            "path": "./shipshout/libs/integrations/email"
+        },
+        {
+            "path": "./shipshout/libs/integrations/core"
+        },
+        {
+            "path": "./shipshout/libs/integrations/jira"
+        },
+        {
+            "path": "./shipshout/libs/integrations/x"
+        },
+        {
+            "path": "./shipshout/libs/data/database"
+        },
+        {
+            "path": "./shipshout/libs/core/domain"
+        },
+        {
+            "path": "./shipshout/libs/shared/util"
+        },
+        {
+            "path": "./shipshout/libs/billing"
+        },
+        {
+            "path": "./shipshout/apps/api-e2e"
+        },
+        {
+            "path": "./shipshout/apps/worker"
+        },
+        {
+            "path": "./shipshout/libs/queue"
+        },
+        {
+            "path": "./shipshout/libs/auth"
+        },
+        {
+            "path": "./shipshout/apps/api"
+        },
+        {
+            "path": "./shipshout/apps/web"
+        },
+        {
+            "path": "./shipshout/libs/ai"
+        },
+        {
+            "path": "./shipshout"
         }
     ]
 }

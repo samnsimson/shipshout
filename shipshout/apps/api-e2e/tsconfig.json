@@ -12,16 +12,7 @@
             "path": "../api"
         },
         {
-            "path": "../../libs/queue"
-        },
-        {
-            "path": "../../libs/data/database"
-        },
-        {
-            "path": "../../libs/integrations/core"
-        },
-        {
-            "path": "../../libs/ai"
+            "path": "../../../libs/database"
         }
     ]
 }
