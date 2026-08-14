@@ -1,0 +1,50 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "dist",
+        "types": ["node"],
+        "rootDir": "src",
+        "tsBuildInfoFile": "dist/tsconfig.app.tsbuildinfo",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "isolatedModules": false,
+        "target": "es2021"
+    },
+    "include": ["src/**/*.ts"],
+    "references": [
+        {
+            "path": "../../libs/shared/util/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/queue/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/shared/observability/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/linear/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/jira/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/integrations/github/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/data/database/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/core/domain/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/billing/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/ai/tsconfig.lib.json"
+        },
+        {
+            "path": "../../libs/auth/tsconfig.lib.json"
+        }
+    ],
+    "exclude": ["out-tsc", "dist", "jest.config.ts", "jest.config.cts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+}

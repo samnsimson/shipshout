@@ -1,0 +1,28 @@
+name: shipshout
+
+services:
+  shipshout-postgres:
+    container_name: shipshout-postgres
+    image: postgres:16
+    environment:
+      POSTGRES_USER: shipshout
+      POSTGRES_PASSWORD: shipshout
+      POSTGRES_DB: shipshout
+    ports: ['5434:5432']
+    volumes: ['shipshout-pgdata:/var/lib/postgresql/data']
+  shipshout-redis:
+    container_name: shipshout-redis
+    image: redis:7
+    ports: ['6380:6379']
+  postgres-test:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: shipshout_test
+    ports: ['5435:5432']
+  redis-test:
+    image: redis:7
+    ports: ['6381:6379']
+volumes:
+  shipshout-pgdata:

@@ -1,0 +1,18 @@
+{
+    "name": "api-e2e",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "application",
+    "sourceRoot": "apps/api-e2e/src",
+    "tags": [],
+    "implicitDependencies": ["api"],
+    "targets": {
+        "e2e": {
+            "executor": "@nx/jest:jest",
+            "dependsOn": ["^build", "api:build"],
+            "options": {
+                "jestConfig": "apps/api-e2e/jest.config.cts",
+                "passWithNoTests": false
+            }
+        }
+    }
+}

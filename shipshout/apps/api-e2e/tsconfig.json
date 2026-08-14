@@ -1,0 +1,27 @@
+{
+    "extends": "../../tsconfig.base.json",
+    "compilerOptions": {
+        "outDir": "./out-tsc/jest",
+        "types": ["jest", "node"],
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true
+    },
+    "include": ["jest.config.cts", "src/**/*.ts"],
+    "references": [
+        {
+            "path": "../api"
+        },
+        {
+            "path": "../../libs/queue"
+        },
+        {
+            "path": "../../libs/data/database"
+        },
+        {
+            "path": "../../libs/integrations/core"
+        },
+        {
+            "path": "../../libs/ai"
+        }
+    ]
+}

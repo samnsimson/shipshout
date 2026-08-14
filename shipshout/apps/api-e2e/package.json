@@ -1,0 +1,11 @@
+{
+    "name": "@shipshout/api-e2e",
+    "version": "0.0.1",
+    "private": true,
+    "dependencies": {
+        "@shipshout/ai": "workspace:*",
+        "@shipshout/database": "workspace:*",
+        "@shipshout/integrations-core": "workspace:*",
+        "@shipshout/queue": "workspace:*"
+    }
+}

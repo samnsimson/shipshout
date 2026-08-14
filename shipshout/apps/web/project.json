@@ -1,0 +1,24 @@
+{
+    "name": "web",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "sourceRoot": "apps/web/src",
+    "projectType": "application",
+    "tags": ["app"],
+    "targets": {
+        "test": {
+            "executor": "nx:run-commands",
+            "options": {
+                "cwd": "apps/web",
+                "command": "jest"
+            }
+        },
+        "dev": {
+            "executor": "nx:run-commands",
+            "continuous": true,
+            "options": {
+                "cwd": "apps/web",
+                "command": "next dev --webpack --port 4200"
+            }
+        }
+    }
+}

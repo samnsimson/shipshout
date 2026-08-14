@@ -1,0 +1,70 @@
+{
+    "extends": "./tsconfig.base.json",
+    "compileOnSave": false,
+    "files": [],
+    "references": [
+        {
+            "path": "./apps/api"
+        },
+        {
+            "path": "./apps/worker"
+        },
+        {
+            "path": "./apps/web"
+        },
+        {
+            "path": "./libs/shared/util"
+        },
+        {
+            "path": "./libs/auth"
+        },
+        {
+            "path": "./libs/queue"
+        },
+        {
+            "path": "./libs/integrations/github"
+        },
+        {
+            "path": "./libs/core/domain"
+        },
+        {
+            "path": "./libs/ai"
+        },
+        {
+            "path": "./libs/integrations/core"
+        },
+        {
+            "path": "./libs/integrations/x"
+        },
+        {
+            "path": "./libs/integrations/linkedin"
+        },
+        {
+            "path": "./libs/integrations/email"
+        },
+        {
+            "path": "./libs/integrations/buffer"
+        },
+        {
+            "path": "./libs/integrations/mailchimp"
+        },
+        {
+            "path": "./libs/data/database"
+        },
+        {
+            "path": "./libs/billing"
+        },
+        {
+            "path": "./libs/integrations/linear"
+        },
+        {
+            "path": "./libs/integrations/jira"
+        },
+        {
+            "path": "./libs/shared/observability"
+        },
+        {
+            "path": "./apps/api-e2e"
+        }
+    ]
+}
