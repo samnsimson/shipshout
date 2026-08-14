@@ -148,6 +148,10 @@ export type GithubRepoDto = {
      * Whether this repo is already linked to the account
      */
     linked: boolean;
+    /**
+     * Whether another ShipShout account has already linked this repository
+     */
+    claimedByOtherAccount: boolean;
 };
 
 export type GithubRepoListResponseDto = {
