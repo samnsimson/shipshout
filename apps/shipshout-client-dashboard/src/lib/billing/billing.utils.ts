@@ -31,4 +31,11 @@ export class BillingUtils {
     static clientAppUrl(): string {
         return (process.env.CLIENT_APP_URL ?? 'http://localhost:3000').replace(/\/$/, '');
     }
+
+    static mapBillingError(message: string): string {
+        if (message.includes('subscription update feature in the portal configuration is disabled') || message.includes('default_allowed_updates')) {
+            return 'Stripe Customer Portal is not configured for plan changes. Enable subscription updates (including price changes) in Stripe Dashboard → Settings → Billing → Customer portal.';
+        }
+        return message;
+    }
 }

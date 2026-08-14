@@ -32,7 +32,7 @@ export class BillingApi {
         );
 
         if (result.error || !result.response?.ok)
-            return { error: ApiErrorUtils.message(result.error, `Request failed (${result.response?.status ?? 'unknown'})`) };
+            return { error: BillingUtils.mapBillingError(ApiErrorUtils.message(result.error, `Request failed (${result.response?.status ?? 'unknown'})`)) };
         if (!result.data?.url) return { error: 'Missing Stripe Checkout URL' };
         return { url: result.data.url };
     }
@@ -43,7 +43,7 @@ export class BillingApi {
             api.createBillingPortal({ body: { returnUrl: `${app}/dashboard/settings`, disableRedirect: true, customerType: 'user' } }),
         );
         if (result.error || !result.response?.ok)
-            return { error: ApiErrorUtils.message(result.error, `Request failed (${result.response?.status ?? 'unknown'})`) };
+            return { error: BillingUtils.mapBillingError(ApiErrorUtils.message(result.error, `Request failed (${result.response?.status ?? 'unknown'})`)) };
         if (!result.data?.url) return { error: 'Missing Stripe Billing Portal URL' };
         return { url: result.data.url };
     }
