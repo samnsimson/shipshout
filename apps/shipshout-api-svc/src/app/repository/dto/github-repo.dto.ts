@@ -24,6 +24,12 @@ export class GithubRepoDto {
 
     @ApiProperty({ example: false, description: 'Whether this repo is already linked to the account' })
     linked!: boolean;
+
+    @ApiProperty({
+        example: false,
+        description: 'Whether another ShipShout account has already linked this repository',
+    })
+    claimedByOtherAccount!: boolean;
 }
 
 export class GithubRepoListResponseDto {

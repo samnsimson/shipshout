@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { GithubConnectionEntity, LinkedRepositoryEntity } from '@shipshout/database';
 import { GithubConnectionResponseDto } from '../dto/github-connection-response.dto';
@@ -13,6 +13,7 @@ import { GithubOAuthService } from './github-oauth.service';
 import { TriggerLifecycleService } from '../../trigger/services/trigger-lifecycle.service';
 import { TriggerService } from '../../trigger/services/trigger.service';
 import { RepositoryChannelService } from '../../channels/services/repository-channel.service';
+import { QueryFailedError } from 'typeorm';
 
 @Injectable()
 export class RepositoryService {
@@ -74,9 +75,18 @@ export class RepositoryService {
             this.linkedRepositories.findByUserId(userId),
         ]);
         const linkedIds = new Set(linked.map((repo) => repo.githubRepoId));
+        const githubRepoIds = available.map((repo) => String(repo.githubId));
+        const claimedElsewhere = await this.linkedRepositories.findClaimedGithubRepoIds(githubRepoIds, userId);
 
         return {
-            repositories: available.map((repo) => this.toGithubRepoDto(repo, linkedIds.has(String(repo.githubId)))),
+            repositories: available.map((repo) => {
+                const id = String(repo.githubId);
+                const isLinked = linkedIds.has(id);
+                return {
+                    ...this.toGithubRepoDto(repo, isLinked),
+                    claimedByOtherAccount: !isLinked && claimedElsewhere.has(id),
+                };
+            }),
         };
     }
 
@@ -95,15 +105,25 @@ export class RepositoryService {
             const repo = availableById.get(githubId);
             if (!repo) throw new BadRequestException(`Repository ${githubId} is not accessible with the connected GitHub account`);
 
-            const saved = await this.linkedRepositories.saveLinked(userId, {
-                githubRepoId: String(repo.githubId),
-                fullName: repo.fullName,
-                name: repo.name,
-                owner: repo.owner,
-                defaultBranch: repo.defaultBranch,
-                private: repo.private,
-                htmlUrl: repo.htmlUrl,
-            });
+            const githubRepoId = String(repo.githubId);
+            const claimed = await this.linkedRepositories.findClaimedGithubRepoIds([githubRepoId], userId);
+            if (claimed.has(githubRepoId)) throw this.repoClaimedConflict(repo.fullName);
+
+            let saved: LinkedRepositoryEntity;
+            try {
+                saved = await this.linkedRepositories.saveLinked(userId, {
+                    githubRepoId,
+                    fullName: repo.fullName,
+                    name: repo.name,
+                    owner: repo.owner,
+                    defaultBranch: repo.defaultBranch,
+                    private: repo.private,
+                    htmlUrl: repo.htmlUrl,
+                });
+            } catch (error) {
+                if (this.isGithubRepoClaimedError(error)) throw this.repoClaimedConflict(repo.fullName);
+                throw error;
+            }
             const triggerService = this.getTriggerService();
             if (triggerService) await triggerService.seedForLinkedRepository(saved.id);
             const repositoryChannelService = this.getRepositoryChannelService();
@@ -161,7 +181,17 @@ export class RepositoryService {
             private: repo.private,
             htmlUrl: repo.htmlUrl,
             linked,
+            claimedByOtherAccount: false,
         };
+    }
+
+    private repoClaimedConflict(fullName: string): ConflictException {
+        return new ConflictException(`Repository ${fullName} is already linked to another ShipShout account.`);
+    }
+
+    private isGithubRepoClaimedError(error: unknown): boolean {
+        if (!(error instanceof QueryFailedError)) return false;
+        return (error as QueryFailedError & { driverError?: { code?: string } }).driverError?.code === '23505';
     }
 
     private toLinkedRepositoryDto(repo: LinkedRepositoryEntity): LinkedRepositoryResponseDto {
