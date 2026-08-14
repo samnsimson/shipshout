@@ -65,4 +65,8 @@ export class ChannelUtils {
         if (key === 'linkedin') return { bg: 'teal.subtle', color: 'teal.fg' };
         return { bg: 'gray.subtle', color: 'gray.fg' };
     }
+
+    static filterGeneratable<T extends { channelKey: string; enabled: boolean }>(rows: T[], planChannels: string[]): T[] {
+        return rows.filter((row) => row.enabled && planChannels.includes(row.channelKey) && row.channelKey !== 'email_alert');
+    }
 }
