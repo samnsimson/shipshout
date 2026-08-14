@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SubscriptionPlanRepository } from '@shipshout/database';
 import { RepositoryModule } from '../repository/repository.module';
+import { RepositoryLinkDedupeSeed } from '../repository/repository-link-dedupe.seed';
 import { TriggerController } from './controllers/trigger.controller';
 import { RepositoryTriggerRepository } from './repositories/repository-trigger.repository';
 import { RepositoryWebhookRepository } from './repositories/repository-webhook.repository';
@@ -21,6 +22,7 @@ import { TriggerService } from './services/trigger.service';
         TriggerService,
         TriggerEventService,
         TriggerLifecycleService,
+        RepositoryLinkDedupeSeed,
     ],
     exports: [TriggerService, TriggerLifecycleService, RepositoryTriggerRepository, RepositoryWebhookRepository, TriggerEventRepository],
 })
