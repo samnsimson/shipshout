@@ -68,18 +68,32 @@ describe('DashboardHomeUtils.buildActionItems', () => {
                 { id: 'r2', fullName: 'c/d', activeTriggerCount: 1, webhookStatus: 'active', channels: [] },
             ],
             [
-                { id: 's1', title: 'Draft', status: 'ready_for_review', createdAt: '2026-08-14T10:00:00.000Z' },
-                { id: 's2', title: 'Fail', status: 'generation_failed', createdAt: '2026-08-14T09:00:00.000Z' },
-                { id: 's3', title: 'Old', status: 'ready_for_review', createdAt: '2026-08-13T09:00:00.000Z' },
-                { id: 's4', title: 'Old2', status: 'ready_for_review', createdAt: '2026-08-12T09:00:00.000Z' },
-                { id: 's5', title: 'Old3', status: 'ready_for_review', createdAt: '2026-08-11T09:00:00.000Z' },
-                { id: 's6', title: 'Old4', status: 'ready_for_review', createdAt: '2026-08-10T09:00:00.000Z' },
+                { id: 's1', title: 'Draft', status: 'ready_for_review', createdAt: '2026-08-14T10:00:00.000Z', hasDispatchFailure: false },
+                { id: 's2', title: 'Fail', status: 'generation_failed', createdAt: '2026-08-14T09:00:00.000Z', hasDispatchFailure: false },
+                { id: 's3', title: 'Old', status: 'ready_for_review', createdAt: '2026-08-13T09:00:00.000Z', hasDispatchFailure: false },
+                { id: 's4', title: 'Old2', status: 'ready_for_review', createdAt: '2026-08-12T09:00:00.000Z', hasDispatchFailure: false },
+                { id: 's5', title: 'Old3', status: 'ready_for_review', createdAt: '2026-08-11T09:00:00.000Z', hasDispatchFailure: false },
+                { id: 's6', title: 'Old4', status: 'ready_for_review', createdAt: '2026-08-10T09:00:00.000Z', hasDispatchFailure: false },
             ],
         );
         expect(items).toHaveLength(5);
         expect(items[0].tone).toBe('danger');
         expect(items[0].message).toContain('Webhook error');
         expect(items[1].message).toContain('Generation failed');
+    });
+
+    it('does not add dispatch issue when status is failed but hasDispatchFailure is false', () => {
+        const items = DashboardHomeUtils.buildActionItems([], [
+            { id: 's1', title: 'Push to main', status: 'failed', createdAt: '2026-08-14T10:00:00.000Z', hasDispatchFailure: false },
+        ]);
+        expect(items.some((item) => item.message.includes('Dispatch issue'))).toBe(false);
+    });
+
+    it('adds dispatch issue when hasDispatchFailure is true', () => {
+        const items = DashboardHomeUtils.buildActionItems([], [
+            { id: 's1', title: 'Tag v0.0.5', status: 'partially_published', createdAt: '2026-08-14T10:00:00.000Z', hasDispatchFailure: true },
+        ]);
+        expect(items[0].message).toBe('Dispatch issue: Tag v0.0.5');
     });
 });
 

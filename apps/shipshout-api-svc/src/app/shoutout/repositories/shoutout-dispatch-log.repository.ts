@@ -13,6 +13,17 @@ export class ShoutoutDispatchLogRepository extends BaseRepository<ShoutoutDispat
         return this.find({ where: { shoutoutId }, order: { channelKey: 'ASC' } });
     }
 
+    async findFailureFlagsByShoutoutIds(shoutoutIds: string[]): Promise<Set<string>> {
+        if (shoutoutIds.length === 0) return new Set();
+        const rows = await this.createQueryBuilder('log')
+            .select('log.shoutout_id', 'shoutoutId')
+            .where('log.shoutout_id IN (:...shoutoutIds)', { shoutoutIds })
+            .andWhere('log.status = :status', { status: 'failed' })
+            .groupBy('log.shoutout_id')
+            .getRawMany<{ shoutoutId: string }>();
+        return new Set(rows.map((row) => row.shoutoutId));
+    }
+
     async createLog(params: {
         shoutoutId: string;
         channelKey: string;

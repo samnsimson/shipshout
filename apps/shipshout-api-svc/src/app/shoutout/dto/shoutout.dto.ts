@@ -21,6 +21,12 @@ export class ShoutoutResponseDto {
 
     @ApiProperty()
     createdAt!: string;
+
+    @ApiProperty({
+        example: false,
+        description: 'True when at least one dispatch log for this shoutout has status failed',
+    })
+    hasDispatchFailure!: boolean;
 }
 
 export class ShoutoutDraftDto {

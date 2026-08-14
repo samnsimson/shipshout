@@ -14,10 +14,11 @@ describe('ShoutoutStatusUtils', () => {
         expect(ShoutoutStatusUtils.canTransition('ready_for_review', 'publishing')).toBe(true);
     });
 
-    it('allows publishing to published, partially_published, or failed', () => {
+    it('allows publishing to published, partially_published, failed, or ready_for_review', () => {
         expect(ShoutoutStatusUtils.canTransition('publishing', 'published')).toBe(true);
         expect(ShoutoutStatusUtils.canTransition('publishing', 'partially_published')).toBe(true);
         expect(ShoutoutStatusUtils.canTransition('publishing', 'failed')).toBe(true);
+        expect(ShoutoutStatusUtils.canTransition('publishing', 'ready_for_review')).toBe(true);
     });
 
     it('allows generation_failed to generating', () => {

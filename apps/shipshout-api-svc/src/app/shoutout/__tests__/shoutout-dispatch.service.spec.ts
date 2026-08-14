@@ -81,7 +81,7 @@ describe('ShoutoutDispatchService', () => {
         expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'published' });
     });
 
-    it('marks partially_published when one channel sends and another is skipped', async () => {
+    it('marks published when one channel sends and another is skipped', async () => {
         shoutouts.findById.mockResolvedValue(shoutout);
         channelTypes.findAllActive.mockResolvedValue(publishTypes);
         repositoryChannels.findByLinkedRepositoryId.mockResolvedValue([
@@ -95,8 +95,8 @@ describe('ShoutoutDispatchService', () => {
 
         await service.run('shoutout-1');
 
-        expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'partially_published' }));
-        expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'partially_published' });
+        expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'published' }));
+        expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'published' });
     });
 
     it('marks failed when newsletter send throws', async () => {
@@ -119,7 +119,7 @@ describe('ShoutoutDispatchService', () => {
         expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'failed' });
     });
 
-    it('skips disabled and unentitled channels', async () => {
+    it('returns ready_for_review when all channels are skipped', async () => {
         shoutouts.findById.mockResolvedValue(shoutout);
         channelTypes.findAllActive.mockResolvedValue([{ key: 'email_newsletter', kind: 'publish', isActive: true }]);
         repositoryChannels.findByLinkedRepositoryId.mockResolvedValue([
@@ -135,7 +135,7 @@ describe('ShoutoutDispatchService', () => {
         expect(dispatchLogs.createLog).toHaveBeenCalledWith(
             expect.objectContaining({ channelKey: 'email_newsletter', status: 'skipped', error: 'Channel disabled' }),
         );
-        expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'failed' }));
+        expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'ready_for_review' }));
     });
 
     it('returns early when shoutout status is not publishing', async () => {
@@ -153,11 +153,19 @@ describe('ShoutoutDispatchService.computeFinalStatus', () => {
         expect(ShoutoutDispatchService.computeFinalStatus(['sent', 'sent'])).toBe('published');
     });
 
-    it('returns partially_published when some channels sent', () => {
+    it('returns partially_published when some channels sent and some failed', () => {
         expect(ShoutoutDispatchService.computeFinalStatus(['sent', 'failed'])).toBe('partially_published');
     });
 
-    it('returns failed when no channels sent', () => {
+    it('returns failed when all channels failed or only failures with skips', () => {
         expect(ShoutoutDispatchService.computeFinalStatus(['failed', 'skipped'])).toBe('failed');
+    });
+
+    it('returns ready_for_review when all channels skipped', () => {
+        expect(ShoutoutDispatchService.computeFinalStatus(['skipped', 'skipped'])).toBe('ready_for_review');
+    });
+
+    it('returns published when some sent and rest skipped with no failures', () => {
+        expect(ShoutoutDispatchService.computeFinalStatus(['sent', 'skipped'])).toBe('published');
     });
 });

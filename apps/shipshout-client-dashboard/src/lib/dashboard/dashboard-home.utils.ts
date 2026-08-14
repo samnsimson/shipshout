@@ -35,6 +35,7 @@ export type ShoutoutHomeRow = {
     title: string;
     status: string;
     createdAt: string;
+    hasDispatchFailure: boolean;
 };
 
 export class DashboardHomeUtils {
@@ -100,8 +101,8 @@ export class DashboardHomeUtils {
         }
 
         for (const shoutout of shoutouts) {
-            if (shoutout.status === 'failed' || shoutout.status === 'partially_published')
-                items.push({ message: `Dispatch issue: ${shoutout.title}`, href: `/dashboard/shoutouts/${shoutout.id}` });
+            if (!shoutout.hasDispatchFailure) continue;
+            items.push({ message: `Dispatch issue: ${shoutout.title}`, href: `/dashboard/shoutouts/${shoutout.id}` });
         }
 
         for (const shoutout of shoutouts) {

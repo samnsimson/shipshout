@@ -252,6 +252,10 @@ export type ShoutoutResponseDto = {
     repositoryFullName: string;
     triggerType: string;
     createdAt: string;
+    /**
+     * True when at least one dispatch log for this shoutout has status failed
+     */
+    hasDispatchFailure: boolean;
 };
 
 export type ShoutoutListResponseDto = {
@@ -280,6 +284,10 @@ export type ShoutoutDetailResponseDto = {
     repositoryFullName: string;
     triggerType: string;
     createdAt: string;
+    /**
+     * True when at least one dispatch log for this shoutout has status failed
+     */
+    hasDispatchFailure: boolean;
     sourceSummary: {
         [key: string]: unknown;
     };

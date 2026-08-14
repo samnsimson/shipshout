@@ -98,8 +98,10 @@ export class ShoutoutDispatchService {
     static computeFinalStatus(results: ShoutoutDispatchStatus[]): ShoutoutStatus {
         if (results.length === 0) return 'failed';
         const sentCount = results.filter((status) => status === 'sent').length;
-        if (sentCount === results.length) return 'published';
-        if (sentCount === 0) return 'failed';
-        return 'partially_published';
+        const failedCount = results.filter((status) => status === 'failed').length;
+        if (failedCount > 0 && sentCount === 0) return 'failed';
+        if (failedCount > 0 && sentCount > 0) return 'partially_published';
+        if (sentCount > 0) return 'published';
+        return 'ready_for_review';
     }
 }

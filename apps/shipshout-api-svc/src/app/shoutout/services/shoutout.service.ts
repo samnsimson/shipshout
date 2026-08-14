@@ -23,7 +23,8 @@ export class ShoutoutService {
 
     async listForUser(userId: string): Promise<ShoutoutListResponseDto> {
         const rows = await this.shoutouts.findByUserId(userId);
-        return { shoutouts: rows.map((row) => this.toListDto(row)) };
+        const failureIds = await this.dispatchLogs.findFailureFlagsByShoutoutIds(rows.map((row) => row.id));
+        return { shoutouts: rows.map((row) => this.toListDto(row, failureIds.has(row.id))) };
     }
 
     async getById(userId: string, shoutoutId: string): Promise<ShoutoutDetailResponseDto> {
@@ -94,7 +95,7 @@ export class ShoutoutService {
         });
     }
 
-    private toListDto(shoutout: ShoutoutEntity): ShoutoutResponseDto {
+    private toListDto(shoutout: ShoutoutEntity, hasDispatchFailure = false): ShoutoutResponseDto {
         return {
             id: shoutout.id,
             title: shoutout.title,
@@ -103,6 +104,7 @@ export class ShoutoutService {
             repositoryFullName: shoutout.linkedRepository?.fullName ?? 'Unknown repository',
             triggerType: shoutout.triggerEvent?.triggerType ?? 'release',
             createdAt: shoutout.createdAt.toISOString(),
+            hasDispatchFailure,
         };
     }
 
@@ -112,7 +114,10 @@ export class ShoutoutService {
         logRows: ShoutoutDispatchLogEntity[],
     ): ShoutoutDetailResponseDto {
         return {
-            ...this.toListDto(shoutout),
+            ...this.toListDto(
+                shoutout,
+                logRows.some((row) => row.status === 'failed'),
+            ),
             sourceSummary: shoutout.sourceSummary,
             triggerEventId: shoutout.triggerEventId,
             drafts: draftRows.map((row) => ({
