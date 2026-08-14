@@ -9,6 +9,7 @@ import { ShoutoutDispatchLogRepository } from '../repositories/shoutout-dispatch
 import { ShoutoutRepository } from '../repositories/shoutout.repository';
 import { ShoutoutStatusUtils } from '../utils/shoutout-status.utils';
 import { ShoutoutEventsService } from './shoutout-events.service';
+import { ShoutoutGenerationService } from './shoutout-generation.service';
 import { ShoutoutQueueService } from './shoutout-queue.service';
 
 @Injectable()
@@ -19,6 +20,7 @@ export class ShoutoutService {
         private readonly dispatchLogs: ShoutoutDispatchLogRepository,
         private readonly events: ShoutoutEventsService,
         private readonly queue: ShoutoutQueueService,
+        private readonly generation: ShoutoutGenerationService,
     ) {}
 
     async listForUser(userId: string): Promise<ShoutoutListResponseDto> {
@@ -43,6 +45,18 @@ export class ShoutoutService {
         const updated = await this.drafts.updateDraft({ shoutoutId, channelKey, title: body.title, body: body.body });
         if (!updated) throw new NotFoundException('Draft not found');
 
+        return this.getById(userId, shoutoutId);
+    }
+
+    async regenerateDraft(userId: string, shoutoutId: string, channelKey: string): Promise<ShoutoutDetailResponseDto> {
+        const shoutout = await this.shoutouts.findByIdAndUserId(shoutoutId, userId);
+        if (!shoutout) throw new NotFoundException('Shoutout not found');
+        if (shoutout.status !== 'ready_for_review') throw new ConflictException(`Cannot regenerate drafts while shoutout status is ${shoutout.status}`);
+
+        const draftRows = await this.drafts.findByShoutoutId(shoutoutId);
+        if (!draftRows.some((row) => row.channelKey === channelKey)) throw new NotFoundException('Draft not found');
+
+        await this.generation.regenerateChannel(shoutoutId, channelKey);
         return this.getById(userId, shoutoutId);
     }
 

@@ -17,6 +17,17 @@ export async function updateDraft(
     return { ok: true, shoutout: result.data as ShoutoutDetailDto };
 }
 
+export async function regenerateDraft(
+    shoutoutId: string,
+    channelKey: string,
+): Promise<{ ok: true; shoutout: ShoutoutDetailDto } | { ok: false; error: string }> {
+    const result = await ShoutoutsApi.regenerateDraft(shoutoutId, channelKey);
+    if (result.error || !result.response?.ok) return { ok: false, error: ApiErrorUtils.message(result.error, 'Request failed') };
+
+    revalidatePath(`/dashboard/shoutouts/${shoutoutId}`);
+    return { ok: true, shoutout: result.data as ShoutoutDetailDto };
+}
+
 export async function publish(shoutoutId: string): Promise<{ ok: true; status: string } | { ok: false; error: string }> {
     const result = await ShoutoutsApi.publish(shoutoutId);
     if (result.error || !result.response?.ok) return { ok: false, error: ApiErrorUtils.message(result.error, 'Request failed') };

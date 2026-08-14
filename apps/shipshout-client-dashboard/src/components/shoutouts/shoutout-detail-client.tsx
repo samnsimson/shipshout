@@ -2,12 +2,12 @@
 
 import { Badge, Box, Button, Field, Flex, For, Link as ChakraLink, Show, Stack, Table, Tabs, Text, Textarea } from '@chakra-ui/react';
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, RotateCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { Toaster } from '@/lib/feedback/toaster.utils';
-import { publish as publishShoutout, retryGeneration, updateDraft } from '@/lib/shoutouts/shoutouts.actions';
+import { publish as publishShoutout, regenerateDraft, retryGeneration, updateDraft } from '@/lib/shoutouts/shoutouts.actions';
 import type { ShoutoutDetailDto, ShoutoutDraftDto, ShoutoutStreamEvent } from '@/lib/shoutouts/shoutouts.api';
 import { ShoutoutsUtils } from '@/lib/shoutouts/shoutouts.utils';
 
@@ -118,7 +118,9 @@ function DraftEditor(props: {
     const defaultValues = useMemo(() => ({ drafts: draftsToState(props.drafts) }), [props.drafts]);
     const { register, getValues, reset } = useForm<{ drafts: Record<string, { title: string; body: string }> }>({ defaultValues });
     const [activeTab, setActiveTab] = useState<string | null>(props.drafts[0]?.channelKey ?? null);
-    const [pending, startTransition] = useTransition();
+    const [savePending, startSaveTransition] = useTransition();
+    const [regeneratePending, startRegenerateTransition] = useTransition();
+    const [regeneratingChannelKey, setRegeneratingChannelKey] = useState<string | null>(null);
 
     useEffect(() => {
         reset(defaultValues);
@@ -133,13 +135,28 @@ function DraftEditor(props: {
         const draft = getValues(`drafts.${channelKey}`);
         if (!draft) return;
 
-        startTransition(async () => {
+        startSaveTransition(async () => {
             const result = await updateDraft(props.shoutoutId, channelKey, draft);
             if (!result.ok) {
                 Toaster.error({ title: 'Could not save draft', description: result.error });
                 return;
             }
             Toaster.success({ title: 'Draft saved' });
+            props.onSaved(result.shoutout);
+        });
+    };
+
+    const regenerateChannelDraft = (channelKey: string) => {
+        setRegeneratingChannelKey(channelKey);
+        startRegenerateTransition(async () => {
+            const result = await regenerateDraft(props.shoutoutId, channelKey);
+            setRegeneratingChannelKey(null);
+            if (!result.ok) {
+                Toaster.error({ title: 'Could not regenerate draft', description: result.error });
+                return;
+            }
+            Toaster.success({ title: 'Draft regenerated' });
+            reset({ drafts: draftsToState(result.shoutout.drafts) });
             props.onSaved(result.shoutout);
         });
     };
@@ -190,9 +207,23 @@ function DraftEditor(props: {
                                 <Textarea {...register(`drafts.${draft.channelKey}.body`)} disabled={!props.editable} rows={10} />
                             </Field.Root>
                             <Show when={props.editable}>
-                                <Button colorPalette="blue" borderRadius="full" alignSelf="flex-start" onClick={() => saveDraft(draft.channelKey)} loading={pending}>
-                                    Save draft
-                                </Button>
+                                <Flex gap="sm" flexWrap="wrap">
+                                    <Button colorPalette="blue" borderRadius="full" onClick={() => saveDraft(draft.channelKey)} loading={savePending} disabled={regeneratePending}>
+                                        Save draft
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        borderColor="border.hairline"
+                                        borderRadius="full"
+                                        gap="xs"
+                                        onClick={() => regenerateChannelDraft(draft.channelKey)}
+                                        loading={regeneratePending && regeneratingChannelKey === draft.channelKey}
+                                        disabled={savePending || (regeneratePending && regeneratingChannelKey !== draft.channelKey)}
+                                    >
+                                        <RotateCw size={14} strokeWidth={2} aria-hidden />
+                                        Regenerate
+                                    </Button>
+                                </Flex>
                             </Show>
                         </Stack>
                     </Tabs.Content>

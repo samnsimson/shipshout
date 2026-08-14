@@ -16,6 +16,22 @@ describe('AiPromptUtils', () => {
             const prompt = AiPromptUtils.buildSystemPrompt('linkedin', 'dev_focused');
             expect(prompt.toLowerCase()).toContain('developer');
         });
+
+        it('excludes internal identifiers and code symbols from public copy', () => {
+            const prompt = AiPromptUtils.buildSystemPrompt('linkedin', 'professional');
+            expect(prompt.toLowerCase()).toContain('never include commit');
+            expect(prompt.toLowerCase()).toContain('never mention code symbols');
+            expect(prompt.toLowerCase()).toContain('concrete improvements');
+            expect(prompt.toLowerCase()).toContain('sourcesummary');
+        });
+    });
+
+    describe('sanitizeSourceSummary', () => {
+        it('removes commitSha before sending to the model', () => {
+            expect(AiPromptUtils.sanitizeSourceSummary({ commitMessage: 'feat: launch', commitSha: 'abc123' })).toEqual({
+                commitMessage: 'feat: launch',
+            });
+        });
     });
 
     describe('buildUserMessage', () => {

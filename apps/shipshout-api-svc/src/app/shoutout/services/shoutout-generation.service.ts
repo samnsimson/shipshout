@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { EmailClient } from '@shipshout/email-client';
 import { AiGenerationService } from '../../ai/services/ai-generation.service';
@@ -61,6 +61,30 @@ export class ShoutoutGenerationService {
 
         await this.shoutouts.save({ ...shoutout, status: 'ready_for_review' });
         await this.events.publish(shoutoutId, { status: 'ready_for_review' });
+    }
+
+    async regenerateChannel(shoutoutId: string, channelKey: string): Promise<void> {
+        const shoutout = await this.shoutouts.findById(shoutoutId);
+        if (!shoutout) throw new NotFoundException('Shoutout not found');
+        if (channelKey === 'email_alert') throw new ConflictException('Channel cannot be regenerated');
+
+        const [channelRows, limits] = await Promise.all([
+            this.repositoryChannels.findByLinkedRepositoryId(shoutout.linkedRepositoryId),
+            this.shoutoutLimits.getLimitsForUser(shoutout.userId),
+        ]);
+        const planChannels = limits.channels ?? [];
+        const channel = ChannelEntitlementUtils.filterGeneratable(channelRows, planChannels).find((row) => row.channelKey === channelKey);
+        if (!channel) throw new ConflictException('Channel is not enabled or entitled for generation');
+
+        const variants = await this.ai.generateVariants({
+            sourceSummary: shoutout.sourceSummary,
+            channels: [{ key: channel.channelKey, tone: channel.tone }],
+            repoFullName: shoutout.linkedRepository?.fullName ?? 'Unknown repository',
+        });
+        const variant = variants[channelKey];
+        if (!variant) throw new ConflictException('Failed to generate draft for channel');
+
+        await this.drafts.upsertDraft({ shoutoutId, channelKey, title: variant.title, body: variant.body });
     }
 
     private async sendDraftReadyAlert(userId: string, shoutoutId: string, title: string): Promise<void> {

@@ -1134,6 +1134,42 @@ export type UpdateShoutoutDraftResponses = {
 
 export type UpdateShoutoutDraftResponse = UpdateShoutoutDraftResponses[keyof UpdateShoutoutDraftResponses];
 
+export type RegenerateShoutoutDraftData = {
+    body?: never;
+    path: {
+        /**
+         * Shoutout id
+         */
+        id: string;
+        /**
+         * Channel key
+         */
+        channelKey: string;
+    };
+    query?: never;
+    url: '/shoutouts/{id}/drafts/{channelKey}/regenerate';
+};
+
+export type RegenerateShoutoutDraftErrors = {
+    /**
+     * Shoutout or draft not found
+     */
+    404: unknown;
+    /**
+     * Shoutout is not ready for review or channel cannot be regenerated
+     */
+    409: unknown;
+};
+
+export type RegenerateShoutoutDraftResponses = {
+    /**
+     * Regenerate Shoutout Draft
+     */
+    200: ShoutoutDetailResponseDto;
+};
+
+export type RegenerateShoutoutDraftResponse = RegenerateShoutoutDraftResponses[keyof RegenerateShoutoutDraftResponses];
+
 export type PublishShoutoutData = {
     body?: never;
     path: {

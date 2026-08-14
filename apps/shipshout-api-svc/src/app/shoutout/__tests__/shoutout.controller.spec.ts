@@ -24,6 +24,7 @@ describe('ShoutoutController', () => {
                         getById: jest.fn(),
                         streamEvents: jest.fn(),
                         updateDraft: jest.fn(),
+                        regenerateDraft: jest.fn(),
                         publish: shoutoutService.publish,
                         retryGeneration: jest.fn(),
                     },

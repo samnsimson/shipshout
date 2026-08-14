@@ -25,6 +25,7 @@ describe('ShoutoutService.listForUser', () => {
     const dispatchLogs = { findFailureFlagsByShoutoutIds: jest.fn() };
     const events = { publish: jest.fn(), subscribe: jest.fn() };
     const queue = { addDispatchJob: jest.fn(), addGenerationJob: jest.fn() };
+    const generation = { regenerateChannel: jest.fn() };
 
     let service: ShoutoutService;
 
@@ -36,6 +37,7 @@ describe('ShoutoutService.listForUser', () => {
             dispatchLogs as unknown as ShoutoutDispatchLogRepository,
             events as unknown as ShoutoutEventsService,
             queue as unknown as ShoutoutQueueService,
+            generation as unknown as import('../services/shoutout-generation.service').ShoutoutGenerationService,
         );
     });
 

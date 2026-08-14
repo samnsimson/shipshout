@@ -64,6 +64,25 @@ export class ShoutoutController {
         return this.shoutoutService.updateDraft(user.sub, id, channelKey, body);
     }
 
+    @Post(':id/drafts/:channelKey/regenerate')
+    @UseGuards(JwtAuthGuard)
+    @ApiResource({
+        operationId: 'regenerateShoutoutDraft',
+        status: 200,
+        response: ShoutoutDetailResponseDto,
+        params: [
+            { name: 'id', description: 'Shoutout id' },
+            { name: 'channelKey', description: 'Channel key' },
+        ],
+        errors: [
+            { status: 404, description: 'Shoutout or draft not found' },
+            { status: 409, description: 'Shoutout is not ready for review or channel cannot be regenerated' },
+        ],
+    })
+    regenerateDraft(@JwtUser() user: JwtUserPayload, @Param('id') id: string, @Param('channelKey') channelKey: string): Promise<ShoutoutDetailResponseDto> {
+        return this.shoutoutService.regenerateDraft(user.sub, id, channelKey);
+    }
+
     @Post(':id/publish')
     @UseGuards(JwtAuthGuard)
     @ApiResource({

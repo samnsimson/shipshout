@@ -25,6 +25,10 @@ export class ShoutoutsApi {
         return ApiClient.fetchProtected((api) => api.updateShoutoutDraft({ path: { id: shoutoutId, channelKey }, body: draft }));
     }
 
+    static async regenerateDraft(shoutoutId: string, channelKey: string) {
+        return ApiClient.fetchProtected((api) => api.regenerateShoutoutDraft({ path: { id: shoutoutId, channelKey } }));
+    }
+
     static async publish(shoutoutId: string) {
         return ApiClient.fetchProtected((api) => api.publishShoutout({ path: { id: shoutoutId } }));
     }

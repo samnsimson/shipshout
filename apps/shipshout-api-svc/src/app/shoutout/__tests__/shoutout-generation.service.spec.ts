@@ -143,4 +143,25 @@ describe('ShoutoutGenerationService', () => {
         expect(shoutouts.save).toHaveBeenCalledWith(expect.objectContaining({ status: 'generation_failed' }));
         expect(events.publish).toHaveBeenCalledWith('shoutout-1', { status: 'generation_failed' });
     });
+
+    it('regenerates a single channel draft', async () => {
+        shoutouts.findById.mockResolvedValue(shoutout);
+        repositoryChannels.findByLinkedRepositoryId.mockResolvedValue([{ channelKey: 'email_newsletter', enabled: true, tone: 'professional' }]);
+        shoutoutLimits.getLimitsForUser.mockResolvedValue({ repos: 1, releasesPerMonth: 5, channels: ['email_newsletter'] });
+        ai.generateVariants.mockResolvedValue({ email_newsletter: { title: 'Fresh title', body: 'Fresh body.' } });
+
+        await service.regenerateChannel('shoutout-1', 'email_newsletter');
+
+        expect(ai.generateVariants).toHaveBeenCalledWith({
+            sourceSummary: shoutout.sourceSummary,
+            channels: [{ key: 'email_newsletter', tone: 'professional' }],
+            repoFullName: 'acme/widget',
+        });
+        expect(drafts.upsertDraft).toHaveBeenCalledWith({
+            shoutoutId: 'shoutout-1',
+            channelKey: 'email_newsletter',
+            title: 'Fresh title',
+            body: 'Fresh body.',
+        });
+    });
 });

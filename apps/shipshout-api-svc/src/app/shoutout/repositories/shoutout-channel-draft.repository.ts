@@ -15,7 +15,7 @@ export class ShoutoutChannelDraftRepository extends BaseRepository<ShoutoutChann
 
     async upsertDraft(params: { shoutoutId: string; channelKey: string; title: string; body: string }): Promise<void> {
         const existing = await this.findOne({ where: { shoutoutId: params.shoutoutId, channelKey: params.channelKey } });
-        if (existing) await this.save({ ...existing, title: params.title, body: params.body });
+        if (existing) await this.save({ ...existing, title: params.title, body: params.body, editedAt: null });
         else await this.save({ ...params, editedAt: null });
     }
 
